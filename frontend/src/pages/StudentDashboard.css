@@ -114,6 +114,8 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  min-height: 0;
+  min-width: 0;
 }
 
 .student-dashboard__topbar {
@@ -208,6 +210,7 @@
   display: flex;
   gap: 0;
   overflow: hidden;
+  min-height: 0;
 }
 
 .student-dashboard__center-col {
@@ -217,7 +220,9 @@
   padding: 20px 20px 20px 24px;
   gap: 16px;
   overflow-y: auto;
+  overflow-x: hidden;
   min-height: 0;
+  -webkit-overflow-scrolling: touch;
 }
 
 .student-dashboard__right-col {
@@ -239,11 +244,11 @@
 }
 
 .student-dashboard__chat-card {
-  flex: 1 1 auto;
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
-  min-height: 0;
-  max-height: min(500px, calc(100vh - 220px));
+  min-height: 280px;
+  max-height: min(420px, calc(100vh - 320px));
 }
 
 .student-dashboard__chat-header {
@@ -405,7 +410,7 @@
 }
 
 .student-dashboard__tickets-card {
-  flex-shrink: 0;
+  flex: 0 0 auto;
 }
 
 .student-dashboard__section-header {
