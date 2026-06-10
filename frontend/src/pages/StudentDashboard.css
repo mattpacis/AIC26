@@ -1,5 +1,6 @@
 .student-dashboard {
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   background: #e2e8f0;
 }
 
@@ -215,7 +216,8 @@
   flex-direction: column;
   padding: 20px 20px 20px 24px;
   gap: 16px;
-  overflow: hidden;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .student-dashboard__right-col {
@@ -237,10 +239,11 @@
 }
 
 .student-dashboard__chat-card {
-  flex: 1;
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   min-height: 0;
+  max-height: min(500px, calc(100vh - 220px));
 }
 
 .student-dashboard__chat-header {

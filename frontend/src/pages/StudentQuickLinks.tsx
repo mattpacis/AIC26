@@ -3,10 +3,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import {
   IconBuildingCommunity,
   IconLink,
-  IconLogout,
-  IconSettings,
 } from '@tabler/icons-react';
-import { getMe, logout, type User } from '../api/client';
+import { getMe, type User } from '../api/client';
 import { StudentTopbar } from '../components/StudentTopbar';
 import '../components/StudentTopbar.css';
 import { getStudentNavItems } from '../config/studentNav';
@@ -46,15 +44,6 @@ export function StudentQuickLinks() {
     };
   }, [navigate]);
 
-  async function handleLogout() {
-    try {
-      await logout();
-    } catch {
-      // Still send the user back to login if logout fails.
-    }
-    navigate('/login');
-  }
-
   if (!user) {
     return null;
   }
@@ -87,25 +76,6 @@ export function StudentQuickLinks() {
                 </button>
               ))}
             </nav>
-
-            <div className="student-dashboard__sidebar-footer">
-              <button
-                type="button"
-                className="student-dashboard__nav-item"
-                onClick={() => navigate('/settings')}
-              >
-                <IconSettings size={17} aria-hidden />
-                Settings
-              </button>
-              <button
-                type="button"
-                className="student-dashboard__nav-item"
-                onClick={handleLogout}
-              >
-                <IconLogout size={17} aria-hidden />
-                Logout
-              </button>
-            </div>
           </aside>
 
           <div className="student-dashboard__main">

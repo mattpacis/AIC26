@@ -1,0 +1,91 @@
+.staff-directory__content {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.staff-directory__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.staff-directory__card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.staff-directory__card.self {
+  border-color: #93c5fd;
+  background: #f8fbff;
+}
+
+.staff-directory__avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.staff-directory__name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1b3a6b;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.staff-directory__you {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #2563eb;
+  background: #dbeafe;
+  padding: 2px 6px;
+  border-radius: 999px;
+}
+
+.staff-directory__dept {
+  margin-top: 2px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.staff-directory__email {
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.staff-directory__email:hover {
+  text-decoration: underline;
+}
+
+.staff-directory__empty,
+.staff-directory__error {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.staff-directory__error {
+  color: #b91c1c;
+  margin-bottom: 12px;
+}

@@ -266,6 +266,7 @@ export async function updateProfile(name: string): Promise<{ user: User }> {
 export type UserSettings = {
   emailNotifications: boolean;
   appointmentReminders: boolean;
+  profileTheme: 'blue' | 'teal' | 'amber' | 'purple' | 'green';
 };
 
 export async function getUserSettings(): Promise<{ settings: UserSettings }> {
@@ -858,15 +859,31 @@ export async function getStaffDashboard(): Promise<{
   return parseJson(response);
 }
 
+export type StaffDirectoryMember = {
+  id: string;
+  name: string;
+  email: string;
+  department: string;
+  initials: string;
+  isSelf: boolean;
+};
+
+export async function listStaffDirectory(): Promise<{ members: StaffDirectoryMember[] }> {
+  const response = await apiFetch(`${API_BASE}/staff/directory`);
+  return parseJson(response);
+}
+
 export async function listStaffTickets(filters?: {
   status?: string;
   urgency?: string;
   includeResolved?: boolean;
+  mineOnly?: boolean;
 }): Promise<{ tickets: StaffQueueTicket[] }> {
   const params = new URLSearchParams();
   if (filters?.status) params.set('status', filters.status);
   if (filters?.urgency) params.set('urgency', filters.urgency);
   if (filters?.includeResolved) params.set('includeResolved', 'true');
+  if (filters?.mineOnly) params.set('mineOnly', 'true');
   const query = params.toString();
   const response = await apiFetch(
     `${API_BASE}/staff/tickets${query ? `?${query}` : ''}`,

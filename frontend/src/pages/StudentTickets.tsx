@@ -2,10 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   IconBuildingCommunity,
-  IconLogout,
   IconPlus,
   IconRefresh,
-  IconSettings,
   IconTicket,
   IconTrash,
 } from '@tabler/icons-react';
@@ -13,7 +11,6 @@ import {
   deleteTicket,
   getMe,
   listTickets,
-  logout,
   type TicketSummary,
   type User,
 } from '../api/client';
@@ -137,15 +134,6 @@ export function StudentTickets() {
     }
   }
 
-  async function handleLogout() {
-    try {
-      await logout();
-    } catch {
-      // Still return to login if logout fails.
-    }
-    navigate('/login');
-  }
-
   if (!user && loading) {
     return null;
   }
@@ -186,25 +174,6 @@ export function StudentTickets() {
                 </button>
               ))}
             </nav>
-
-            <div className="student-ticket-detail__sb-footer">
-              <button
-                type="button"
-                className="student-ticket-detail__nav-item"
-                onClick={() => navigate('/settings')}
-              >
-                <IconSettings size={17} aria-hidden />
-                Settings
-              </button>
-              <button
-                type="button"
-                className="student-ticket-detail__nav-item"
-                onClick={handleLogout}
-              >
-                <IconLogout size={17} aria-hidden />
-                Logout
-              </button>
-            </div>
           </aside>
 
           <div className="student-ticket-detail__main">

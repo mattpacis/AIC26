@@ -1,14 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import {
-  IconBuildingCommunity,
-  IconLogout,
-  IconSettings,
-} from '@tabler/icons-react';
+import { IconBuildingCommunity } from '@tabler/icons-react';
 import {
   getMe,
   getUserSettings,
-  logout,
   updateUserSettings,
   type User,
   type UserSettings,
@@ -18,6 +13,7 @@ import '../components/StudentTopbar.css';
 import { getStudentNavItems } from '../config/studentNav';
 import { useShellScale } from '../hooks/useShellScale';
 import { randomGreeting } from '../utils/greeting';
+import { PROFILE_THEMES, type ProfileThemeId } from '../utils/profileTheme';
 import './StudentDashboard.css';
 import './StudentSettings.css';
 
@@ -29,6 +25,7 @@ export function StudentSettings() {
   const [user, setUser] = useState<User | null>(null);
   const [settings, setSettings] = useState<UserSettings | null>(null);
   const [saving, setSaving] = useState(false);
+  const [savingTheme, setSavingTheme] = useState(false);
   const [greeting, setGreeting] = useState('');
 
   useEffect(() => {
@@ -69,13 +66,19 @@ export function StudentSettings() {
     }
   }
 
-  async function handleLogout() {
+  async function handleThemeChange(themeId: ProfileThemeId) {
+    if (!settings || savingTheme || settings.profileTheme === themeId) return;
+    const previous = settings;
+    setSettings({ ...settings, profileTheme: themeId });
+    setSavingTheme(true);
     try {
-      await logout();
+      const { settings: saved } = await updateUserSettings({ profileTheme: themeId });
+      setSettings(saved);
     } catch {
-      // Still send the user back to login if logout fails.
+      setSettings(previous);
+    } finally {
+      setSavingTheme(false);
     }
-    navigate('/login');
   }
 
   if (!user || !settings) {
@@ -112,25 +115,6 @@ export function StudentSettings() {
                 </button>
               ))}
             </nav>
-
-            <div className="student-dashboard__sidebar-footer">
-              <button
-                type="button"
-                className="student-dashboard__nav-item active"
-                onClick={() => navigate('/settings')}
-              >
-                <IconSettings size={17} aria-hidden />
-                Settings
-              </button>
-              <button
-                type="button"
-                className="student-dashboard__nav-item"
-                onClick={handleLogout}
-              >
-                <IconLogout size={17} aria-hidden />
-                Logout
-              </button>
-            </div>
           </aside>
 
           <div className="student-dashboard__main">
@@ -141,6 +125,33 @@ export function StudentSettings() {
 
             <div className="student-settings__content">
               <h1 className="student-settings__title">Settings</h1>
+
+              <div className="student-dashboard__card student-settings__card">
+                <div className="student-settings__row student-settings__row--theme">
+                  <div>
+                    <div className="student-settings__label">Profile color</div>
+                    <div className="student-settings__hint">
+                      Choose the color for your avatar across Campus360.
+                    </div>
+                  </div>
+                  <div className="student-settings__theme-swatches">
+                    {PROFILE_THEMES.map((theme) => (
+                      <button
+                        key={theme.id}
+                        type="button"
+                        className={`student-settings__theme-swatch${
+                          settings.profileTheme === theme.id ? ' active' : ''
+                        }`}
+                        style={{ background: theme.bg }}
+                        aria-label={theme.label}
+                        aria-pressed={settings.profileTheme === theme.id}
+                        disabled={savingTheme}
+                        onClick={() => void handleThemeChange(theme.id)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
 
               <div className="student-dashboard__card student-settings__card">
                 <div className="student-settings__row">

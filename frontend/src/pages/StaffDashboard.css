@@ -1,5 +1,6 @@
 .staff-dashboard {
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   background: #e2e8f0;
 }
 
@@ -224,6 +225,60 @@
 
 .staff-dashboard__tb-btn-primary:hover {
   background: #0f2a52;
+}
+
+.staff-dashboard__tb-btn-active {
+  border-color: #93c5fd;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.staff-dashboard__filter-menu-wrap {
+  position: relative;
+}
+
+.staff-dashboard__filter-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 20;
+  min-width: 220px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(15, 42, 82, 0.12);
+  padding: 8px;
+}
+
+.staff-dashboard__filter-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  color: #374151;
+  text-align: left;
+}
+
+.staff-dashboard__filter-menu-item:hover {
+  background: #f8fafc;
+}
+
+.staff-dashboard__filter-menu-item.active {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.staff-dashboard__b-assigned {
+  background: #f3e8ff;
+  color: #7e22ce;
 }
 
 .staff-dashboard__tb-icon {

@@ -3,17 +3,14 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import {
   IconBuildingCommunity,
   IconClock,
-  IconLogout,
   IconMessageChatbot,
   IconRefresh,
-  IconSettings,
   IconTicket,
 } from '@tabler/icons-react';
 import {
   getMe,
   listAppointments,
   listTickets,
-  logout,
   type AppointmentRecord,
   type TicketSummary,
   type User,
@@ -28,7 +25,10 @@ import { openCopilotChat } from '../config/copilot';
 import { getStudentNavItems } from '../config/studentNav';
 import { useShellScale } from '../hooks/useShellScale';
 import { randomGreeting } from '../utils/greeting';
-import { TICKET_STATUS_DOT_COLOR } from '../utils/ticketDisplay';
+import {
+  TICKET_BADGE_CLASS,
+  TICKET_URGENCY_CLASS,
+} from '../utils/ticketDisplay';
 import './StudentDashboard.css';
 
 type CalendarDay = {
@@ -279,15 +279,6 @@ export function StudentDashboard() {
     navigate(location.pathname, { replace: true, state: {} });
   }, [location.pathname, location.state, navigate, user]);
 
-  async function handleLogout() {
-    try {
-      await logout();
-    } catch {
-      // Still send the user back to login if logout fails.
-    }
-    navigate('/login');
-  }
-
   const copilotUser = useMemo(
     () =>
       user
@@ -427,25 +418,6 @@ export function StudentDashboard() {
                 </button>
               ))}
             </nav>
-
-            <div className="student-dashboard__sidebar-footer">
-              <button
-                type="button"
-                className="student-dashboard__nav-item"
-                onClick={() => navigate('/settings')}
-              >
-                <IconSettings size={17} aria-hidden />
-                Settings
-              </button>
-              <button
-                type="button"
-                className="student-dashboard__nav-item"
-                onClick={handleLogout}
-              >
-                <IconLogout size={17} aria-hidden />
-                Logout
-              </button>
-            </div>
           </aside>
 
           <div className="student-dashboard__main">
@@ -496,10 +468,8 @@ export function StudentDashboard() {
                     </button>
                   ))}
                 </div>
-              </div>
 
-              <aside className="student-dashboard__right-col">
-                <div className="student-dashboard__card student-dashboard__tickets-compact">
+                <div className="student-dashboard__card student-dashboard__tickets-card">
                   <div className="student-dashboard__section-header">
                     <div className="student-dashboard__section-title">
                       <IconTicket size={16} color="#2E5BA8" aria-hidden />
@@ -529,47 +499,75 @@ export function StudentDashboard() {
                     </div>
                   </div>
                   {selectedDay && (
-                    <p className="student-dashboard__filter-hint student-dashboard__filter-hint--inset">
+                    <p className="student-dashboard__filter-hint">
                       Showing tickets for {formatSelectedDayLabel(selectedDay)}.
                       <button type="button" onClick={() => setSelectedDay(null)}>
                         Show all
                       </button>
                     </p>
                   )}
-                  <div className="student-dashboard__ticket-list">
-                    {loadingTickets ? (
-                      <p className="student-dashboard__filter-hint student-dashboard__filter-hint--inset">
-                        Loading tickets…
-                      </p>
-                    ) : filteredTickets.length === 0 ? (
-                      <p className="student-dashboard__filter-hint student-dashboard__filter-hint--inset">
-                        {selectedDay
-                          ? 'No tickets scheduled for this day.'
-                          : 'No tickets yet.'}
-                      </p>
-                    ) : (
-                      filteredTickets.map((ticket) => (
-                        <button
-                          key={ticket.id}
-                          type="button"
-                          className="student-dashboard__ticket-row-compact"
-                          onClick={() => navigate(`/tickets/${ticket.ticketNumber}`)}
-                          title={ticket.concern}
-                        >
-                          <span
-                            className="student-dashboard__ticket-status-dot"
-                            style={{ background: TICKET_STATUS_DOT_COLOR[ticket.status] }}
-                            aria-hidden
-                          />
-                          <span className="student-dashboard__ticket-row-text">
-                            {ticket.concern}
-                          </span>
-                        </button>
-                      ))
-                    )}
-                  </div>
+                  <table className="student-dashboard__tickets-table">
+                    <thead>
+                      <tr>
+                        <th>Ticket ID</th>
+                        <th>Concern</th>
+                        <th>Status</th>
+                        <th>Urgency</th>
+                        <th>Department</th>
+                        <th>Last Update</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {loadingTickets ? (
+                        <tr>
+                          <td colSpan={6}>Loading tickets…</td>
+                        </tr>
+                      ) : filteredTickets.length === 0 ? (
+                        <tr>
+                          <td colSpan={6}>
+                            {selectedDay
+                              ? 'No tickets scheduled for this day.'
+                              : 'No tickets yet.'}
+                          </td>
+                        </tr>
+                      ) : (
+                        filteredTickets.map((ticket) => (
+                          <tr
+                            key={ticket.id}
+                            className="student-dashboard__ticket-row"
+                            onClick={() =>
+                              navigate(`/tickets/${ticket.ticketNumber}`)
+                            }
+                          >
+                            <td className="student-dashboard__ticket-id">
+                              {ticket.id}
+                            </td>
+                            <td>{ticket.concern}</td>
+                            <td>
+                              <span
+                                className={`student-dashboard__badge ${TICKET_BADGE_CLASS[ticket.status]}`}
+                              >
+                                {ticket.statusLabel}
+                              </span>
+                            </td>
+                            <td>
+                              <span className={TICKET_URGENCY_CLASS[ticket.urgency]}>
+                                {ticket.urgencyLabel}
+                              </span>
+                            </td>
+                            <td>{ticket.department}</td>
+                            <td className="student-dashboard__ticket-date">
+                              {ticket.lastUpdate}
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
                 </div>
+              </div>
 
+              <aside className="student-dashboard__right-col">
                 <div>
                   <div className="student-dashboard__right-section-label">
                     Upcoming Appointments

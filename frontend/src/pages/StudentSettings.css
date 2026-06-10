@@ -77,3 +77,34 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+.student-settings__row--theme {
+  align-items: flex-start;
+}
+
+.student-settings__theme-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.student-settings__theme-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.student-settings__theme-swatch.active {
+  border-color: #1b3a6b;
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px #1b3a6b;
+}
+
+.student-settings__theme-swatch:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

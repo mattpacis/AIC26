@@ -1,17 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
-  IconBook,
   IconBuildingCommunity,
   IconCalendarPlus,
   IconCheck,
   IconDownload,
   IconEyeOff,
-  IconFilter,
   IconInbox,
   IconLogout,
   IconMessage,
-  IconPlus,
   IconRefresh,
   IconRobot,
   IconSend,
@@ -21,12 +18,10 @@ import {
 import {
   addStaffTicketReply,
   getStaffDashboard,
-  listStaffKbArticles,
   listStaffTickets,
   rescheduleStaffTicket,
   takeStaffTicket,
   updateStaffTicket,
-  type StaffKbArticleSummary,
   type StaffQueueTicket,
   type StaffTodayAppointment,
 } from '../api/client';
@@ -34,6 +29,7 @@ import { StaffNotifications } from '../components/StaffNotifications';
 import { StaffRescheduleModal } from '../components/StaffRescheduleModal';
 import { useShellScale } from '../hooks/useShellScale';
 import { useStaffShell } from '../hooks/useStaffShell';
+import { exportStaffTicketsCsv } from '../utils/exportStaffTickets';
 import { handleChatTextareaKeyDown } from '../utils/ticketDisplay';
 import './StaffDashboard.css';
 
@@ -81,9 +77,9 @@ export function StaffDashboard() {
   const [todayAppointments, setTodayAppointments] = useState<
     StaffTodayAppointment[]
   >([]);
-  const [kbArticles, setKbArticles] = useState<StaffKbArticleSummary[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<FilterKey>('all');
+  const [mineOnly, setMineOnly] = useState(false);
   const [notes, setNotes] = useState('');
   const [replyText, setReplyText] = useState('');
   const [showReply, setShowReply] = useState(false);
@@ -93,24 +89,23 @@ export function StaffDashboard() {
   const [hideResolved, setHideResolved] = useState(true);
   const [showReschedule, setShowReschedule] = useState(false);
 
-  const loadTickets = useCallback(async (filter: FilterKey, includeResolved: boolean) => {
+  const loadTickets = useCallback(async (filter: FilterKey, includeResolved: boolean, onlyMine: boolean) => {
     setLoadingTickets(true);
     setLoadError(null);
     try {
       const status = filter === 'high' ? undefined : filter;
       const urgency = filter === 'high' ? 'high' : undefined;
-      const [{ tickets: rows }, dashboard, kb] = await Promise.all([
+      const [{ tickets: rows }, dashboard] = await Promise.all([
         listStaffTickets({
           status,
           urgency,
           includeResolved: filter === 'resolved' ? undefined : includeResolved,
+          mineOnly: onlyMine,
         }),
         getStaffDashboard(),
-        listStaffKbArticles(),
       ]);
       setTickets(rows);
       setTodayAppointments(dashboard.todayAppointments);
-      setKbArticles(kb.articles.slice(0, 3));
       setSelectedId((prev) => {
         if (prev && rows.some((t) => t.id === prev)) return prev;
         return rows[0]?.id ?? null;
@@ -124,8 +119,8 @@ export function StaffDashboard() {
   }, [refreshShell]);
 
   useEffect(() => {
-    void loadTickets(activeFilter, !hideResolved);
-  }, [activeFilter, hideResolved, loadTickets]);
+    void loadTickets(activeFilter, !hideResolved, mineOnly);
+  }, [activeFilter, hideResolved, mineOnly, loadTickets]);
 
   useEffect(() => {
     const ticketParam = searchParams.get('ticket');
@@ -155,7 +150,7 @@ export function StaffDashboard() {
     if (!selected || isTicketClosed(selected)) return;
 
     function refreshConversation() {
-      void loadTickets(activeFilter, !hideResolved);
+      void loadTickets(activeFilter, !hideResolved, mineOnly);
     }
 
     const interval = window.setInterval(refreshConversation, 15000);
@@ -165,10 +160,10 @@ export function StaffDashboard() {
       window.clearInterval(interval);
       window.removeEventListener('focus', refreshConversation);
     };
-  }, [selected?.id, activeFilter, hideResolved, loadTickets]);
+  }, [selected?.id, activeFilter, hideResolved, mineOnly, loadTickets]);
 
   async function refreshAfterAction() {
-    await loadTickets(activeFilter, !hideResolved);
+    await loadTickets(activeFilter, !hideResolved, mineOnly);
   }
 
   async function handleTakeTicket() {
@@ -361,20 +356,13 @@ export function StaffDashboard() {
                 {departmentLabel} — Dashboard
               </div>
               <div className="staff-dashboard__topbar-right">
-                <button type="button" className="staff-dashboard__tb-btn">
-                  <IconFilter size={14} aria-hidden />
-                  Filter
-                </button>
-                <button type="button" className="staff-dashboard__tb-btn">
-                  <IconDownload size={14} aria-hidden />
-                  Export
-                </button>
                 <button
                   type="button"
-                  className="staff-dashboard__tb-btn staff-dashboard__tb-btn-primary"
+                  className="staff-dashboard__tb-btn"
+                  onClick={() => exportStaffTicketsCsv(filteredTickets)}
                 >
-                  <IconPlus size={14} aria-hidden />
-                  New ticket
+                  <IconDownload size={14} aria-hidden />
+                  Export
                 </button>
                 <StaffNotifications />
               </div>
@@ -411,7 +399,7 @@ export function StaffDashboard() {
                     <button
                       type="button"
                       className="staff-dashboard__queue-refresh"
-                      onClick={() => void loadTickets(activeFilter, !hideResolved)}
+                      onClick={() => void loadTickets(activeFilter, !hideResolved, mineOnly)}
                       disabled={loadingTickets}
                       aria-label="Refresh tickets"
                     >
@@ -432,6 +420,13 @@ export function StaffDashboard() {
                       {label}
                     </button>
                   ))}
+                  <button
+                    type="button"
+                    className={`staff-dashboard__filter-chip${mineOnly ? ' active' : ''}`}
+                    onClick={() => setMineOnly((value) => !value)}
+                  >
+                    My tickets only
+                  </button>
                   {activeFilter !== 'resolved' && (
                     <button
                       type="button"
@@ -488,6 +483,13 @@ export function StaffDashboard() {
                             AI-triaged
                           </span>
                         )}
+                        {!mineOnly &&
+                          ticket.isTaken &&
+                          ticket.assignedStaffUserId !== staffUser?.id && (
+                            <span className="staff-dashboard__badge staff-dashboard__b-assigned">
+                              {ticket.info.assignedTo}
+                            </span>
+                          )}
                       </div>
                     </button>
                   ))}
@@ -828,46 +830,6 @@ export function StaffDashboard() {
                           {appt.location ? ` · ${appt.location}` : ''}
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <div className="staff-dashboard__right-section-label">
-                    Knowledge base
-                  </div>
-                  <div className="staff-dashboard__kb-panel">
-                    {kbArticles.length === 0 && (
-                      <div className="staff-dashboard__kb-item">
-                        <div className="staff-dashboard__kb-text">
-                          No articles for your department yet.
-                        </div>
-                      </div>
-                    )}
-                    {kbArticles.map((article) => (
-                      <button
-                        key={article.id}
-                        type="button"
-                        className="staff-dashboard__kb-item"
-                        style={{
-                          border: 'none',
-                          background: 'transparent',
-                          width: '100%',
-                          textAlign: 'left',
-                          cursor: 'pointer',
-                        }}
-                        onClick={() => navigate('/staff/knowledge-base')}
-                      >
-                        <div className="staff-dashboard__kb-icon">
-                          <IconBook size={14} color="#2563eb" aria-hidden />
-                        </div>
-                        <div>
-                          <div className="staff-dashboard__kb-text">{article.title}</div>
-                          <div className="staff-dashboard__kb-tag">
-                            {article.readTime}
-                          </div>
-                        </div>
-                      </button>
                     ))}
                   </div>
                 </div>

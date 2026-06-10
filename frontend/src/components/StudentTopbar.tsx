@@ -1,16 +1,30 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { IconBell, IconSearch } from '@tabler/icons-react';
+import {
+  IconBell,
+  IconLogout,
+  IconSearch,
+  IconSettings,
+} from '@tabler/icons-react';
 import {
   deleteAccount,
+  getUserSettings,
   listNotifications,
+  logout,
   markAllNotificationsRead,
   markNotificationRead,
   updateProfile,
+  updateUserSettings,
   userInitials,
   type NotificationRecord,
   type User,
+  type UserSettings,
 } from '../api/client';
+import {
+  getProfileTheme,
+  PROFILE_THEMES,
+  type ProfileThemeId,
+} from '../utils/profileTheme';
 
 type StudentTopbarProps = {
   user: User;
@@ -27,15 +41,41 @@ export function StudentTopbar({ user, onUserUpdated }: StudentTopbarProps) {
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [name, setName] = useState(user.name);
+  const [settings, setSettings] = useState<UserSettings | null>(null);
+  const [savingTheme, setSavingTheme] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notifications, setNotifications] = useState<NotificationRecord[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
 
+  const profileTheme = getProfileTheme(settings?.profileTheme);
+
   useEffect(() => {
     setName(user.name);
   }, [user.name]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadSettings() {
+      try {
+        const data = await getUserSettings();
+        if (!cancelled) {
+          setSettings(data.settings);
+        }
+      } catch {
+        if (!cancelled) {
+          setSettings(null);
+        }
+      }
+    }
+
+    void loadSettings();
+    return () => {
+      cancelled = true;
+    };
+  }, [user.id]);
 
   useEffect(() => {
     let cancelled = false;
@@ -90,6 +130,29 @@ export function StudentTopbar({ user, onUserUpdated }: StudentTopbarProps) {
     } finally {
       setSaving(false);
     }
+  }
+
+  async function handleThemeChange(themeId: ProfileThemeId) {
+    if (savingTheme || settings?.profileTheme === themeId) return;
+    setSavingTheme(true);
+    try {
+      const { settings: saved } = await updateUserSettings({ profileTheme: themeId });
+      setSettings(saved);
+    } catch {
+      // Keep current theme on failure.
+    } finally {
+      setSavingTheme(false);
+    }
+  }
+
+  async function handleLogout() {
+    setProfileOpen(false);
+    try {
+      await logout();
+    } catch {
+      // Still return to login if logout fails.
+    }
+    navigate('/login');
   }
 
   async function handleDeleteAccount() {
@@ -193,7 +256,10 @@ export function StudentTopbar({ user, onUserUpdated }: StudentTopbarProps) {
               setNotifOpen(false);
             }}
           >
-            <div className="student-dashboard__user-avatar">
+            <div
+              className="student-dashboard__user-avatar"
+              style={{ background: profileTheme.bg, color: profileTheme.color }}
+            >
               {userInitials(user.name)}
             </div>
             <div className="student-dashboard__user-info">
@@ -203,9 +269,32 @@ export function StudentTopbar({ user, onUserUpdated }: StudentTopbarProps) {
           </button>
 
           {profileOpen && (
-            <div className="student-topbar__dropdown">
+            <div className="student-topbar__dropdown student-topbar__dropdown--profile">
+              <div className="student-topbar__dropdown-section">
+                <span className="student-topbar__dropdown-label">Profile color</span>
+                <div className="student-topbar__theme-swatches">
+                  {PROFILE_THEMES.map((theme) => (
+                    <button
+                      key={theme.id}
+                      type="button"
+                      className={`student-topbar__theme-swatch${
+                        settings?.profileTheme === theme.id ? ' active' : ''
+                      }`}
+                      style={{ background: theme.bg }}
+                      aria-label={theme.label}
+                      aria-pressed={settings?.profileTheme === theme.id}
+                      disabled={savingTheme}
+                      onClick={() => void handleThemeChange(theme.id)}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="student-topbar__dropdown-divider" />
+
               <button
                 type="button"
+                className="student-topbar__menu-item"
                 onClick={() => {
                   setEditOpen(true);
                   setProfileOpen(false);
@@ -215,7 +304,29 @@ export function StudentTopbar({ user, onUserUpdated }: StudentTopbarProps) {
               </button>
               <button
                 type="button"
-                className="danger"
+                className="student-topbar__menu-item"
+                onClick={() => {
+                  setProfileOpen(false);
+                  navigate('/settings');
+                }}
+              >
+                <IconSettings size={15} aria-hidden />
+                Settings
+              </button>
+              <button
+                type="button"
+                className="student-topbar__menu-item"
+                onClick={() => void handleLogout()}
+              >
+                <IconLogout size={15} aria-hidden />
+                Logout
+              </button>
+
+              <div className="student-topbar__dropdown-divider" />
+
+              <button
+                type="button"
+                className="student-topbar__menu-item danger"
                 onClick={() => {
                   setDeleteOpen(true);
                   setProfileOpen(false);
@@ -237,6 +348,27 @@ export function StudentTopbar({ user, onUserUpdated }: StudentTopbarProps) {
               <input value={name} onChange={(e) => setName(e.target.value)} />
             </label>
             <p className="student-topbar__modal-note">Email: {user.email}</p>
+
+            <div className="student-topbar__modal-themes">
+              <span className="student-topbar__dropdown-label">Profile color</span>
+              <div className="student-topbar__theme-swatches">
+                {PROFILE_THEMES.map((theme) => (
+                  <button
+                    key={theme.id}
+                    type="button"
+                    className={`student-topbar__theme-swatch${
+                      settings?.profileTheme === theme.id ? ' active' : ''
+                    }`}
+                    style={{ background: theme.bg }}
+                    aria-label={theme.label}
+                    aria-pressed={settings?.profileTheme === theme.id}
+                    disabled={savingTheme}
+                    onClick={() => void handleThemeChange(theme.id)}
+                  />
+                ))}
+              </div>
+            </div>
+
             {error && <p className="student-topbar__error">{error}</p>}
             <div className="student-topbar__modal-actions">
               <button type="button" onClick={() => setEditOpen(false)} disabled={saving}>

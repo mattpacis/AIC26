@@ -49,6 +49,7 @@ meRouter.patch('/me', requireAuth, async (req, res, next) => {
 const updateSettingsSchema = z.object({
   emailNotifications: z.boolean().optional(),
   appointmentReminders: z.boolean().optional(),
+  profileTheme: z.enum(['blue', 'teal', 'amber', 'purple', 'green']).optional(),
 });
 
 meRouter.get('/me/settings', requireAuth, loadAuthContext, async (req, res, next) => {

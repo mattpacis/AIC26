@@ -10,10 +10,8 @@ import {
   IconChevronRight,
   IconClock,
   IconFilter,
-  IconLogout,
   IconMapPin,
   IconPlus,
-  IconSettings,
   IconTrash,
   IconUser,
   IconX,
@@ -27,7 +25,6 @@ import {
   getMe,
   listAppointmentDepartments,
   listAppointments,
-  logout,
   rescheduleAppointment,
   userInitials,
   type AppointmentDepartment,
@@ -398,15 +395,6 @@ export function StudentAppointments() {
         ? `Appointments on ${formatSelectedDayLabel(selectedDay)}`
         : 'Upcoming appointments';
 
-  async function handleLogout() {
-    try {
-      await logout();
-    } catch {
-      // Still return to login if logout fails.
-    }
-    navigate('/login');
-  }
-
   function scrollToAppointment(id: string) {
     document.getElementById(`appt-${id}`)?.scrollIntoView({ behavior: 'smooth' });
   }
@@ -573,25 +561,6 @@ export function StudentAppointments() {
                 </button>
               ))}
             </nav>
-
-            <div className="student-appointments__sb-footer">
-              <button
-                type="button"
-                className="student-appointments__nav-item"
-                onClick={() => navigate('/settings')}
-              >
-                <IconSettings size={17} aria-hidden />
-                Settings
-              </button>
-              <button
-                type="button"
-                className="student-appointments__nav-item"
-                onClick={handleLogout}
-              >
-                <IconLogout size={17} aria-hidden />
-                Logout
-              </button>
-            </div>
           </aside>
 
           <div className="student-appointments__main">

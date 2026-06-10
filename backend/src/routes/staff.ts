@@ -7,10 +7,7 @@ import { requireStaff } from '../middleware/staff.js';
 import { getStaffAnalytics } from '../services/staffAnalyticsService.js';
 import { getStaffDashboard } from '../services/staffDashboardService.js';
 import { listStudents, getStudentProfile } from '../services/studentService.js';
-import {
-  getKnowledgeBaseArticle,
-  listKnowledgeBaseArticles,
-} from '../services/knowledgeBaseService.js';
+import { listStaffDirectory } from '../services/staffDirectoryService.js';
 import {
   getStaffTicketByNumber,
   listStaffQueueTickets,
@@ -51,6 +48,7 @@ staffRouter.get('/tickets', async (req, res, next) => {
       department:
         typeof req.query.department === 'string' ? req.query.department : undefined,
       includeResolved: req.query.includeResolved === 'true',
+      mineOnly: req.query.mineOnly === 'true',
     });
     res.json({ tickets });
   } catch (err) {
@@ -179,25 +177,10 @@ staffRouter.get('/appointments', async (req, res, next) => {
   }
 });
 
-staffRouter.get('/knowledge-base', async (req, res, next) => {
+staffRouter.get('/directory', async (req, res, next) => {
   try {
-    const articles = await listKnowledgeBaseArticles(req.auth!, {
-      category: typeof req.query.category === 'string' ? req.query.category : undefined,
-      department:
-        typeof req.query.department === 'string' ? req.query.department : undefined,
-      aiReferenced: req.query.aiReferenced === 'true',
-      search: typeof req.query.search === 'string' ? req.query.search : undefined,
-    });
-    res.json({ articles });
-  } catch (err) {
-    next(err);
-  }
-});
-
-staffRouter.get('/knowledge-base/:slug', async (req, res, next) => {
-  try {
-    const article = await getKnowledgeBaseArticle(req.auth!, req.params.slug);
-    res.json({ article });
+    const members = await listStaffDirectory(req.auth!);
+    res.json({ members });
   } catch (err) {
     next(err);
   }

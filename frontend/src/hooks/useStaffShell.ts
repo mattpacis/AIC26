@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { TablerIcon } from '@tabler/icons-react';
 import {
-  IconBook,
+  IconAddressBook,
   IconCalendarEvent,
   IconChartBar,
   IconLayoutDashboard,
@@ -50,10 +50,10 @@ function buildNav(
       active: pathname === '/staff/students',
     },
     {
-      label: 'Knowledge Base',
-      icon: IconBook,
-      path: '/staff/knowledge-base',
-      active: pathname === '/staff/knowledge-base',
+      label: 'Directory',
+      icon: IconAddressBook,
+      path: '/staff/directory',
+      active: pathname === '/staff/directory',
     },
     {
       label: 'Analytics',
@@ -71,6 +71,10 @@ export function useStaffShell() {
   const [summary, setSummary] = useState<StaffDashboardSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
 
   const loadShell = useCallback(async () => {
     try {
@@ -90,20 +94,23 @@ export function useStaffShell() {
     void loadShell();
   }, [loadShell]);
 
+  const navItems = buildNav(pathname, summary);
+
   async function handleLogout() {
     try {
       await logout();
-    } finally {
-      navigate('/login');
+    } catch {
+      // Still send the user back to login if logout fails.
     }
+    navigate('/login');
   }
 
   return {
     staffUser,
     summary,
+    navItems,
     loading,
     error,
-    navItems: buildNav(pathname, summary),
     handleLogout,
     refreshShell: loadShell,
   };

@@ -7,19 +7,16 @@ import {
   IconChevronRight,
   IconClock,
   IconHeartRateMonitor,
-  IconLogout,
   IconMapPin,
   IconMessage,
   IconMessageChatbot,
   IconRobot,
   IconSend,
-  IconSettings,
 } from '@tabler/icons-react';
 import {
   addTicketReply,
   getMe,
   getTicket,
-  logout,
   resolveTicket,
   userInitials,
   type TicketDetail,
@@ -110,15 +107,6 @@ export function StudentTicketDetail() {
       window.removeEventListener('focus', handleFocus);
     };
   }, [navigate, ticketId]);
-
-  async function handleLogout() {
-    try {
-      await logout();
-    } catch {
-      // Still return to login if logout fails.
-    }
-    navigate('/login');
-  }
 
   if (loading) {
     return null;
@@ -220,25 +208,6 @@ export function StudentTicketDetail() {
                 </button>
               ))}
             </nav>
-
-            <div className="student-ticket-detail__sb-footer">
-              <button
-                type="button"
-                className="student-ticket-detail__nav-item"
-                onClick={() => navigate('/settings')}
-              >
-                <IconSettings size={17} aria-hidden />
-                Settings
-              </button>
-              <button
-                type="button"
-                className="student-ticket-detail__nav-item"
-                onClick={handleLogout}
-              >
-                <IconLogout size={17} aria-hidden />
-                Logout
-              </button>
-            </div>
           </aside>
 
           <div className="student-ticket-detail__main">
@@ -324,11 +293,6 @@ export function StudentTicketDetail() {
                       </button>
                     )}
                   </div>
-                </div>
-
-                <div className="student-ticket-detail__notif-pill">
-                  <IconCheck size={14} aria-hidden />
-                  {ticket.confirmation}
                 </div>
 
                 <div className="student-ticket-detail__card">

@@ -266,6 +266,7 @@ export type StaffQueueFilters = {
   department?: string;
   limit?: number;
   includeResolved?: boolean;
+  mineOnly?: boolean;
 };
 
 const STATUS_FILTER_MAP: Record<string, TicketStatus> = {
@@ -294,7 +295,12 @@ export async function listStaffQueueTickets(
     status?: TicketStatus | { not: TicketStatus };
     urgency?: TicketUrgency;
     department?: string;
+    assignedStaffUserId?: string;
   } = { schoolId: ctx.schoolId };
+
+  if (filters.mineOnly) {
+    where.assignedStaffUserId = ctx.userId;
+  }
 
   if (filters.status && filters.status !== 'all') {
     const mapped = STATUS_FILTER_MAP[filters.status];

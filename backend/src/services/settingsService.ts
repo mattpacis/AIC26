@@ -5,12 +5,29 @@ import { logAction } from './actionLogService.js';
 export type UserSettings = {
   emailNotifications: boolean;
   appointmentReminders: boolean;
+  profileTheme: 'blue' | 'teal' | 'amber' | 'purple' | 'green';
 };
 
 const DEFAULT_SETTINGS: UserSettings = {
   emailNotifications: true,
   appointmentReminders: true,
+  profileTheme: 'blue',
 };
+
+const PROFILE_THEMES = new Set<UserSettings['profileTheme']>([
+  'blue',
+  'teal',
+  'amber',
+  'purple',
+  'green',
+]);
+
+function parseProfileTheme(value: unknown): UserSettings['profileTheme'] {
+  if (typeof value === 'string' && PROFILE_THEMES.has(value as UserSettings['profileTheme'])) {
+    return value as UserSettings['profileTheme'];
+  }
+  return DEFAULT_SETTINGS.profileTheme;
+}
 
 function parsePreferences(raw: string | null | undefined): UserSettings {
   if (!raw) return { ...DEFAULT_SETTINGS };
@@ -25,6 +42,7 @@ function parsePreferences(raw: string | null | undefined): UserSettings {
         typeof parsed.appointmentReminders === 'boolean'
           ? parsed.appointmentReminders
           : DEFAULT_SETTINGS.appointmentReminders,
+      profileTheme: parseProfileTheme(parsed.profileTheme),
     };
   } catch {
     return { ...DEFAULT_SETTINGS };
@@ -54,6 +72,7 @@ export async function updateUserSettings(
       input.emailNotifications ?? current.emailNotifications,
     appointmentReminders:
       input.appointmentReminders ?? current.appointmentReminders,
+    profileTheme: input.profileTheme ?? current.profileTheme,
   };
 
   await prisma.user.update({

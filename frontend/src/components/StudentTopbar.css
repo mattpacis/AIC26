@@ -28,6 +28,83 @@
   max-width: 360px;
 }
 
+.student-topbar__dropdown--profile {
+  min-width: 220px;
+}
+
+.student-topbar__dropdown-section {
+  padding: 8px 10px 4px;
+}
+
+.student-topbar__dropdown-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  margin-bottom: 8px;
+}
+
+.student-topbar__theme-swatches {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.student-topbar__theme-swatch {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.student-topbar__theme-swatch.active {
+  border-color: #0f172a;
+  box-shadow: 0 0 0 2px #fff inset;
+}
+
+.student-topbar__theme-swatch:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.student-topbar__dropdown-divider {
+  height: 1px;
+  background: #f1f5f9;
+  margin: 4px 0;
+}
+
+.student-topbar__menu-item {
+  width: 100%;
+  border: 0;
+  background: none;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  color: #1f2937;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.student-topbar__menu-item:hover {
+  background: #f8fafc;
+}
+
+.student-topbar__menu-item.danger {
+  color: #b91c1c;
+}
+
+.student-topbar__modal-themes {
+  margin-top: 14px;
+}
+
 .student-topbar__dropdown button {
   width: 100%;
   border: 0;
