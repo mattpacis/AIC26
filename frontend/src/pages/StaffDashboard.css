@@ -555,6 +555,78 @@
   background: #15803d;
 }
 
+.staff-dashboard__conversation-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+
+.staff-dashboard__conversation-header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1b3a6b;
+}
+
+.staff-dashboard__reply-thread {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.staff-dashboard__reply-message {
+  background: #f9fafb;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.staff-dashboard__reply-message.student {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.staff-dashboard__reply-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.staff-dashboard__reply-meta strong {
+  color: #374151;
+}
+
+.staff-dashboard__reply-message p {
+  margin: 0;
+  font-size: 13px;
+  color: #374151;
+  line-height: 1.45;
+}
+
+.staff-dashboard__reply-empty {
+  margin: 0 0 12px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.staff-dashboard__reply-compose {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .staff-dashboard__ai-summary-card {
   background: #f5f3ff;
   border: 1px solid #ddd6fe;

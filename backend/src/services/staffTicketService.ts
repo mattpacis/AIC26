@@ -19,6 +19,7 @@ import {
   buildAiCreatedTrackSteps,
   mergeDetailPayload,
   serializeTicketDetail,
+  serializeTicketReplies,
 } from './ticketService.js';
 import { notifyUser } from './ticketNotificationService.js';
 import {
@@ -175,6 +176,13 @@ function buildAiSummary(ticket: Ticket, detail: Record<string, unknown> | null) 
   return `Ticket ${ticket.concern} was routed to ${ticket.department}. Review details and take the next staff action.`;
 }
 
+type TicketReplyRecord = {
+  id: string;
+  content: string;
+  createdAt: Date;
+  authorUser: { name: string; role: string };
+};
+
 type TicketWithStudent = Ticket & {
   studentUser: { id: string; name: string; email: string };
   student?: {
@@ -182,6 +190,7 @@ type TicketWithStudent = Ticket & {
     program: string | null;
     healthFlags: string | null;
   } | null;
+  replies?: TicketReplyRecord[];
 };
 
 export function serializeStaffQueueTicket(
@@ -244,6 +253,7 @@ export function serializeStaffQueueTicket(
       assignedTo: ticket.assignedTo ?? 'Unassigned',
     },
     steps: buildSuggestedSteps(ticket, detail),
+    replies: serializeTicketReplies(ticket.replies ?? []),
   };
 }
 
@@ -319,6 +329,12 @@ export async function listStaffQueueTickets(
               healthFlags: true,
             },
           },
+        },
+      },
+      replies: {
+        orderBy: { createdAt: 'asc' },
+        include: {
+          authorUser: { select: { name: true, role: true } },
         },
       },
     },

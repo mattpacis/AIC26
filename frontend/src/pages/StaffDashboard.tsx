@@ -10,6 +10,7 @@ import {
   IconFilter,
   IconInbox,
   IconLogout,
+  IconMessage,
   IconPlus,
   IconRefresh,
   IconRobot,
@@ -150,6 +151,22 @@ export function StaffDashboard() {
     }
   }, [selected?.id, selected?.staffNotes]);
 
+  useEffect(() => {
+    if (!selected || isTicketClosed(selected)) return;
+
+    function refreshConversation() {
+      void loadTickets(activeFilter, !hideResolved);
+    }
+
+    const interval = window.setInterval(refreshConversation, 15000);
+    window.addEventListener('focus', refreshConversation);
+
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener('focus', refreshConversation);
+    };
+  }, [selected?.id, activeFilter, hideResolved, loadTickets]);
+
   async function refreshAfterAction() {
     await loadTickets(activeFilter, !hideResolved);
   }
@@ -171,7 +188,17 @@ export function StaffDashboard() {
     if (!selected || !replyText.trim() || actionBusy || isTicketClosed(selected)) return;
     setActionBusy(true);
     try {
-      await addStaffTicketReply(selected.ticketNumber, replyText.trim());
+      const { ticket } = await addStaffTicketReply(
+        selected.ticketNumber,
+        replyText.trim(),
+      );
+      setTickets((prev) =>
+        prev.map((row) =>
+          row.ticketNumber === selected.ticketNumber
+            ? { ...row, replies: ticket.replies }
+            : row,
+        ),
+      );
       setReplyText('');
       setShowReply(false);
       await refreshAfterAction();
@@ -548,31 +575,60 @@ export function StaffDashboard() {
                       </div>
                     </div>
 
-                    {showReply && selected.isTaken && !selectedClosed && (
-                      <div style={{ marginBottom: 16 }}>
-                        <textarea
-                          className="staff-dashboard__notes-area"
-                          rows={3}
-                          placeholder="Write a reply to the student… (Shift+Enter for new line)"
-                          value={replyText}
-                          onChange={(e) => setReplyText(e.target.value)}
-                          onKeyDown={(event) =>
-                            handleChatTextareaKeyDown(event, () => {
-                              void handleReply();
-                            })
-                          }
-                        />
-                        <button
-                          type="button"
-                          className="staff-dashboard__action-btn staff-dashboard__action-btn-success"
-                          style={{ marginTop: 8 }}
-                          disabled={actionBusy || !replyText.trim()}
-                          onClick={() => void handleReply()}
-                        >
-                          Send reply
-                        </button>
+                    <div className="staff-dashboard__conversation-card">
+                      <div className="staff-dashboard__conversation-header">
+                        <IconMessage size={15} color="#2E5BA8" aria-hidden />
+                        Conversation
                       </div>
-                    )}
+                      {(selected.replies ?? []).length > 0 ? (
+                        <div className="staff-dashboard__reply-thread">
+                          {(selected.replies ?? []).map((item) => (
+                            <div
+                              key={item.id}
+                              className={`staff-dashboard__reply-message${
+                                item.isStudent ? ' student' : ''
+                              }`}
+                            >
+                              <div className="staff-dashboard__reply-meta">
+                                <strong>{item.authorName}</strong>
+                                <span>{item.timeLabel}</span>
+                              </div>
+                              <p>{item.content}</p>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="staff-dashboard__reply-empty">
+                          {selected.isTaken
+                            ? 'No messages yet. Send a reply to start the conversation.'
+                            : 'Take this ticket to start messaging the student.'}
+                        </p>
+                      )}
+                      {showReply && selected.isTaken && !selectedClosed && (
+                        <div className="staff-dashboard__reply-compose">
+                          <textarea
+                            className="staff-dashboard__notes-area"
+                            rows={3}
+                            placeholder="Write a reply to the student… (Shift+Enter for new line)"
+                            value={replyText}
+                            onChange={(e) => setReplyText(e.target.value)}
+                            onKeyDown={(event) =>
+                              handleChatTextareaKeyDown(event, () => {
+                                void handleReply();
+                              })
+                            }
+                          />
+                          <button
+                            type="button"
+                            className="staff-dashboard__action-btn staff-dashboard__action-btn-success"
+                            disabled={actionBusy || !replyText.trim()}
+                            onClick={() => void handleReply()}
+                          >
+                            Send reply
+                          </button>
+                        </div>
+                      )}
+                    </div>
 
                     <div className="staff-dashboard__ai-summary-card">
                       <div className="staff-dashboard__ai-summary-header">

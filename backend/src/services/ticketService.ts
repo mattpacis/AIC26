@@ -143,6 +143,17 @@ export function buildAiCreatedTrackSteps(department: string, assignedTo?: string
   return steps;
 }
 
+export function serializeTicketReplies(replies: TicketReplyRecord[] = []) {
+  return replies.map((reply) => ({
+    id: reply.id,
+    content: reply.content,
+    authorName: reply.authorUser.name,
+    isStudent: reply.authorUser.role === 'STUDENT',
+    createdAt: reply.createdAt.toISOString(),
+    timeLabel: formatDisplayDateTime(reply.createdAt),
+  }));
+}
+
 export function serializeTicketDetail(
   ticket: Ticket,
   replies: TicketReplyRecord[] = [],
@@ -184,14 +195,7 @@ export function serializeTicketDetail(
     aiUpdates: Array.isArray(detail?.aiUpdates) ? detail.aiUpdates : [],
     timeline: Array.isArray(detail?.timeline) ? detail.timeline : [],
     related: Array.isArray(detail?.related) ? detail.related : [],
-    replies: replies.map((reply) => ({
-      id: reply.id,
-      content: reply.content,
-      authorName: reply.authorUser.name,
-      isStudent: reply.authorUser.role === 'STUDENT',
-      createdAt: reply.createdAt.toISOString(),
-      timeLabel: formatDisplayDateTime(reply.createdAt),
-    })),
+    replies: serializeTicketReplies(replies),
     canCancel: ticket.status !== TicketStatus.RESOLVED,
     canReply,
     canTake:
