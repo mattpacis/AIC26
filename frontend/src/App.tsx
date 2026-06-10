@@ -6,9 +6,10 @@ import { StaffDashboard } from './pages/StaffDashboard';
 import { StaffAnalytics } from './pages/StaffAnalytics';
 import { StaffKnowledgeBase } from './pages/StaffKnowledgeBase';
 import { StaffStudents } from './pages/StaffStudents';
+import { StudentQuickLinks } from './pages/StudentQuickLinks';
+import { StudentSettings } from './pages/StudentSettings';
 import { StudentDashboard } from './pages/StudentDashboard';
 import { StudentAppointments } from './pages/StudentAppointments';
-import { StudentHolds } from './pages/StudentHolds';
 import { StudentTicketDetail } from './pages/StudentTicketDetail';
 import { StudentTickets } from './pages/StudentTickets';
 import './App.css';
@@ -21,7 +22,9 @@ function App() {
         <Route path="/login/oauth-callback" element={<OAuthCallback />} />
         <Route path="/dashboard" element={<StudentDashboard />} />
         <Route path="/appointments" element={<StudentAppointments />} />
-        <Route path="/holds" element={<StudentHolds />} />
+        <Route path="/quick-links" element={<StudentQuickLinks />} />
+        <Route path="/settings" element={<StudentSettings />} />
+        <Route path="/holds" element={<Navigate to="/dashboard" replace />} />
         <Route path="/tickets" element={<StudentTickets />} />
         <Route path="/tickets/:ticketId" element={<StudentTicketDetail />} />
         <Route path="/staff-dashboard" element={<StaffDashboard />} />

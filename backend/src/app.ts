@@ -11,7 +11,6 @@ import { legacyChatRouter } from './routes/legacyChat.js';
 import { dashboardRouter } from './routes/dashboard.js';
 import { ticketsRouter } from './routes/tickets.js';
 import { appointmentsRouter } from './routes/appointments.js';
-import { holdsRouter } from './routes/holds.js';
 import { staffRouter } from './routes/staff.js';
 import { agentRouter } from './routes/agent.js';
 import { notificationsRouter } from './routes/notifications.js';
@@ -55,7 +54,6 @@ export function createApp() {
   app.use('/api', dashboardRouter);
   app.use('/api', ticketsRouter);
   app.use('/api', appointmentsRouter);
-  app.use('/api', holdsRouter);
   app.use('/api/staff', staffRouter);
   app.use('/api/chat', chatRouter);
   app.use('/api', legacyChatRouter);

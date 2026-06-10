@@ -17,7 +17,6 @@ import {
 } from '@tabler/icons-react';
 import {
   addTicketReply,
-  getHoldSummary,
   getMe,
   getTicket,
   logout,
@@ -45,14 +44,13 @@ export function StudentTicketDetail() {
 
   const [user, setUser] = useState<User | null>(null);
   const [ticket, setTicket] = useState<TicketDetail | null>(null);
-  const [holdsCount, setHoldsCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reply, setReply] = useState('');
   const [sending, setSending] = useState(false);
   const [resolving, setResolving] = useState(false);
 
-  const navItems = getStudentNavItems(location.pathname, { holdsCount });
+  const navItems = getStudentNavItems(location.pathname);
 
   useEffect(() => {
     let cancelled = false;
@@ -69,15 +67,10 @@ export function StudentTicketDetail() {
       }
 
       try {
-        const [me, ticketData, holdsData] = await Promise.all([
-          getMe(),
-          getTicket(ticketId),
-          getHoldSummary(),
-        ]);
+        const [me, ticketData] = await Promise.all([getMe(), getTicket(ticketId)]);
         if (cancelled) return;
         setUser(me.user);
         setTicket(ticketData.ticket);
-        setHoldsCount(holdsData.summary.activeCount);
         setError(null);
       } catch (err) {
         if (!cancelled) {
@@ -229,7 +222,11 @@ export function StudentTicketDetail() {
             </nav>
 
             <div className="student-ticket-detail__sb-footer">
-              <button type="button" className="student-ticket-detail__nav-item">
+              <button
+                type="button"
+                className="student-ticket-detail__nav-item"
+                onClick={() => navigate('/settings')}
+              >
                 <IconSettings size={17} aria-hidden />
                 Settings
               </button>

@@ -263,6 +263,26 @@ export async function updateProfile(name: string): Promise<{ user: User }> {
   return parseJson(response);
 }
 
+export type UserSettings = {
+  emailNotifications: boolean;
+  appointmentReminders: boolean;
+};
+
+export async function getUserSettings(): Promise<{ settings: UserSettings }> {
+  const response = await apiFetch(`${API_BASE}/me/settings`);
+  return parseJson(response);
+}
+
+export async function updateUserSettings(
+  input: Partial<UserSettings>,
+): Promise<{ settings: UserSettings }> {
+  const response = await apiFetch(`${API_BASE}/me/settings`, {
+    method: 'PATCH',
+    body: JSON.stringify(input),
+  });
+  return parseJson(response);
+}
+
 export async function deleteAccount(): Promise<void> {
   const response = await apiFetch(`${API_BASE}/me`, { method: 'DELETE' });
   await parseJson(response);

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { requireAuth, getSessionUserId } from '../middleware/auth.js';
+import { loadAuthContext } from '../middleware/context.js';
 import {
   deleteUserAccount,
   getUserById,
@@ -8,6 +9,10 @@ import {
   updateUserProfile,
 } from '../services/authService.js';
 import { logAction } from '../services/actionLogService.js';
+import {
+  getUserSettings,
+  updateUserSettings,
+} from '../services/settingsService.js';
 
 export const meRouter = Router();
 
@@ -36,6 +41,30 @@ meRouter.patch('/me', requireAuth, async (req, res, next) => {
     const user = await updateUserProfile(userId, body.name);
     await logAction(userId, 'profile.update', { name: user.name });
     res.json({ user: toPublicUser(user) });
+  } catch (err) {
+    next(err);
+  }
+});
+
+const updateSettingsSchema = z.object({
+  emailNotifications: z.boolean().optional(),
+  appointmentReminders: z.boolean().optional(),
+});
+
+meRouter.get('/me/settings', requireAuth, loadAuthContext, async (req, res, next) => {
+  try {
+    const settings = await getUserSettings(req.auth!);
+    res.json({ settings });
+  } catch (err) {
+    next(err);
+  }
+});
+
+meRouter.patch('/me/settings', requireAuth, loadAuthContext, async (req, res, next) => {
+  try {
+    const body = updateSettingsSchema.parse(req.body);
+    const settings = await updateUserSettings(req.auth!, body);
+    res.json({ settings });
   } catch (err) {
     next(err);
   }

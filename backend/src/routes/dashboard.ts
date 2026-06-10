@@ -2,7 +2,6 @@ import { Router } from 'express';
 import { requireAuth, getSessionUserId } from '../middleware/auth.js';
 import { getUserById, toPublicUser } from '../services/authService.js';
 import { listThreads } from '../services/chatService.js';
-import { countActiveHolds } from '../services/holdService.js';
 import { countOpenTickets } from '../services/ticketService.js';
 import { loadAuthContext } from '../middleware/context.js';
 
@@ -17,17 +16,13 @@ dashboardRouter.get('/dashboard', requireAuth, loadAuthContext, async (req, res,
     }
 
     const threads = await listThreads(user.id);
-    const [openTicketCount, activeHoldCount] = await Promise.all([
-      countOpenTickets(req.auth!),
-      countActiveHolds(req.auth!),
-    ]);
+    const [openTicketCount] = await Promise.all([countOpenTickets(req.auth!)]);
 
     res.json({
       user: toPublicUser(user),
       summary: {
         openTicketCount,
-        pendingActionCount: activeHoldCount,
-        activeHoldCount,
+        pendingActionCount: 0,
         chatThreadCount: threads.length,
       },
     });

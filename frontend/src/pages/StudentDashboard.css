@@ -127,9 +127,10 @@
 }
 
 .student-dashboard__topbar-left {
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 18px;
+  font-weight: 700;
   color: #1b3a6b;
+  letter-spacing: -0.01em;
 }
 
 .student-dashboard__topbar-right {
@@ -251,8 +252,8 @@
 }
 
 .student-dashboard__chat-title {
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 15px;
+  font-weight: 700;
   color: #1b3a6b;
   display: flex;
   align-items: center;
@@ -413,8 +414,8 @@
 }
 
 .student-dashboard__section-title {
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 700;
   color: #1b3a6b;
   display: flex;
   align-items: center;
@@ -882,12 +883,67 @@
 }
 
 .student-dashboard__right-section-label {
-  font-size: 11px;
-  font-weight: 500;
-  color: #9ca3af;
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   margin-bottom: 8px;
+}
+
+.student-dashboard__tickets-compact {
+  flex-shrink: 0;
+}
+
+.student-dashboard__ticket-list {
+  display: flex;
+  flex-direction: column;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.student-dashboard__ticket-row-compact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 14px;
+  border: none;
+  border-bottom: 1px solid #f1f5f9;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+}
+
+.student-dashboard__ticket-row-compact:hover {
+  background: #f8fafc;
+}
+
+.student-dashboard__ticket-row-compact:last-child {
+  border-bottom: none;
+}
+
+.student-dashboard__ticket-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.student-dashboard__ticket-row-text {
+  font-size: 12px;
+  font-weight: 500;
+  color: #374151;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.student-dashboard__filter-hint--inset {
+  padding: 0 14px 8px;
+  margin-bottom: 0;
 }
 
 .student-dashboard__progress-panel {

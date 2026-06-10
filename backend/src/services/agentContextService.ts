@@ -1,7 +1,6 @@
 import { type AuthContext, AppError } from '../lib/permissions.js';
 import { getAgentMode } from '../lib/env.js';
 import { getUserById } from './authService.js';
-import { getHoldSummary } from './holdService.js';
 import { getAppointmentSummary } from './appointmentService.js';
 import { listAppointments } from './appointmentService.js';
 import { countOpenTickets, listTickets } from './ticketService.js';
@@ -19,13 +18,11 @@ export async function buildAgentContext(ctx: AuthContext, threadId?: string) {
     throw new AppError(404, 'User not found');
   }
 
-  const [holdSummary, appointmentSummary, openTicketCount, tickets] =
-    await Promise.all([
-      getHoldSummary(ctx),
-      getAppointmentSummary(ctx),
-      countOpenTickets(ctx),
-      listTickets(ctx),
-    ]);
+  const [appointmentSummary, openTicketCount, tickets] = await Promise.all([
+    getAppointmentSummary(ctx),
+    countOpenTickets(ctx),
+    listTickets(ctx),
+  ]);
 
   const nextAppt = appointmentSummary.nextAppointment;
   const upcoming = await listAppointments(ctx, { status: 'upcoming' });
@@ -56,7 +53,6 @@ export async function buildAgentContext(ctx: AuthContext, threadId?: string) {
     },
     summary: {
       openTicketCount,
-      activeHoldCount: holdSummary.activeCount,
       upcomingAppointmentCount: appointmentSummary.upcomingCount,
       nextAppointment: nextAppointmentDetail
         ? {
@@ -77,10 +73,6 @@ export async function buildAgentContext(ctx: AuthContext, threadId?: string) {
             }
           : null,
     },
-    holds: holdSummary.holds.map((hold) => ({
-      label: hold.label,
-      department: hold.department,
-    })),
     recentTickets: tickets.slice(0, 5).map((ticket) => ({
       id: ticket.id,
       ticketNumber: ticket.ticketNumber,

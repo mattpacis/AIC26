@@ -1,26 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
-  IconAlertTriangle,
-  IconBooks,
-  IconBuilding,
   IconBuildingCommunity,
-  IconCash,
-  IconCertificate,
   IconClock,
-  IconHeartRateMonitor,
   IconLogout,
   IconMessageChatbot,
-  IconPrinter,
   IconRefresh,
-  IconSchool,
   IconSettings,
   IconTicket,
-  IconUserCircle,
 } from '@tabler/icons-react';
-import type { TablerIcon } from '@tabler/icons-react';
 import {
-  getHoldSummary,
   getMe,
   listAppointments,
   listTickets,
@@ -31,25 +20,16 @@ import {
 } from '../api/client';
 import { CopilotWebChat } from '../components/CopilotWebChat';
 import '../components/CopilotWebChat.css';
-import { DEMO_TODAY } from '../config/demoDate';
+import { getTodayParts } from '../config/demoDate';
+import { openCampusPortal, QUICK_LINKS } from '../config/quickLinks';
 import { StudentTopbar } from '../components/StudentTopbar';
 import '../components/StudentTopbar.css';
 import { openCopilotChat } from '../config/copilot';
 import { getStudentNavItems } from '../config/studentNav';
 import { useShellScale } from '../hooks/useShellScale';
-import {
-  TICKET_BADGE_CLASS,
-  TICKET_URGENCY_CLASS,
-} from '../utils/ticketDisplay';
+import { randomGreeting } from '../utils/greeting';
+import { TICKET_STATUS_DOT_COLOR } from '../utils/ticketDisplay';
 import './StudentDashboard.css';
-
-type QuickLink = {
-  label: string;
-  icon: TablerIcon;
-  iconColor: string;
-  bgColor: string;
-  url?: string;
-};
 
 type CalendarDay = {
   day: number;
@@ -69,37 +49,6 @@ type SidebarAppointment = {
   ticketNumber?: string;
   appointmentId?: string;
 };
-
-const TODAY = DEMO_TODAY;
-
-const QUICK_LINKS: QuickLink[] = [
-  {
-    label: 'AISIS',
-    icon: IconSchool,
-    iconColor: '#2563EB',
-    bgColor: '#EFF6FF',
-    url: 'https://aisis.ateneo.edu',
-  },
-  {
-    label: 'Canvas',
-    icon: IconCertificate,
-    iconColor: '#D97706',
-    bgColor: '#FEF3C7',
-    url: 'https://canvas.ateneo.edu',
-  },
-  {
-    label: 'BluePHR',
-    icon: IconHeartRateMonitor,
-    iconColor: '#059669',
-    bgColor: '#ECFDF5',
-    url: 'https://ateneo.bluphr.ph',
-  },
-  { label: 'Library', icon: IconBooks, iconColor: '#374151', bgColor: '#F3F4F6' },
-  { label: 'Printing', icon: IconPrinter, iconColor: '#9333EA', bgColor: '#FDF4FF' },
-  { label: 'Facilities', icon: IconBuilding, iconColor: '#EA580C', bgColor: '#FFF7ED' },
-  { label: 'Cashier', icon: IconCash, iconColor: '#0369A1', bgColor: '#EFF6FF' },
-  { label: 'Registrar', icon: IconUserCircle, iconColor: '#DB2777', bgColor: '#FDF2F8' },
-];
 
 const MONTH_NAMES = [
   'January',
@@ -178,24 +127,6 @@ function matchesScheduledDate(isoDate: string | null, day: CalendarDay) {
   );
 }
 
-function openCampusPortal(url: string, title: string) {
-  const width = Math.min(1200, window.screen.availWidth - 48);
-  const height = Math.min(820, window.screen.availHeight - 48);
-  const left = Math.max(0, Math.round((window.screen.availWidth - width) / 2));
-  const top = Math.max(0, Math.round((window.screen.availHeight - height) / 2));
-  const windowName = `campus360-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
-  const features = `popup=yes,width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`;
-
-  const popup = window.open(url, windowName, features);
-
-  if (!popup) {
-    window.open(url, '_blank');
-    return;
-  }
-
-  popup.focus();
-}
-
 function departmentVariant(department: string): SidebarAppointment['variant'] {
   const lower = department.toLowerCase();
   if (lower.includes('health')) return 'health';
@@ -223,26 +154,20 @@ function toSidebarAppointment(appt: AppointmentRecord): SidebarAppointment {
 export function StudentDashboard() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [holds, setHolds] = useState<
-    Awaited<ReturnType<typeof getHoldSummary>>['summary']['holds']
-  >([]);
-  const [holdStats, setHoldStats] = useState({
-    active: 0,
-    cleared: 0,
-    total: 0,
-  });
-  const navItems = getStudentNavItems(location.pathname, {
-    holdsCount: holds.length,
-  });
+  const navItems = getStudentNavItems(location.pathname);
   const { outerRef, shellRef } = useShellScale();
 
   const [user, setUser] = useState<User | null>(null);
+  const [greeting, setGreeting] = useState('');
   const [tickets, setTickets] = useState<TicketSummary[]>([]);
   const [loadingTickets, setLoadingTickets] = useState(true);
   const [refreshingTickets, setRefreshingTickets] = useState(false);
   const [appointments, setAppointments] = useState<AppointmentRecord[]>([]);
   const [loadingAppointments, setLoadingAppointments] = useState(true);
-  const [viewMonth, setViewMonth] = useState({ year: 2026, month: 8 });
+  const [viewMonth, setViewMonth] = useState(() => {
+    const today = getTodayParts();
+    return { year: today.year, month: today.month };
+  });
   const [selectedDay, setSelectedDay] = useState<CalendarDay | null>(null);
 
   async function refreshTickets(silent = false) {
@@ -269,20 +194,11 @@ export function StudentDashboard() {
 
     async function loadSession() {
       try {
-        const [me, ticketData, holdsData] = await Promise.all([
-          getMe(),
-          listTickets(),
-          getHoldSummary(),
-        ]);
+        const [me, ticketData] = await Promise.all([getMe(), listTickets()]);
         if (cancelled) return;
         setUser(me.user);
+        setGreeting(randomGreeting(me.user.name.split(' ')[0]));
         setTickets(ticketData.tickets);
-        setHolds(holdsData.summary.holds);
-        setHoldStats({
-          active: holdsData.summary.activeCount,
-          cleared: holdsData.summary.clearedCount ?? 0,
-          total: holdsData.summary.totalCount ?? holdsData.summary.activeCount,
-        });
       } catch {
         if (!cancelled) {
           navigate('/login');
@@ -384,14 +300,11 @@ export function StudentDashboard() {
     return null;
   }
 
+  const today = getTodayParts();
   const activeTickets = tickets.filter((ticket) => ticket.status !== 'resolved');
   const resolvedTickets = tickets.filter((ticket) => ticket.status === 'resolved').length;
   const resolutionRate =
     tickets.length === 0 ? 0 : Math.round((resolvedTickets / tickets.length) * 100);
-  const holdsClearedRate =
-    holdStats.total === 0
-      ? 0
-      : Math.round((holdStats.cleared / holdStats.total) * 100);
 
   const calendarDays = buildCalendarGrid(viewMonth.year, viewMonth.month);
   const eventDayKeys = new Set<string>();
@@ -410,7 +323,9 @@ export function StudentDashboard() {
   }
 
   for (const appointment of appointments) {
-    if (appointment.status === 'cancelled') continue;
+    if (appointment.status === 'cancelled' || appointment.status === 'completed') {
+      continue;
+    }
     const date = new Date(appointment.scheduledAt);
     eventDayKeys.add(
       dayKey({
@@ -514,7 +429,11 @@ export function StudentDashboard() {
             </nav>
 
             <div className="student-dashboard__sidebar-footer">
-              <button type="button" className="student-dashboard__nav-item">
+              <button
+                type="button"
+                className="student-dashboard__nav-item"
+                onClick={() => navigate('/settings')}
+              >
                 <IconSettings size={17} aria-hidden />
                 Settings
               </button>
@@ -531,9 +450,7 @@ export function StudentDashboard() {
 
           <div className="student-dashboard__main">
             <header className="student-dashboard__topbar">
-              <div className="student-dashboard__topbar-left">
-                Good morning, {user.name.split(' ')[0]} 👋
-              </div>
+              <div className="student-dashboard__topbar-left">{greeting}</div>
               <StudentTopbar user={user} onUserUpdated={setUser} />
             </header>
 
@@ -579,8 +496,10 @@ export function StudentDashboard() {
                     </button>
                   ))}
                 </div>
+              </div>
 
-                <div className="student-dashboard__card student-dashboard__tickets-card">
+              <aside className="student-dashboard__right-col">
+                <div className="student-dashboard__card student-dashboard__tickets-compact">
                   <div className="student-dashboard__section-header">
                     <div className="student-dashboard__section-title">
                       <IconTicket size={16} color="#2E5BA8" aria-hidden />
@@ -610,97 +529,45 @@ export function StudentDashboard() {
                     </div>
                   </div>
                   {selectedDay && (
-                    <p className="student-dashboard__filter-hint">
+                    <p className="student-dashboard__filter-hint student-dashboard__filter-hint--inset">
                       Showing tickets for {formatSelectedDayLabel(selectedDay)}.
                       <button type="button" onClick={() => setSelectedDay(null)}>
                         Show all
                       </button>
                     </p>
                   )}
-                  <table className="student-dashboard__tickets-table">
-                    <thead>
-                      <tr>
-                        <th>Ticket ID</th>
-                        <th>Concern</th>
-                        <th>Status</th>
-                        <th>Urgency</th>
-                        <th>Department</th>
-                        <th>Last Update</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {loadingTickets ? (
-                        <tr>
-                          <td colSpan={6}>Loading tickets…</td>
-                        </tr>
-                      ) : filteredTickets.length === 0 ? (
-                        <tr>
-                          <td colSpan={6}>
-                            {selectedDay
-                              ? 'No tickets scheduled for this day.'
-                              : 'No tickets yet.'}
-                          </td>
-                        </tr>
-                      ) : (
-                        filteredTickets.map((ticket) => (
-                        <tr
+                  <div className="student-dashboard__ticket-list">
+                    {loadingTickets ? (
+                      <p className="student-dashboard__filter-hint student-dashboard__filter-hint--inset">
+                        Loading tickets…
+                      </p>
+                    ) : filteredTickets.length === 0 ? (
+                      <p className="student-dashboard__filter-hint student-dashboard__filter-hint--inset">
+                        {selectedDay
+                          ? 'No tickets scheduled for this day.'
+                          : 'No tickets yet.'}
+                      </p>
+                    ) : (
+                      filteredTickets.map((ticket) => (
+                        <button
                           key={ticket.id}
-                          className="student-dashboard__ticket-row"
-                          onClick={() =>
-                            navigate(`/tickets/${ticket.ticketNumber}`)
-                          }
+                          type="button"
+                          className="student-dashboard__ticket-row-compact"
+                          onClick={() => navigate(`/tickets/${ticket.ticketNumber}`)}
+                          title={ticket.concern}
                         >
-                          <td className="student-dashboard__ticket-id">
-                            {ticket.id}
-                          </td>
-                          <td>{ticket.concern}</td>
-                          <td>
-                            <span
-                              className={`student-dashboard__badge ${TICKET_BADGE_CLASS[ticket.status]}`}
-                            >
-                              {ticket.statusLabel}
-                            </span>
-                          </td>
-                          <td>
-                            <span className={TICKET_URGENCY_CLASS[ticket.urgency]}>
-                              {ticket.urgencyLabel}
-                            </span>
-                          </td>
-                          <td>{ticket.department}</td>
-                          <td className="student-dashboard__ticket-date">
-                            {ticket.lastUpdate}
-                          </td>
-                        </tr>
+                          <span
+                            className="student-dashboard__ticket-status-dot"
+                            style={{ background: TICKET_STATUS_DOT_COLOR[ticket.status] }}
+                            aria-hidden
+                          />
+                          <span className="student-dashboard__ticket-row-text">
+                            {ticket.concern}
+                          </span>
+                        </button>
                       ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <aside className="student-dashboard__right-col">
-                <div className="student-dashboard__holds-section">
-                  <div className="student-dashboard__holds-title">
-                    <IconAlertTriangle size={14} aria-hidden />
-                    Active Holds ({holds.length})
+                    )}
                   </div>
-                  {holds.length === 0 ? (
-                    <p className="student-dashboard__filter-hint">
-                      No active holds right now.
-                    </p>
-                  ) : (
-                    holds.map((hold) => (
-                      <button
-                        key={hold.id}
-                        type="button"
-                        className="student-dashboard__holds-item student-dashboard__holds-item-btn"
-                        onClick={() => navigate('/holds')}
-                      >
-                        <span className="student-dashboard__notification-dot" />
-                        {hold.label}
-                      </button>
-                    ))
-                  )}
                 </div>
 
                 <div>
@@ -746,7 +613,7 @@ export function StudentDashboard() {
                       </div>
                     ))}
                     {calendarDays.map((cell, i) => {
-                      const isToday = sameCalendarDay(cell, TODAY);
+                      const isToday = sameCalendarDay(cell, today);
                       const isSelected =
                         selectedDay !== null && sameCalendarDay(cell, selectedDay);
                       const hasEvent = eventDayKeys.has(dayKey(cell));
@@ -854,20 +721,6 @@ export function StudentDashboard() {
                       <div
                         className="student-dashboard__progress-fill green"
                         style={{ width: `${resolutionRate}%` }}
-                      />
-                    </div>
-                    <div className="student-dashboard__progress-row">
-                      <span>Holds cleared</span>
-                      <span className="student-dashboard__progress-value amber">
-                        {holdStats.total === 0
-                          ? '—'
-                          : `${holdStats.cleared} / ${holdStats.total}`}
-                      </span>
-                    </div>
-                    <div className="student-dashboard__progress-track">
-                      <div
-                        className="student-dashboard__progress-fill amber"
-                        style={{ width: `${holdsClearedRate}%` }}
                       />
                     </div>
                   </div>

@@ -1,6 +1,4 @@
 import {
-  IconAlertCircle,
-  IconBook,
   IconCalendarEvent,
   IconLink,
   IconMessageChatbot,
@@ -20,21 +18,12 @@ const BASE_NAV: Omit<StudentNavItem, 'active'>[] = [
   { label: 'AI Helpdesk', icon: IconMessageChatbot, path: '/dashboard' },
   { label: 'My Tickets', icon: IconTicket, path: '/tickets' },
   { label: 'Appointments', icon: IconCalendarEvent, path: '/appointments' },
-  { label: 'Holds', icon: IconAlertCircle, path: '/holds' },
-  { label: 'Quick Links', icon: IconLink, path: '/dashboard' },
-  { label: 'Handbook', icon: IconBook, path: '/dashboard' },
+  { label: 'Quick Links', icon: IconLink, path: '/quick-links' },
 ];
 
-export function getStudentNavItems(
-  pathname: string,
-  options: { holdsCount?: number } = {},
-): StudentNavItem[] {
+export function getStudentNavItems(pathname: string): StudentNavItem[] {
   return BASE_NAV.map((item) => ({
     ...item,
-    badge:
-      item.label === 'Holds' && options.holdsCount && options.holdsCount > 0
-        ? options.holdsCount
-        : item.badge,
     active:
       item.label === 'AI Helpdesk'
         ? pathname === '/dashboard'
@@ -42,8 +31,8 @@ export function getStudentNavItems(
           ? pathname === '/tickets' || pathname.startsWith('/tickets/')
           : item.label === 'Appointments'
             ? pathname === '/appointments'
-            : item.label === 'Holds'
-              ? pathname === '/holds'
+            : item.label === 'Quick Links'
+              ? pathname === '/quick-links'
               : false,
   }));
 }

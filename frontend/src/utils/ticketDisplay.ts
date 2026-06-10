@@ -20,6 +20,13 @@ export const TICKET_URGENCY_CLASS: Record<TicketSummary['urgency'], string> = {
   high: 'student-dashboard__urgency-high',
 };
 
+export const TICKET_STATUS_DOT_COLOR: Record<TicketSummary['status'], string> = {
+  open: '#991b1b',
+  progress: '#92400e',
+  pending: '#1d4ed8',
+  resolved: '#166534',
+};
+
 export const TICKET_URGENCY_BADGE_CLASS: Record<TicketSummary['urgency'], string> = {
   low: 'student-ticket-detail__b-low',
   med: 'student-ticket-detail__b-med',
