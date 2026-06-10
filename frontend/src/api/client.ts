@@ -720,6 +720,7 @@ export type StaffQueueTicket = {
     assignedTo: string;
   };
   steps: Array<{ text: string; tag?: string }>;
+  replies: TicketReply[];
 };
 
 export type StaffDashboardUser = {
