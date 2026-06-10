@@ -105,7 +105,7 @@ export type TicketDetail = TicketSummary & {
     icon?: string;
   }>;
   replies: TicketReply[];
-  canCancel: boolean;
+  canResolve: boolean;
   canReply: boolean;
   canTake?: boolean;
   aiTriaged: boolean;
@@ -240,6 +240,18 @@ export async function getCopilotEmbedToken(): Promise<{
   email: string;
 }> {
   const response = await apiFetch(`${API_BASE}/agent/embed-token`);
+  return parseJson(response);
+}
+
+export async function getCopilotDirectLineToken(): Promise<{
+  token: string;
+  conversationId: string;
+  expiresIn: number;
+  userId: string;
+  email: string;
+  campus360Token: string;
+}> {
+  const response = await apiFetch(`${API_BASE}/agent/direct-line-token`);
   return parseJson(response);
 }
 
@@ -387,11 +399,11 @@ export async function addTicketReply(
   return parseJson(response);
 }
 
-export async function cancelTicket(
+export async function resolveTicket(
   ticketNumber: string,
 ): Promise<{ ticket: TicketDetail }> {
   const normalized = ticketNumber.replace(/^#/, '');
-  const response = await apiFetch(`${API_BASE}/tickets/${normalized}/cancel`, {
+  const response = await apiFetch(`${API_BASE}/tickets/${normalized}/resolve`, {
     method: 'POST',
     body: JSON.stringify({}),
   });
@@ -720,6 +732,7 @@ export type StaffQueueTicket = {
     assignedTo: string;
   };
   steps: Array<{ text: string; tag?: string }>;
+  suggestedStaffNotes?: string;
   replies: TicketReply[];
 };
 

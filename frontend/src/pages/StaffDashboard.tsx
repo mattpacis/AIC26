@@ -726,10 +726,15 @@ export function StaffDashboard() {
                     </div>
 
                     <div className="staff-dashboard__section-sep">Staff notes</div>
+                    {!notes.trim() && selected.suggestedStaffNotes && (
+                      <p className="staff-dashboard__notes-hint">
+                        {selected.suggestedStaffNotes}
+                      </p>
+                    )}
                     <textarea
                       className="staff-dashboard__notes-area"
-                      rows={3}
-                      placeholder={`Add internal notes — visible only to ${departmentLabel} staff…`}
+                      rows={4}
+                      placeholder="Add internal notes for your department. Students cannot see these notes."
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
                       disabled={selectedClosed}

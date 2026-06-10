@@ -96,3 +96,26 @@
   border: 0;
   background: #fff;
 }
+
+.copilot-webchat__webchat-host {
+  flex: 1;
+  min-height: 360px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.copilot-webchat__webchat-host > div {
+  height: 100%;
+}
+
+.copilot-webchat__status {
+  margin: 0;
+  padding: 16px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.copilot-webchat__status--error {
+  color: #b45309;
+  background: #fffbeb;
+}

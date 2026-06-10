@@ -145,26 +145,28 @@ function buildStudentTags(
 }
 
 function buildSuggestedSteps(ticket: Ticket, detail: Record<string, unknown> | null) {
-  const trackSteps = Array.isArray(detail?.trackSteps) ? detail.trackSteps : [];
-  if (trackSteps.length > 0) {
-    return trackSteps
-      .filter((step) => typeof step === 'object' && step !== null)
-      .map((step) => {
-        const record = step as Record<string, unknown>;
-        const label = typeof record.label === 'string' ? record.label : 'Step';
-        const sub = typeof record.sub === 'string' ? record.sub : undefined;
-        return {
-          text: sub ? `${label} — ${sub}` : label,
-          tag: record.state === 'active' ? 'current' : undefined,
-        };
-      });
+  const aiUpdates = Array.isArray(detail?.aiUpdates) ? detail.aiUpdates : [];
+  if (aiUpdates.length > 0) {
+    const first = aiUpdates[0] as Record<string, unknown>;
+    if (typeof first.body === 'string' && first.body.trim()) {
+      return [{ text: first.body.trim(), tag: 'AI triage' }];
+    }
   }
 
   return [
     { text: `Review ticket concern: ${ticket.concern}` },
-    { text: `Contact student via Campus360 if more information is needed` },
-    { text: `Update ticket status when resolved` },
+    { text: 'Contact the student via Campus360 if more information is needed' },
+    { text: 'Mark the ticket resolved once the issue is fully addressed' },
   ];
+}
+
+function buildSuggestedStaffNotes(ticket: Ticket) {
+  return [
+    `Student concern: ${ticket.concern}`,
+    `Department: ${ticket.department}`,
+    'Recommended next action: Review ticket details, contact the student if needed, and mark resolved when complete.',
+    'These notes are internal and not visible to students.',
+  ].join('\n');
 }
 
 function buildAiSummary(ticket: Ticket, detail: Record<string, unknown> | null) {
@@ -253,6 +255,7 @@ export function serializeStaffQueueTicket(
       assignedTo: ticket.assignedTo ?? 'Unassigned',
     },
     steps: buildSuggestedSteps(ticket, detail),
+    suggestedStaffNotes: buildSuggestedStaffNotes(ticket),
     replies: serializeTicketReplies(ticket.replies ?? []),
   };
 }

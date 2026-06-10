@@ -117,7 +117,7 @@ curl -b cookies.txt -X POST http://localhost:3001/api/chat/messages \
 
 **Read:** `get_context`, `get_me`, `list_tickets`, `get_ticket`, `list_appointments`, `get_appointment_summary`, `get_availability`, `list_holds`, `list_departments`, `list_notifications`
 
-**Write:** `create_ticket`, `add_ticket_reply`, `cancel_ticket`, `request_appointment`, `reschedule_appointment`, `cancel_appointment`, `create_notification`
+**Write:** `create_ticket`, `add_ticket_reply`, `resolve_ticket`, `request_appointment`, `reschedule_appointment`, `cancel_appointment`, `create_notification`
 
 Example create ticket:
 

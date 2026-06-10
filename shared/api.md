@@ -168,6 +168,14 @@ Update ticket status. Staff/admin only.
 
 ---
 
+## POST /api/tickets/:ticketNumber/resolve
+
+Mark an open ticket as resolved. Student only (own tickets).
+
+**Response 200** — ticket detail object with `status: "resolved"`.
+
+---
+
 ## GET /api/appointments
 
 List appointments for the current user. Students see only their own appointments.

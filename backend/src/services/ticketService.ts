@@ -6,14 +6,15 @@ import {
 import { prisma } from '../lib/db.js';
 import {
   type AuthContext,
-  assertCanCancelTicket,
   assertCanCreateTicketFor,
   assertCanDeleteTicket,
   assertCanReplyToTicket,
+  assertCanResolveTicket,
   assertCanUpdateTicket,
   assertCanViewTicket,
   AppError,
 } from '../lib/permissions.js';
+import { normalizeTicketDepartmentLabel } from '../lib/departments.js';
 import { logAction } from './actionLogService.js';
 import {
   notifyDepartmentStaff,
@@ -163,10 +164,15 @@ export function serializeTicketDetail(
   const title = ticket.title ?? ticket.concern;
   const aiTriaged = isAiCreatedTicket(detail);
   const isTaken = Boolean(ticket.assignedStaffUserId);
+  const isOpen = ticket.status !== TicketStatus.RESOLVED;
   const canReply =
-    ticket.status !== TicketStatus.RESOLVED &&
-    isTaken &&
-    (!viewer || viewer.role !== 'STAFF' || viewer.department === ticket.department);
+    isOpen &&
+    (viewer?.role === 'STUDENT'
+      ? true
+      : isTaken &&
+        (!viewer ||
+          viewer.role !== 'STAFF' ||
+          viewer.department === ticket.department));
 
   return {
     ...serializeTicketSummary(ticket),
@@ -196,7 +202,7 @@ export function serializeTicketDetail(
     timeline: Array.isArray(detail?.timeline) ? detail.timeline : [],
     related: Array.isArray(detail?.related) ? detail.related : [],
     replies: serializeTicketReplies(replies),
-    canCancel: ticket.status !== TicketStatus.RESOLVED,
+    canResolve: isOpen,
     canReply,
     canTake:
       viewer?.role === 'STAFF' &&
@@ -311,6 +317,8 @@ export async function createTicket(ctx: AuthContext, input: CreateTicketInput) {
     throw new AppError(400, 'Invalid student for this school');
   }
 
+  const department = normalizeTicketDepartmentLabel(input.department);
+
   const ticket = await prisma.ticket.create({
     data: {
       ticketNumber: await nextTicketNumber(),
@@ -319,7 +327,7 @@ export async function createTicket(ctx: AuthContext, input: CreateTicketInput) {
       description: input.description,
       status: TicketStatus.OPEN,
       urgency: input.urgency ?? TicketUrgency.MEDIUM,
-      department: input.department,
+      department,
       schoolId: ctx.schoolId,
       studentUserId,
       assignedTo: input.assignedTo,
@@ -334,7 +342,7 @@ export async function createTicket(ctx: AuthContext, input: CreateTicketInput) {
               hour: 'numeric',
               minute: '2-digit',
             }),
-            body: `Ticket created for "${input.concern}" and routed to ${input.department}.`,
+            body: `Ticket created for "${input.concern}" and routed to ${department}.`,
           },
         ],
         timeline: [
@@ -346,7 +354,7 @@ export async function createTicket(ctx: AuthContext, input: CreateTicketInput) {
             showLine: false,
           },
         ],
-        trackSteps: buildAiCreatedTrackSteps(input.department),
+        trackSteps: buildAiCreatedTrackSteps(department),
       }),
     },
   });
@@ -357,7 +365,7 @@ export async function createTicket(ctx: AuthContext, input: CreateTicketInput) {
     studentUserId,
   });
 
-  await notifyDepartmentStaff(ctx.schoolId, input.department, {
+  await notifyDepartmentStaff(ctx.schoolId, department, {
     title: 'New ticket in your queue',
     body: `${student.name} submitted "${input.concern}" — review and take the ticket when ready.`,
     link: `/staff-dashboard?ticket=${ticket.ticketNumber}`,
@@ -365,7 +373,7 @@ export async function createTicket(ctx: AuthContext, input: CreateTicketInput) {
 
   await notifyUser(studentUserId, {
     title: 'Ticket created',
-    body: `Your ticket #${ticket.ticketNumber} was created and routed to ${input.department}.`,
+    body: `Your ticket #${ticket.ticketNumber} was created and routed to ${department}.`,
     link: `/tickets/${ticket.ticketNumber}`,
   });
 
@@ -445,6 +453,12 @@ export async function addTicketReply(
         body: `${ticket.concern} — a student replied on ticket #${ticket.ticketNumber}.`,
         link: `/staff-dashboard?ticket=${ticket.ticketNumber}`,
       });
+    } else {
+      await notifyDepartmentStaff(ctx.schoolId, ticket.department, {
+        title: 'New student follow-up',
+        body: `${ticket.concern} — a student replied on ticket #${ticket.ticketNumber}. Review and take the ticket when ready.`,
+        link: `/staff-dashboard?ticket=${ticket.ticketNumber}`,
+      });
     }
   } else {
     await notifyUser(ticket.studentUserId, {
@@ -457,9 +471,9 @@ export async function addTicketReply(
   return serializeTicketDetail(ticket, ticket.replies, ctx);
 }
 
-export async function cancelTicket(ctx: AuthContext, ticketNumber: string) {
+export async function resolveTicket(ctx: AuthContext, ticketNumber: string) {
   const existing = await getTicketRecord(ctx, ticketNumber);
-  assertCanCancelTicket(ctx, existing);
+  assertCanResolveTicket(ctx, existing);
 
   const now = new Date();
   const timeLabel = now.toLocaleString('en-US', {
@@ -474,7 +488,7 @@ export async function cancelTicket(ctx: AuthContext, ticketNumber: string) {
     data: {
       status: TicketStatus.RESOLVED,
       updatedAt: now,
-      confirmation: 'This ticket was cancelled by the student.',
+      confirmation: 'This ticket has been marked as resolved.',
       detailPayload: mergeDetailPayload(existing, (detail) => {
         const timeline = Array.isArray(detail.timeline) ? [...detail.timeline] : [];
         if (timeline.length > 0) {
@@ -484,10 +498,10 @@ export async function cancelTicket(ctx: AuthContext, ticketNumber: string) {
           };
         }
         timeline.push({
-          title: 'Ticket cancelled',
-          desc: 'You cancelled this ticket.',
+          title: 'Ticket resolved',
+          desc: 'You marked this ticket as resolved.',
           time: timeLabel,
-          dotColor: '#9CA3AF',
+          dotColor: '#16A34A',
           showLine: false,
         });
         return { ...detail, timeline };
@@ -503,12 +517,26 @@ export async function cancelTicket(ctx: AuthContext, ticketNumber: string) {
     },
   });
 
-  await logAction(ctx.userId, 'ticket.cancel', {
+  await logAction(ctx.userId, 'ticket.resolve', {
     ticketId: ticket.id,
     ticketNumber: ticket.ticketNumber,
   });
 
-  return serializeTicketDetail(ticket, ticket.replies);
+  if (ticket.assignedStaffUserId) {
+    await notifyUser(ticket.assignedStaffUserId, {
+      title: 'Ticket resolved by student',
+      body: `Ticket #${ticket.ticketNumber} was marked resolved by the student.`,
+      link: `/staff-dashboard?ticket=${ticket.ticketNumber}`,
+    });
+  } else {
+    await notifyDepartmentStaff(ctx.schoolId, ticket.department, {
+      title: 'Ticket resolved by student',
+      body: `Ticket #${ticket.ticketNumber} was marked resolved by the student.`,
+      link: `/staff-dashboard?ticket=${ticket.ticketNumber}`,
+    });
+  }
+
+  return serializeTicketDetail(ticket, ticket.replies, ctx);
 }
 
 export async function deleteTicket(ctx: AuthContext, ticketNumber: string) {

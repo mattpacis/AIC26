@@ -5,11 +5,11 @@ import { requireAuth } from '../middleware/auth.js';
 import { loadAuthContext } from '../middleware/context.js';
 import {
   addTicketReply,
-  cancelTicket,
   createTicket,
   deleteTicket,
   getTicketByNumber,
   listTickets,
+  resolveTicket,
   updateTicketStatus,
 } from '../services/ticketService.js';
 
@@ -81,9 +81,9 @@ ticketsRouter.post('/tickets/:ticketNumber/replies', async (req, res, next) => {
   }
 });
 
-ticketsRouter.post('/tickets/:ticketNumber/cancel', async (req, res, next) => {
+ticketsRouter.post('/tickets/:ticketNumber/resolve', async (req, res, next) => {
   try {
-    const ticket = await cancelTicket(req.auth!, req.params.ticketNumber);
+    const ticket = await resolveTicket(req.auth!, req.params.ticketNumber);
     res.json({ ticket });
   } catch (err) {
     next(err);

@@ -19,6 +19,10 @@ import { notificationsRouter } from './routes/notifications.js';
 export function createApp() {
   const app = express();
 
+  if (env.NODE_ENV === 'production') {
+    app.set('trust proxy', 1);
+  }
+
   app.use(
     cors({
       origin: env.CORS_ORIGIN,
@@ -28,12 +32,16 @@ export function createApp() {
 
   app.use(express.json());
 
+  const crossOriginFrontend =
+    env.NODE_ENV === 'production' &&
+    !env.CORS_ORIGIN.includes('localhost');
+
   app.use(
     cookieSession({
       name: 'campus360_session',
       secret: env.SESSION_SECRET,
       httpOnly: true,
-      sameSite: 'lax',
+      sameSite: crossOriginFrontend ? 'none' : 'lax',
       secure: env.NODE_ENV === 'production',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     }),

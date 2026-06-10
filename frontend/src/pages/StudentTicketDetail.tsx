@@ -14,15 +14,14 @@ import {
   IconRobot,
   IconSend,
   IconSettings,
-  IconX,
 } from '@tabler/icons-react';
 import {
   addTicketReply,
-  cancelTicket,
   getHoldSummary,
   getMe,
   getTicket,
   logout,
+  resolveTicket,
   userInitials,
   type TicketDetail,
   type User,
@@ -51,7 +50,7 @@ export function StudentTicketDetail() {
   const [error, setError] = useState<string | null>(null);
   const [reply, setReply] = useState('');
   const [sending, setSending] = useState(false);
-  const [cancelling, setCancelling] = useState(false);
+  const [resolving, setResolving] = useState(false);
 
   const navItems = getStudentNavItems(location.pathname, { holdsCount });
 
@@ -171,23 +170,23 @@ export function StudentTicketDetail() {
     replySectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  async function handleCancelTicket() {
-    if (!ticketId || !ticket?.canCancel || cancelling) return;
+  async function handleResolveTicket() {
+    if (!ticketId || !ticket?.canResolve || resolving) return;
 
     const confirmed = window.confirm(
-      `Cancel ticket ${ticket.id}? This cannot be undone.`,
+      `Mark ticket ${ticket.id} as resolved? You will not be able to send follow-ups after this.`,
     );
     if (!confirmed) return;
 
-    setCancelling(true);
+    setResolving(true);
     setError(null);
     try {
-      const { ticket: updated } = await cancelTicket(ticketId);
+      const { ticket: updated } = await resolveTicket(ticketId);
       setTicket(updated);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to cancel ticket');
+      setError(err instanceof Error ? err.message : 'Failed to resolve ticket');
     } finally {
-      setCancelling(false);
+      setResolving(false);
     }
   }
 
@@ -316,15 +315,15 @@ export function StudentTicketDetail() {
                       <IconMessage size={13} aria-hidden />
                       Follow up
                     </button>
-                    {ticket.canCancel && (
+                    {ticket.canResolve && (
                       <button
                         type="button"
-                        className="student-ticket-detail__btn student-ticket-detail__btn-danger"
-                        onClick={() => void handleCancelTicket()}
-                        disabled={cancelling}
+                        className="student-ticket-detail__btn student-ticket-detail__btn-success"
+                        onClick={() => void handleResolveTicket()}
+                        disabled={resolving}
                       >
-                        <IconX size={13} aria-hidden />
-                        {cancelling ? 'Cancelling…' : 'Cancel ticket'}
+                        <IconCheck size={13} aria-hidden />
+                        {resolving ? 'Resolving…' : 'Mark resolved'}
                       </button>
                     )}
                   </div>
@@ -507,8 +506,10 @@ export function StudentTicketDetail() {
                       <div className="student-ticket-detail__reply-actions">
                         <span className="student-ticket-detail__reply-hint">
                           {ticket.canReply
-                            ? `Your message will be seen by ${ticket.assignedTo}. Enter to send, Shift+Enter for a new line.`
-                            : `Messaging opens after ${ticket.department} staff takes your ticket`}
+                            ? ticket.isTaken
+                              ? `Your message will be seen by ${ticket.assignedTo}. Enter to send, Shift+Enter for a new line.`
+                              : `Your message will be sent to ${ticket.department}. Staff will respond when available. Enter to send, Shift+Enter for a new line.`
+                            : 'This ticket is resolved. Messaging is closed.'}
                         </span>
                         <button
                           type="submit"

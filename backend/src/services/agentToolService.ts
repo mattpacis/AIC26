@@ -21,12 +21,13 @@ import {
   listNotifications,
 } from './notificationService.js';
 import { DEMO_TODAY } from '../lib/demoDate.js';
+import { normalizeTicketDepartmentLabel } from '../lib/departments.js';
 import {
   addTicketReply,
-  cancelTicket,
   createTicket,
   getTicketByNumber,
   listTickets,
+  resolveTicket,
 } from './ticketService.js';
 
 const READ_TOOLS = new Set([
@@ -45,7 +46,7 @@ const READ_TOOLS = new Set([
 const WRITE_TOOLS = new Set([
   'create_ticket',
   'add_ticket_reply',
-  'cancel_ticket',
+  'resolve_ticket',
   'request_appointment',
   'reschedule_appointment',
   'cancel_appointment',
@@ -80,13 +81,14 @@ function optionalString(value: unknown) {
 }
 
 function readDepartment(body: Record<string, unknown>, query?: Record<string, unknown>) {
-  return (
+  const raw =
     optionalString(body.department) ??
     optionalString(body.department_availability) ??
     optionalString(body.departmentName) ??
     optionalString(query?.department) ??
-    optionalString(query?.department_availability)
-  );
+    optionalString(query?.department_availability);
+
+  return raw ? normalizeTicketDepartmentLabel(raw) : undefined;
 }
 
 function queryString(query: Record<string, unknown> | undefined, key: string) {
@@ -270,9 +272,9 @@ export async function executeAgentTool(
         ),
       };
       break;
-    case 'cancel_ticket':
+    case 'resolve_ticket':
       result = {
-        ticket: await cancelTicket(
+        ticket: await resolveTicket(
           ctx,
           asString(body.ticketNumber ?? query.ticketNumber, 'ticketNumber'),
         ),

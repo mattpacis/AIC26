@@ -218,7 +218,7 @@ If you prefer individual cards for readability in Studio, still call them only t
 |----------|------|----------------|
 | `create_ticket` | `{ "concern": "...", "department": "IT Department", "description": "...", "urgency": "MEDIUM" }` | Confirm dept + concern before calling |
 | `add_ticket_reply` | `{ "ticketNumber": "12293031", "content": "..." }` | Student follow-up on existing ticket |
-| `cancel_ticket` | `{ "ticketNumber": "12293031" }` | Confirm before cancel |
+| `resolve_ticket` | `{ "ticketNumber": "12293031" }` | Confirm before resolving |
 | `request_appointment` | `{ "title": "...", "department": "Campus Health", "scheduledAt": "2026-06-12T14:00:00.000Z", "purpose": "..." }` | Only use `startsAt` values from `get_availability` |
 | `reschedule_appointment` | `{ "appointmentId": "<id>", "scheduledAt": "..." }` | Check availability first |
 | `cancel_appointment` | `{ "appointmentId": "<id>" }` | Confirm before cancel |
@@ -247,7 +247,7 @@ If your **Search actions** screen shows these 14 cards:
 | Aggregated student context | `get_context` | Direct ✅ |
 | Allow-listed tool names | `GET /agent/tools` | Direct ✅ |
 | Book an appointment | `request_appointment` | via `execute_agent_tool` |
-| Cancel an open ticket (student) | `cancel_ticket` | via `execute_agent_tool` |
+| Mark an open ticket resolved (student) | `resolve_ticket` | via `execute_agent_tool` |
 | Create a support ticket | `create_ticket` | via `execute_agent_tool` |
 | Current user profile | `get_me` | via `execute_agent_tool` |
 | Department appointment slots | `get_availability` | via `execute_agent_tool` |
