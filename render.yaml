@@ -13,7 +13,7 @@ services:
     runtime: node
     rootDir: backend
     plan: free
-    buildCommand: npm install && bash scripts/render-build.sh
+    buildCommand: npm install --include=dev && bash scripts/render-build.sh
     startCommand: npm start
     healthCheckPath: /api/health
     envVars:
