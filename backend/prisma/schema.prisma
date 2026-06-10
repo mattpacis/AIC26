@@ -1,0 +1,251 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  STAFF
+  ADMIN
+}
+
+enum MessageSender {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  PENDING
+  RESOLVED
+}
+
+enum TicketUrgency {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+}
+
+enum HoldStatus {
+  ACTIVE
+  CLEARED
+}
+
+model School {
+  id                String             @id @default(cuid())
+  name              String
+  users             User[]
+  students          Student[]
+  chatThreads       ChatThread[]
+  tickets           Ticket[]
+  appointments      Appointment[]
+  appointmentSlots  AppointmentSlot[]
+  studentHolds      StudentHold[]
+  knowledgeArticles KnowledgeBaseArticle[]
+  createdAt         DateTime           @default(now())
+}
+
+enum AuthProvider {
+  LOCAL
+  GOOGLE
+  MICROSOFT
+}
+
+model User {
+  id           String       @id @default(cuid())
+  email        String       @unique
+  passwordHash String?
+  authProvider AuthProvider @default(LOCAL)
+  name         String
+  role         Role
+  department   String?
+  schoolId     String
+  school       School       @relation(fields: [schoolId], references: [id])
+  student      Student?
+  chatThreads  ChatThread[]
+  tickets      Ticket[]     @relation("StudentTickets")
+  assignedTickets Ticket[]  @relation("AssignedStaffTickets")
+  appointments Appointment[] @relation("StudentAppointments")
+  holds        StudentHold[] @relation("StudentHolds")
+  ticketReplies TicketReply[]
+  actionLogs   ActionLog[]
+  notifications Notification[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  body      String
+  read      Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+
+  @@index([userId, read])
+}
+
+model Student {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id])
+  schoolId      String
+  school        School   @relation(fields: [schoolId], references: [id])
+  studentNumber String?
+  grade         String?
+  yearLevel     String?
+  program       String?
+  college       String?
+  phone         String?
+  healthFlags   String?
+  createdAt     DateTime @default(now())
+
+  @@unique([schoolId, studentNumber])
+}
+
+model ChatThread {
+  id        String        @id @default(cuid())
+  userId    String
+  user      User          @relation(fields: [userId], references: [id])
+  schoolId  String
+  school    School        @relation(fields: [schoolId], references: [id])
+  title     String?
+  messages  ChatMessage[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+model ChatMessage {
+  id        String        @id @default(cuid())
+  threadId  String
+  thread    ChatThread    @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  sender    MessageSender
+  content   String
+  createdAt DateTime      @default(now())
+}
+
+model ActionLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String
+  details   String
+  createdAt DateTime @default(now())
+}
+
+model Ticket {
+  id            String        @id @default(cuid())
+  ticketNumber  String        @unique
+  concern       String
+  title         String?
+  description   String?
+  status        TicketStatus
+  urgency       TicketUrgency
+  department    String
+  schoolId      String
+  school        School        @relation(fields: [schoolId], references: [id])
+  studentUserId String
+  studentUser   User          @relation("StudentTickets", fields: [studentUserId], references: [id])
+  assignedStaffUserId String?
+  assignedStaffUser   User?   @relation("AssignedStaffTickets", fields: [assignedStaffUserId], references: [id], onDelete: SetNull)
+  assignedTo    String?
+  staffNotes    String?
+  confirmation  String?
+  deadline      DateTime?
+  estResolution DateTime?
+  scheduledDate DateTime?
+  detailPayload String?
+  replies       TicketReply[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model TicketReply {
+  id           String   @id @default(cuid())
+  ticketId     String
+  ticket       Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  authorUserId String
+  authorUser   User     @relation(fields: [authorUserId], references: [id])
+  content      String
+  createdAt    DateTime @default(now())
+}
+
+model StudentHold {
+  id            String     @id @default(cuid())
+  schoolId      String
+  school        School     @relation(fields: [schoolId], references: [id])
+  studentUserId String
+  studentUser   User       @relation("StudentHolds", fields: [studentUserId], references: [id])
+  title         String
+  description   String?
+  department    String
+  status        HoldStatus @default(ACTIVE)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+}
+
+model KnowledgeBaseArticle {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  schoolId     String
+  school       School   @relation(fields: [schoolId], references: [id])
+  department   String
+  title        String
+  description  String
+  category     String
+  tags         String
+  content      String
+  viewCount    Int      @default(0)
+  aiReferenced Boolean  @default(false)
+  readMinutes  Int      @default(3)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Appointment {
+  id            String            @id @default(cuid())
+  title         String
+  department    String
+  purpose       String?
+  location      String?
+  staffName     String?
+  status        AppointmentStatus @default(SCHEDULED)
+  urgencyLabel  String?
+  barColor      String            @default("#2E5BA8")
+  schoolId      String
+  school        School            @relation(fields: [schoolId], references: [id])
+  studentUserId String
+  studentUser   User              @relation("StudentAppointments", fields: [studentUserId], references: [id])
+  ticketNumber  String?
+  scheduledAt   DateTime
+  deadline      DateTime?
+  bringItems    String?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+}
+
+model AppointmentSlot {
+  id         String   @id @default(cuid())
+  schoolId   String
+  school     School   @relation(fields: [schoolId], references: [id])
+  department String
+  startsAt   DateTime
+  createdAt  DateTime @default(now())
+
+  @@unique([schoolId, department, startsAt])
+  @@index([schoolId, department, startsAt])
+}

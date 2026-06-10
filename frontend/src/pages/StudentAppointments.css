@@ -1,0 +1,1059 @@
+.student-appointments {
+  min-height: 100vh;
+  background: #e2e8f0;
+}
+
+.student-appointments__outer {
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.student-appointments__shell {
+  display: flex;
+  width: 1440px;
+  height: 1024px;
+  background: #eef2f7;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 13px;
+  color: #111827;
+  transform-origin: top left;
+}
+
+.student-appointments__sidebar {
+  width: 220px;
+  min-width: 220px;
+  background: #1b3a6b;
+  display: flex;
+  flex-direction: column;
+}
+
+.student-appointments__sb-logo {
+  padding: 22px 20px 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.student-appointments__sb-logo-icon {
+  width: 36px;
+  height: 36px;
+  background: #2e5ba8;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #93c5fd;
+}
+
+.student-appointments__sb-logo-text {
+  font-size: 17px;
+  font-weight: 500;
+  color: #fff;
+  letter-spacing: -0.3px;
+}
+
+.student-appointments__sb-nav {
+  flex: 1;
+  padding: 12px 10px;
+}
+
+.student-appointments__nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 13px;
+  cursor: pointer;
+  margin-bottom: 2px;
+  border: none;
+  background: none;
+  width: 100%;
+  font-family: inherit;
+  text-align: left;
+}
+
+.student-appointments__nav-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.student-appointments__nav-item.active {
+  background: #2e5ba8;
+  color: #fff;
+}
+
+.student-appointments__nav-badge {
+  margin-left: auto;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 20px;
+}
+
+.student-appointments__sb-footer {
+  padding: 12px 10px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.student-appointments__main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.student-appointments__topbar {
+  height: 56px;
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  flex-shrink: 0;
+}
+
+.student-appointments__topbar-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1b3a6b;
+}
+
+.student-appointments__topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.student-appointments__tb-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 12px;
+  color: #374151;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.student-appointments__tb-btn-primary {
+  background: #1b3a6b;
+  color: #fff;
+  border-color: #1b3a6b;
+}
+
+.student-appointments__tb-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #6b7280;
+  position: relative;
+  border: none;
+  background: none;
+}
+
+.student-appointments__notif-dot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ef4444;
+  border: 1.5px solid #fff;
+}
+
+.student-appointments__user-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.student-appointments__user-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #2e5ba8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.student-appointments__user-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #1b3a6b;
+}
+
+.student-appointments__content {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.student-appointments__left-col {
+  width: 380px;
+  min-width: 380px;
+  background: #fff;
+  border-right: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.student-appointments__right-col {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.student-appointments__section-label {
+  font-size: 10px;
+  font-weight: 500;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 12px;
+}
+
+.student-appointments__cal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.student-appointments__cal-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1b3a6b;
+}
+
+.student-appointments__cal-nav {
+  display: flex;
+  gap: 6px;
+}
+
+.student-appointments__cal-nav-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #6b7280;
+  font-family: inherit;
+}
+
+.student-appointments__cal-nav-btn:hover {
+  background: #eff6ff;
+  color: #1b3a6b;
+}
+
+.student-appointments__cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  margin-bottom: 20px;
+}
+
+.student-appointments__cal-day-label {
+  text-align: center;
+  font-size: 10px;
+  color: #9ca3af;
+  padding: 4px 0;
+  font-weight: 500;
+}
+
+.student-appointments__cal-day {
+  text-align: center;
+  font-size: 12px;
+  padding: 6px 2px;
+  border-radius: 7px;
+  color: #374151;
+  cursor: pointer;
+  position: relative;
+  border: 1px solid transparent;
+  background: none;
+  font-family: inherit;
+}
+
+.student-appointments__cal-day:hover {
+  background: #eff6ff;
+}
+
+.student-appointments__cal-day.today {
+  background: #2e5ba8;
+  color: #fff;
+  font-weight: 500;
+}
+
+.student-appointments__cal-day.has-event::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #14b8a6;
+}
+
+.student-appointments__cal-day.today.has-event::after {
+  background: #fff;
+}
+
+.student-appointments__cal-day.other-month {
+  color: #d1d5db;
+}
+
+.student-appointments__cal-day.selected {
+  background: #eff6ff;
+  border-color: #93c5fd;
+  color: #1b3a6b;
+  font-weight: 500;
+}
+
+.student-appointments__cal-day.today.selected {
+  background: #2e5ba8;
+  color: #fff;
+  border-color: #2e5ba8;
+}
+
+.student-appointments__divider {
+  height: 1px;
+  background: #f3f4f6;
+  margin: 18px 0;
+}
+
+.student-appointments__appt-mini {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid #f9fafb;
+  cursor: pointer;
+  background: none;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  width: 100%;
+  font-family: inherit;
+  text-align: left;
+}
+
+.student-appointments__appt-mini:last-child {
+  border-bottom: none;
+}
+
+.student-appointments__appt-mini:hover .student-appointments__apmt-title {
+  color: #2e5ba8;
+}
+
+.student-appointments__apmt-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.student-appointments__apmt-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: #111827;
+  margin-bottom: 2px;
+}
+
+.student-appointments__apmt-sub {
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.student-appointments__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.student-appointments__b-scheduled {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.student-appointments__b-completed {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.student-appointments__b-low {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.student-appointments__b-med {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.student-appointments__b-high {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.student-appointments__stat-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.student-appointments__stat-card {
+  background: #f9fafb;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+}
+
+.student-appointments__stat-num {
+  font-size: 22px;
+  font-weight: 500;
+  color: #1b3a6b;
+}
+
+.student-appointments__stat-num.blue {
+  color: #2e5ba8;
+}
+
+.student-appointments__stat-num.green {
+  color: #16a34a;
+}
+
+.student-appointments__stat-num.amber {
+  color: #d97706;
+}
+
+.student-appointments__stat-label {
+  font-size: 10px;
+  color: #9ca3af;
+  margin-top: 3px;
+}
+
+.student-appointments__notif-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: #166534;
+  margin-bottom: 16px;
+}
+
+.student-appointments__section-heading {
+  font-size: 13px;
+  font-weight: 500;
+  color: #1b3a6b;
+  margin-bottom: 4px;
+}
+
+.student-appointments__appt-card-full {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.student-appointments__appt-card-full:last-child {
+  margin-bottom: 0;
+}
+
+.student-appointments__appt-card-inner {
+  display: flex;
+}
+
+.student-appointments__appt-type-bar {
+  width: 4px;
+  flex-shrink: 0;
+  border-radius: 12px 0 0 0;
+}
+
+.student-appointments__appt-card-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.student-appointments__appt-card-top {
+  padding: 14px 18px 12px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.student-appointments__appt-card-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.student-appointments__appt-card-title-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.student-appointments__appt-card-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1b3a6b;
+}
+
+.student-appointments__appt-card-meta {
+  font-size: 12px;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.student-appointments__appt-card-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.student-appointments__appt-card-actions {
+  display: flex;
+  gap: 7px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.student-appointments__action-btn {
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: inherit;
+}
+
+.student-appointments__action-btn:hover {
+  background: #f3f4f6;
+}
+
+.student-appointments__action-btn-danger {
+  border-color: #fecaca;
+  color: #991b1b;
+  background: #fef2f2;
+}
+
+.student-appointments__appt-card-body {
+  padding: 0 18px 16px;
+}
+
+.student-appointments__appt-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.student-appointments__appt-detail-grid.has-bring-items {
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.student-appointments__appt-detail-col {
+  min-width: 0;
+}
+
+.student-appointments__detail-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0 0 8px;
+}
+
+.student-appointments__info-panel {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  gap: 8px;
+}
+
+.student-appointments__info-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: #f9fafb;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  min-width: 0;
+}
+
+.student-appointments__info-label {
+  color: #9ca3af;
+  font-weight: 500;
+  font-size: 10px;
+  line-height: 1.3;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.student-appointments__info-value {
+  color: #374151;
+  font-weight: 500;
+  font-size: 12px;
+  text-align: left;
+  min-width: 0;
+  word-break: break-word;
+  line-height: 1.4;
+}
+
+.student-appointments__info-value-link {
+  color: #2e5ba8;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+
+.student-appointments__info-value-warn {
+  color: #d97706;
+}
+
+.student-appointments__checklist-panel {
+  background: #f0fdfa;
+  border: 1px solid #99f6e4;
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.student-appointments__checklist-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 4px 0;
+  font-size: 12px;
+  color: #374151;
+  line-height: 1.4;
+}
+
+.student-appointments__check-circle {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #f0fdfa;
+  border: 1px solid #99f6e4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #0f766e;
+}
+
+.student-appointments__tb-btn-active {
+  border-color: #93c5fd;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.student-appointments__filter-wrap {
+  position: relative;
+}
+
+.student-appointments__filter-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 180px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(15, 42, 82, 0.12);
+  padding: 6px;
+  z-index: 20;
+}
+
+.student-appointments__filter-option {
+  display: block;
+  width: 100%;
+  border: none;
+  background: none;
+  text-align: left;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #374151;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.student-appointments__filter-option:hover,
+.student-appointments__filter-option.active {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.student-appointments__filter-hint,
+.student-appointments__empty-note {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 10px;
+}
+
+.student-appointments__filter-hint button {
+  margin-left: 8px;
+  border: none;
+  background: none;
+  color: #2e5ba8;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 12px;
+}
+
+.student-appointments__error-banner {
+  margin: 0;
+  padding: 10px 24px;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 12px;
+  border-bottom: 1px solid #fecaca;
+}
+
+.student-appointments__modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 42, 82, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+}
+
+.student-appointments__modal {
+  width: min(480px, 100%);
+  max-height: calc(100vh - 48px);
+  background: #fff;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 24px 60px rgba(15, 42, 82, 0.2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.student-appointments__modal--wide {
+  width: min(560px, 100%);
+}
+
+.student-appointments__modal form {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.student-appointments__modal-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.student-appointments__modal select {
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 9px 10px;
+  font-size: 13px;
+  font-family: inherit;
+  color: #111827;
+  background: #fff;
+}
+
+.student-appointments__slot-section {
+  margin-bottom: 12px;
+}
+
+.student-appointments__slot-section-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.student-appointments__slot-cal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.student-appointments__slot-cal-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: #1b3a6b;
+}
+
+.student-appointments__slot-cal-nav {
+  display: flex;
+  gap: 4px;
+}
+
+.student-appointments__slot-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.student-appointments__slot-cal-day-label {
+  font-size: 10px;
+  color: #9ca3af;
+  text-align: center;
+  padding: 2px 0 4px;
+}
+
+.student-appointments__slot-cal-day {
+  aspect-ratio: 1;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: #f9fafb;
+  font-size: 11px;
+  color: #6b7280;
+  cursor: default;
+  font-family: inherit;
+  padding: 0;
+}
+
+.student-appointments__slot-cal-day.other-month {
+  opacity: 0.35;
+}
+
+.student-appointments__slot-cal-day.available {
+  background: #eff6ff;
+  color: #1d4ed8;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.student-appointments__slot-cal-day.available:hover {
+  background: #dbeafe;
+}
+
+.student-appointments__slot-cal-day.selected {
+  background: #2e5ba8;
+  color: #fff;
+  border-color: #2e5ba8;
+}
+
+.student-appointments__slot-cal-day:disabled {
+  cursor: not-allowed;
+}
+
+.student-appointments__slot-times {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-height: 108px;
+  overflow-y: auto;
+  padding: 2px;
+}
+
+.student-appointments__slot-time-btn {
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #374151;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.student-appointments__slot-time-btn:hover {
+  background: #f3f4f6;
+}
+
+.student-appointments__slot-time-btn.selected {
+  border-color: #2e5ba8;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-weight: 500;
+}
+
+.student-appointments__slot-empty {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.student-appointments__modal h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  color: #0f2a52;
+}
+
+.student-appointments__modal p {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.student-appointments__modal label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  color: #374151;
+  margin-bottom: 12px;
+}
+
+.student-appointments__modal input {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-family: inherit;
+}
+
+.student-appointments__modal-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.student-appointments__modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+.student-appointments__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 900px) {
+  .student-appointments {
+    background: #eef2f7;
+  }
+
+  .student-appointments__outer {
+    border: none;
+    border-radius: 0;
+    max-width: none;
+  }
+
+  .student-appointments__shell {
+    width: 100%;
+    height: auto;
+    min-height: 100vh;
+    transform: none !important;
+    flex-direction: column;
+  }
+
+  .student-appointments__sidebar {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .student-appointments__content {
+    flex-direction: column;
+    overflow: visible;
+  }
+
+  .student-appointments__left-col {
+    width: 100%;
+    min-width: 0;
+    border-right: none;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .student-appointments__stat-row {
+    grid-template-columns: 1fr;
+  }
+
+  .student-appointments__appt-detail-grid,
+  .student-appointments__appt-detail-grid.has-bring-items {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .student-appointments__info-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .student-appointments__appt-card-top {
+    flex-direction: column;
+  }
+}

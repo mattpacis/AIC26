@@ -1,0 +1,252 @@
+.student-tickets__content {
+  flex: 1;
+  padding: 24px;
+  overflow: auto;
+}
+
+.student-tickets__topbar-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #0f2a52;
+}
+
+.student-tickets__user-pill {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.student-tickets__user-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #dbeafe;
+  color: #1d4ed8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.student-tickets__user-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #111827;
+}
+
+.student-tickets__user-email {
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.student-tickets__summary-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.student-tickets__summary-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.student-tickets__summary-label {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.student-tickets__summary-card strong {
+  font-size: 24px;
+  color: #0f2a52;
+}
+
+.student-tickets__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.student-tickets__toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.student-tickets__create-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  background: #2e5ba8;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.student-tickets__create-btn:hover {
+  background: #1b3a6b;
+}
+
+.student-tickets__modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 42, 82, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+}
+
+.student-tickets__modal {
+  width: min(480px, 100%);
+  background: #fff;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 24px 60px rgba(15, 42, 82, 0.2);
+}
+
+.student-tickets__action-col {
+  width: 44px;
+  padding-right: 12px !important;
+  text-align: right;
+}
+
+.student-tickets__delete-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #9ca3af;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.student-tickets__ticket-row:hover .student-tickets__delete-btn,
+.student-tickets__delete-btn:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.student-tickets__delete-btn:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.student-tickets__delete-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.student-tickets__helpdesk-copy {
+  margin: 0 0 20px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: #4b5563;
+}
+
+.student-tickets__modal h3 {
+  margin: 0 0 16px;
+  font-size: 18px;
+  color: #0f2a52;
+}
+
+.student-tickets__modal label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  color: #374151;
+  margin-bottom: 12px;
+}
+
+.student-tickets__modal input,
+.student-tickets__modal select,
+.student-tickets__modal textarea {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 9px 10px;
+  font-size: 13px;
+  font-family: inherit;
+}
+
+.student-tickets__modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.student-tickets__modal-btn {
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.student-tickets__modal-error {
+  color: #b91c1c;
+  font-size: 12px;
+  margin: 0 0 8px;
+}
+
+.student-tickets__filters {
+  display: flex;
+  gap: 8px;
+}
+
+.student-tickets__filter-btn {
+  border: 1px solid #d1d5db;
+  background: #fff;
+  color: #374151;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.student-tickets__filter-btn.active {
+  background: #2e5ba8;
+  border-color: #2e5ba8;
+  color: #fff;
+}
+
+.student-tickets__result-count {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.student-tickets__table-card {
+  padding: 0;
+  overflow: hidden;
+}

@@ -1,0 +1,57 @@
+.staff-appts__month-nav {
+  display: flex;
+  gap: 4px;
+}
+
+.staff-appts__month-nav button {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.staff-appts__month-nav button:hover {
+  background: #f3f4f6;
+}
+
+.staff-appts__mini-calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.staff-appts__mini-day {
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  border-radius: 6px;
+  height: 28px;
+  font-size: 11px;
+  cursor: pointer;
+  color: #374151;
+}
+
+.staff-appts__mini-day.muted {
+  opacity: 0.35;
+}
+
+.staff-appts__mini-day.has-appt {
+  border-color: #93c5fd;
+  font-weight: 600;
+  color: #1d4ed8;
+}
+
+.staff-appts__mini-day.selected {
+  background: #eff6ff;
+  border-color: #2e5ba8;
+  color: #2e5ba8;
+}
+
+.staff-appts__mini-day:disabled {
+  cursor: default;
+}

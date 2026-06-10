@@ -1,0 +1,908 @@
+.student-ticket-detail {
+  min-height: 100vh;
+  background: #e2e8f0;
+}
+
+.student-ticket-detail__outer {
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.student-ticket-detail__shell {
+  display: flex;
+  width: 1440px;
+  height: 1024px;
+  background: #eef2f7;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 13px;
+  color: #111827;
+  transform-origin: top left;
+}
+
+.student-ticket-detail__sidebar {
+  width: 220px;
+  min-width: 220px;
+  background: #1b3a6b;
+  display: flex;
+  flex-direction: column;
+}
+
+.student-ticket-detail__sb-logo {
+  padding: 22px 20px 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.student-ticket-detail__sb-logo-icon {
+  width: 36px;
+  height: 36px;
+  background: #2e5ba8;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #93c5fd;
+}
+
+.student-ticket-detail__sb-logo-text {
+  font-size: 17px;
+  font-weight: 500;
+  color: #fff;
+  letter-spacing: -0.3px;
+}
+
+.student-ticket-detail__sb-nav {
+  flex: 1;
+  padding: 12px 10px;
+}
+
+.student-ticket-detail__nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 13px;
+  cursor: pointer;
+  margin-bottom: 2px;
+  border: none;
+  background: none;
+  width: 100%;
+  font-family: inherit;
+  text-align: left;
+}
+
+.student-ticket-detail__nav-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.student-ticket-detail__nav-item.active {
+  background: #2e5ba8;
+  color: #fff;
+}
+
+.student-ticket-detail__nav-badge {
+  margin-left: auto;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 20px;
+}
+
+.student-ticket-detail__sb-footer {
+  padding: 12px 10px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.student-ticket-detail__main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.student-ticket-detail__topbar {
+  height: 56px;
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.student-ticket-detail__breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.student-ticket-detail__breadcrumb-link {
+  color: #2e5ba8;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: inherit;
+  padding: 0;
+}
+
+.student-ticket-detail__breadcrumb-sep {
+  color: #d1d5db;
+}
+
+.student-ticket-detail__breadcrumb-current {
+  color: #111827;
+  font-weight: 500;
+}
+
+.student-ticket-detail__topbar-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.student-ticket-detail__user-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #2e5ba8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.student-ticket-detail__user-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #1b3a6b;
+}
+
+.student-ticket-detail__content {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.student-ticket-detail__main-col {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.student-ticket-detail__right-col {
+  width: 300px;
+  min-width: 300px;
+  background: #fff;
+  border-left: 1px solid #e2e8f0;
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.student-ticket-detail__page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 16px;
+}
+
+.student-ticket-detail__page-title {
+  font-size: 18px;
+  font-weight: 500;
+  color: #1b3a6b;
+  margin-bottom: 6px;
+}
+
+.student-ticket-detail__page-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.student-ticket-detail__page-id {
+  font-size: 12px;
+  color: #2e5ba8;
+  font-weight: 500;
+}
+
+.student-ticket-detail__page-submitted {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.student-ticket-detail__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+  gap: 3px;
+}
+
+.student-ticket-detail__b-open {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.student-ticket-detail__b-progress {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.student-ticket-detail__b-pending {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.student-ticket-detail__b-resolved {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.student-ticket-detail__b-low {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.student-ticket-detail__b-med {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.student-ticket-detail__b-high {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.student-ticket-detail__b-health {
+  background: #f0fdfa;
+  color: #0f766e;
+}
+
+.student-ticket-detail__b-ai {
+  background: #f5f3ff;
+  color: #5b21b6;
+}
+
+.student-ticket-detail__header-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.student-ticket-detail__btn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: inherit;
+}
+
+.student-ticket-detail__btn:hover {
+  background: #f9fafb;
+}
+
+.student-ticket-detail__btn-danger {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #991b1b;
+}
+
+.student-ticket-detail__notif-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #166534;
+  margin-bottom: 16px;
+}
+
+.student-ticket-detail__card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.student-ticket-detail__card-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.student-ticket-detail__card-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: #1b3a6b;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.student-ticket-detail__card-meta {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.student-ticket-detail__card-body {
+  padding: 16px 18px;
+}
+
+.student-ticket-detail__card-body.compact-top {
+  padding-top: 12px;
+}
+
+.student-ticket-detail__card-body.timeline-body {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.student-ticket-detail__status-track {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  position: relative;
+  padding: 4px 0;
+}
+
+.student-ticket-detail__track-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  position: relative;
+}
+
+.student-ticket-detail__track-line {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  right: -50%;
+  height: 2px;
+  background: #e2e8f0;
+  z-index: 0;
+}
+
+.student-ticket-detail__track-line.done {
+  background: #22c55e;
+}
+
+.student-ticket-detail__track-line.active {
+  background: #fcd34d;
+}
+
+.student-ticket-detail__track-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  z-index: 1;
+  border: 2px solid #e2e8f0;
+  background: #fff;
+  flex-shrink: 0;
+}
+
+.student-ticket-detail__track-dot.done {
+  background: #dcfce7;
+  border-color: #22c55e;
+  color: #16a34a;
+}
+
+.student-ticket-detail__track-dot.active {
+  background: #fef3c7;
+  border-color: #f59e0b;
+  color: #d97706;
+}
+
+.student-ticket-detail__track-dot.pending {
+  background: #f9fafb;
+  border-color: #e2e8f0;
+  color: #9ca3af;
+}
+
+.student-ticket-detail__track-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: #374151;
+  margin-top: 7px;
+  text-align: center;
+}
+
+.student-ticket-detail__track-sub {
+  font-size: 10px;
+  color: #9ca3af;
+  margin-top: 2px;
+  text-align: center;
+}
+
+.student-ticket-detail__ai-update-card {
+  background: #f5f3ff;
+  border: 1px solid #ddd6fe;
+  border-radius: 10px;
+  padding: 13px 15px;
+  margin-bottom: 10px;
+}
+
+.student-ticket-detail__ai-update-card:last-child {
+  margin-bottom: 0;
+}
+
+.student-ticket-detail__ai-update-header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 7px;
+}
+
+.student-ticket-detail__ai-update-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: #5b21b6;
+}
+
+.student-ticket-detail__ai-update-time {
+  font-size: 10px;
+  color: #7c3aed;
+  margin-left: auto;
+}
+
+.student-ticket-detail__ai-update-body {
+  font-size: 12px;
+  color: #3b1f7a;
+  line-height: 1.6;
+}
+
+.student-ticket-detail__view-all {
+  font-size: 11px;
+  color: #7c3aed;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: inherit;
+}
+
+.student-ticket-detail__timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.student-ticket-detail__tl-item {
+  display: flex;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #f9fafb;
+}
+
+.student-ticket-detail__tl-item:last-child {
+  border-bottom: none;
+}
+
+.student-ticket-detail__tl-dot-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+.student-ticket-detail__tl-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+.student-ticket-detail__tl-line {
+  width: 1px;
+  background: #e2e8f0;
+  flex: 1;
+  min-height: 16px;
+  margin-top: 4px;
+}
+
+.student-ticket-detail__tl-content {
+  flex: 1;
+  padding-bottom: 4px;
+}
+
+.student-ticket-detail__tl-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: #111827;
+  margin-bottom: 2px;
+}
+
+.student-ticket-detail__tl-desc {
+  font-size: 11px;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.student-ticket-detail__tl-time {
+  font-size: 10px;
+  color: #9ca3af;
+  margin-top: 3px;
+}
+
+.student-ticket-detail__reply-box {
+  background: #f9fafb;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.student-ticket-detail__reply-thread {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.student-ticket-detail__reply-message {
+  background: #f9fafb;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.student-ticket-detail__reply-message.student {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.student-ticket-detail__reply-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.student-ticket-detail__reply-meta strong {
+  color: #374151;
+}
+
+.student-ticket-detail__reply-message p {
+  margin: 0;
+  font-size: 13px;
+  color: #374151;
+  line-height: 1.45;
+}
+
+.student-ticket-detail__reply-input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  color: #374151;
+  font-family: inherit;
+  outline: none;
+  resize: none;
+  line-height: 1.5;
+}
+
+.student-ticket-detail__reply-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+  gap: 12px;
+}
+
+.student-ticket-detail__reply-hint {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.student-ticket-detail__reply-send {
+  padding: 7px 16px;
+  background: #1b3a6b;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.student-ticket-detail__reply-send:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.student-ticket-detail__section-label {
+  font-size: 10px;
+  font-weight: 500;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 10px;
+}
+
+.student-ticket-detail__info-panel {
+  background: #f9fafb;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 2px 14px;
+}
+
+.student-ticket-detail__info-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #f9fafb;
+  gap: 12px;
+}
+
+.student-ticket-detail__info-row:last-child {
+  border-bottom: none;
+}
+
+.student-ticket-detail__info-label {
+  font-size: 11px;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+.student-ticket-detail__info-value {
+  font-size: 12px;
+  color: #374151;
+  font-weight: 500;
+  text-align: right;
+}
+
+.student-ticket-detail__info-value-id {
+  color: #2e5ba8;
+}
+
+.student-ticket-detail__info-value-warn {
+  color: #d97706;
+}
+
+.student-ticket-detail__appt-panel {
+  background: #f0fdfa;
+  border: 1px solid #99f6e4;
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.student-ticket-detail__appt-datetime {
+  font-size: 13px;
+  font-weight: 500;
+  color: #0f766e;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.student-ticket-detail__appt-location {
+  font-size: 12px;
+  color: #0f766e;
+  margin-bottom: 3px;
+}
+
+.student-ticket-detail__appt-assigned {
+  font-size: 11px;
+  color: #0f766e;
+  opacity: 0.7;
+  margin-bottom: 12px;
+}
+
+.student-ticket-detail__appt-bring-label {
+  font-size: 11px;
+  color: #0f766e;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.student-ticket-detail__appt-bring-list {
+  font-size: 11px;
+  color: #0f766e;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.student-ticket-detail__appt-bring-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.student-ticket-detail__related-panel {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 4px 12px;
+}
+
+.student-ticket-detail__related-ticket {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid #f9fafb;
+  cursor: pointer;
+  background: none;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  width: 100%;
+  font-family: inherit;
+  text-align: left;
+}
+
+.student-ticket-detail__related-ticket:last-child {
+  border-bottom: none;
+}
+
+.student-ticket-detail__related-ticket:hover .student-ticket-detail__rt-title {
+  color: #2e5ba8;
+}
+
+.student-ticket-detail__rt-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: #eff6ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.student-ticket-detail__rt-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.student-ticket-detail__rt-sub {
+  font-size: 11px;
+  color: #9ca3af;
+  margin-top: 1px;
+}
+
+.student-ticket-detail__help-panel {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+  padding: 13px;
+}
+
+.student-ticket-detail__help-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: #1d4ed8;
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.student-ticket-detail__help-desc {
+  font-size: 11px;
+  color: #1d4ed8;
+  opacity: 0.8;
+  margin-bottom: 10px;
+}
+
+.student-ticket-detail__help-btn {
+  background: #1b3a6b;
+  color: #fff;
+  border-radius: 7px;
+  padding: 8px 0;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  width: 100%;
+  font-family: inherit;
+}
+
+.student-ticket-detail__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 900px) {
+  .student-ticket-detail {
+    background: #eef2f7;
+  }
+
+  .student-ticket-detail__outer {
+    border: none;
+    border-radius: 0;
+    max-width: none;
+  }
+
+  .student-ticket-detail__shell {
+    width: 100%;
+    height: auto;
+    min-height: 100vh;
+    transform: none !important;
+    flex-direction: column;
+  }
+
+  .student-ticket-detail__sidebar {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .student-ticket-detail__content {
+    flex-direction: column;
+    overflow: visible;
+  }
+
+  .student-ticket-detail__right-col {
+    width: 100%;
+    min-width: 0;
+    border-left: none;
+    border-top: 1px solid #e2e8f0;
+  }
+
+  .student-ticket-detail__page-header {
+    flex-direction: column;
+  }
+
+  .student-ticket-detail__status-track {
+    overflow-x: auto;
+    min-width: 600px;
+  }
+}

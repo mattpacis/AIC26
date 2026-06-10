@@ -1,0 +1,1001 @@
+.student-dashboard {
+  min-height: 100vh;
+  background: #e2e8f0;
+}
+
+.student-dashboard__outer {
+  overflow: hidden;
+  background: #eef2f7;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.student-dashboard__shell {
+  display: flex;
+  width: 1440px;
+  height: 1024px;
+  background: #eef2f7;
+  transform-origin: top left;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 13px;
+  color: #111827;
+}
+
+.student-dashboard__sidebar {
+  width: 220px;
+  min-width: 220px;
+  background: #1b3a6b;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  color: #fff;
+}
+
+.student-dashboard__sidebar-logo {
+  padding: 22px 20px 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.student-dashboard__logo-icon {
+  width: 36px;
+  height: 36px;
+  background: #2e5ba8;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #93c5fd;
+}
+
+.student-dashboard__logo-text {
+  font-size: 17px;
+  font-weight: 500;
+  color: #fff;
+  letter-spacing: -0.3px;
+}
+
+.student-dashboard__sidebar-nav {
+  flex: 1;
+  padding: 12px 10px;
+}
+
+.student-dashboard__nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 13px;
+  cursor: pointer;
+  margin-bottom: 2px;
+  transition: all 0.15s;
+  border: none;
+  background: none;
+  width: 100%;
+  font-family: inherit;
+  text-align: left;
+}
+
+.student-dashboard__nav-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.student-dashboard__nav-item.active {
+  background: #2e5ba8;
+  color: #fff;
+}
+
+.student-dashboard__nav-badge {
+  margin-left: auto;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 20px;
+}
+
+.student-dashboard__sidebar-footer {
+  padding: 12px 10px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.student-dashboard__main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.student-dashboard__topbar {
+  height: 56px;
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  flex-shrink: 0;
+}
+
+.student-dashboard__topbar-left {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1b3a6b;
+}
+
+.student-dashboard__topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.student-dashboard__topbar-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #6b7280;
+  position: relative;
+  border: none;
+  background: none;
+}
+
+.student-dashboard__topbar-icon:hover {
+  background: #f3f4f6;
+}
+
+.student-dashboard__notif-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  border: 2px solid #fff;
+}
+
+.student-dashboard__user-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.student-dashboard__user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #2e5ba8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.student-dashboard__user-info {
+  line-height: 1.2;
+}
+
+.student-dashboard__user-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #1b3a6b;
+}
+
+.student-dashboard__user-email {
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.student-dashboard__content-area {
+  flex: 1;
+  display: flex;
+  gap: 0;
+  overflow: hidden;
+}
+
+.student-dashboard__center-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 20px 20px 24px;
+  gap: 16px;
+  overflow: hidden;
+}
+
+.student-dashboard__right-col {
+  width: 280px;
+  min-width: 280px;
+  background: #fff;
+  border-left: 1px solid #e2e8f0;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+}
+
+.student-dashboard__card {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.student-dashboard__chat-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.student-dashboard__chat-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.student-dashboard__chat-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1b3a6b;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.student-dashboard__ai-badge {
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.student-dashboard__online-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.student-dashboard__status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  flex-shrink: 0;
+}
+
+.student-dashboard__chat-body {
+  flex: 1;
+  padding: 16px 18px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+
+.student-dashboard__msg-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.student-dashboard__msg-row.user {
+  flex-direction: row-reverse;
+}
+
+.student-dashboard__ai-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #eff6ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid #bfdbfe;
+  color: #2563eb;
+}
+
+.student-dashboard__bubble {
+  max-width: 72%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.student-dashboard__bubble.ai {
+  background: #f3f4f6;
+  color: #111827;
+  border-bottom-left-radius: 4px;
+}
+
+.student-dashboard__bubble.user {
+  background: #2e5ba8;
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+
+.student-dashboard__msg-meta {
+  font-size: 10px;
+  color: #9ca3af;
+  margin-top: 4px;
+}
+
+.student-dashboard__msg-meta.user {
+  text-align: right;
+}
+
+.student-dashboard__user-msg-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #2e5ba8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.student-dashboard__chat-input-row {
+  padding: 12px 18px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.student-dashboard__chat-input {
+  flex: 1;
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  padding: 9px 16px;
+  font-size: 13px;
+  color: #374151;
+  outline: none;
+  background: #f9fafb;
+  font-family: inherit;
+}
+
+.student-dashboard__send-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #2e5ba8;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.student-dashboard__send-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.student-dashboard__tickets-card {
+  flex-shrink: 0;
+}
+
+.student-dashboard__section-header {
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.student-dashboard__section-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: #1b3a6b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.student-dashboard__section-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.student-dashboard__refresh-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.student-dashboard__refresh-btn:hover:not(:disabled) {
+  color: #2e5ba8;
+  border-color: #bfdbfe;
+}
+
+.student-dashboard__refresh-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.student-dashboard__refresh-btn .spinning {
+  animation: student-dashboard-spin 0.8s linear infinite;
+}
+
+@keyframes student-dashboard-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.student-dashboard__see-all {
+  font-size: 11px;
+  color: #2e5ba8;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: inherit;
+}
+
+.student-dashboard__tickets-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.student-dashboard__tickets-table th {
+  padding: 8px 14px;
+  text-align: left;
+  color: #6b7280;
+  font-weight: 500;
+  font-size: 11px;
+  border-bottom: 1px solid #f3f4f6;
+  background: #fafafa;
+}
+
+.student-dashboard__tickets-table td {
+  padding: 9px 14px;
+  border-bottom: 1px solid #f9fafb;
+  color: #374151;
+  vertical-align: middle;
+}
+
+.student-dashboard__tickets-table tr:last-child td {
+  border-bottom: none;
+}
+
+.student-dashboard__ticket-row {
+  cursor: pointer;
+}
+
+.student-dashboard__ticket-row:hover td {
+  background: #f9fafb;
+}
+
+.student-dashboard__ticket-id {
+  color: #2e5ba8;
+  font-weight: 500;
+}
+
+.student-dashboard__ticket-date {
+  color: #9ca3af;
+}
+
+.student-dashboard__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.student-dashboard__badge-resolved {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.student-dashboard__badge-progress {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.student-dashboard__badge-pending {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.student-dashboard__badge-open {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.student-dashboard__urgency-low {
+  color: #16a34a;
+  font-weight: 500;
+}
+
+.student-dashboard__urgency-med {
+  color: #d97706;
+  font-weight: 500;
+}
+
+.student-dashboard__urgency-high {
+  color: #dc2626;
+  font-weight: 500;
+}
+
+.student-dashboard__quicklinks {
+  flex-shrink: 0;
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+}
+
+.student-dashboard__ql-btn {
+  flex: 1;
+  min-width: 72px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.student-dashboard__ql-btn:hover {
+  border-color: #93c5fd;
+  background: #eff6ff;
+}
+
+.student-dashboard__ql-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.student-dashboard__ql-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: #374151;
+  text-align: center;
+}
+
+.student-dashboard__cal-header {
+  font-size: 13px;
+  font-weight: 500;
+  color: #1b3a6b;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.student-dashboard__cal-nav {
+  display: flex;
+  gap: 6px;
+}
+
+.student-dashboard__cal-nav button {
+  background: none;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.student-dashboard__cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 14px;
+}
+
+.student-dashboard__cal-day-label {
+  text-align: center;
+  font-size: 10px;
+  color: #9ca3af;
+  padding: 2px 0;
+  font-weight: 500;
+}
+
+.student-dashboard__cal-day {
+  text-align: center;
+  font-size: 12px;
+  padding: 5px 2px;
+  border-radius: 6px;
+  color: #374151;
+  cursor: pointer;
+  position: relative;
+  border: none;
+  background: transparent;
+  font: inherit;
+}
+
+.student-dashboard__cal-day:hover {
+  background: #eff6ff;
+}
+
+.student-dashboard__cal-day.today {
+  background: #2e5ba8;
+  color: #fff;
+  font-weight: 500;
+}
+
+.student-dashboard__cal-day.selected {
+  background: #dbeafe;
+  color: #1e40af;
+  font-weight: 600;
+}
+
+.student-dashboard__cal-day.today.selected {
+  background: #1e3a8a;
+  color: #fff;
+}
+
+.student-dashboard__cal-day.other-month:hover {
+  background: #f9fafb;
+}
+
+.student-dashboard__filter-hint {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.student-dashboard__filter-hint button {
+  margin-left: 8px;
+  border: none;
+  background: none;
+  color: #2e5ba8;
+  cursor: pointer;
+  font-size: 12px;
+  text-decoration: underline;
+}
+
+.student-dashboard__portal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 42, 82, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+}
+
+.student-dashboard__portal-window {
+  width: min(960px, 92vw);
+  height: min(720px, 88vh);
+  background: #fff;
+  border-radius: 14px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 60px rgba(15, 42, 82, 0.25);
+}
+
+.student-dashboard__portal-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f8fafc;
+}
+
+.student-dashboard__portal-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f2a52;
+  flex: 1;
+}
+
+.student-dashboard__portal-action,
+.student-dashboard__portal-close {
+  border: 1px solid #d1d5db;
+  background: #fff;
+  color: #374151;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.student-dashboard__portal-close {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.student-dashboard__portal-frame {
+  flex: 1;
+  border: none;
+  width: 100%;
+  background: #fff;
+}
+
+.student-dashboard__portal-fallback {
+  padding: 16px;
+  font-size: 13px;
+  color: #6b7280;
+  border-top: 1px solid #e5e7eb;
+}
+
+.student-dashboard__cal-day.has-event::after {
+  content: '';
+  position: absolute;
+  bottom: 1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #14b8a6;
+}
+
+.student-dashboard__cal-day.other-month {
+  color: #d1d5db;
+}
+
+.student-dashboard__appointments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.student-dashboard__appt-card {
+  border-radius: 8px;
+  padding: 10px 12px;
+  border-left: 3px solid;
+}
+
+.student-dashboard__appt-card.health {
+  background: #f0fdfa;
+  border-color: #14b8a6;
+}
+
+.student-dashboard__appt-card.registrar {
+  background: #eff6ff;
+  border-color: #2e5ba8;
+}
+
+.student-dashboard__appt-card.counseling {
+  background: #fef3c7;
+  border-color: #f59e0b;
+}
+
+.student-dashboard__appt-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: #1b3a6b;
+  margin-bottom: 2px;
+}
+
+.student-dashboard__appt-time {
+  font-size: 11px;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.student-dashboard__appt-note {
+  font-size: 11px;
+  color: #0f766e;
+  margin-top: 4px;
+}
+
+.student-dashboard__holds-section {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.student-dashboard__holds-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: #92400e;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.student-dashboard__holds-item {
+  font-size: 12px;
+  color: #78350f;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+}
+
+.student-dashboard__holds-item-btn {
+  width: 100%;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.student-dashboard__holds-item-btn:hover {
+  color: #92400e;
+}
+
+.student-dashboard__notification-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  flex-shrink: 0;
+}
+
+.student-dashboard__right-section-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.student-dashboard__progress-panel {
+  background: #f9fafb;
+  border-radius: 10px;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.student-dashboard__progress-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 12px;
+  color: #374151;
+}
+
+.student-dashboard__progress-row + .student-dashboard__progress-row {
+  margin-top: 12px;
+}
+
+.student-dashboard__progress-track {
+  background: #e2e8f0;
+  border-radius: 20px;
+  height: 6px;
+}
+
+.student-dashboard__progress-fill {
+  height: 6px;
+  border-radius: 20px;
+}
+
+.student-dashboard__progress-fill.green {
+  background: #22c55e;
+}
+
+.student-dashboard__progress-fill.amber {
+  background: #f59e0b;
+}
+
+.student-dashboard__progress-value.green {
+  font-weight: 500;
+  color: #16a34a;
+}
+
+.student-dashboard__progress-value.amber {
+  font-weight: 500;
+  color: #d97706;
+}
+
+.student-dashboard__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 900px) {
+  .student-dashboard {
+    background: #eef2f7;
+  }
+
+  .student-dashboard__outer {
+    border: none;
+    border-radius: 0;
+    max-width: none;
+  }
+
+  .student-dashboard__shell {
+    width: 100%;
+    height: auto;
+    min-height: 100vh;
+    transform: none !important;
+    flex-direction: column;
+  }
+
+  .student-dashboard__sidebar {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .student-dashboard__content-area {
+    flex-direction: column;
+    overflow: visible;
+  }
+
+  .student-dashboard__center-col {
+    overflow: visible;
+  }
+
+  .student-dashboard__chat-card {
+    min-height: 420px;
+  }
+
+  .student-dashboard__right-col {
+    width: 100%;
+    min-width: 0;
+    border-left: none;
+    border-top: 1px solid #e2e8f0;
+  }
+
+  .student-dashboard__tickets-table {
+    display: block;
+    overflow-x: auto;
+  }
+}

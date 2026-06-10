@@ -1,0 +1,145 @@
+.staff-reschedule__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+}
+
+.staff-reschedule__modal {
+  width: min(520px, 100%);
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.2);
+  padding: 20px;
+}
+
+.staff-reschedule__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.staff-reschedule__header h3 {
+  margin: 0 0 4px;
+  font-size: 18px;
+}
+
+.staff-reschedule__header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.staff-reschedule__close {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #64748b;
+}
+
+.staff-reschedule__month {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.staff-reschedule__month button {
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+}
+
+.staff-reschedule__calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.staff-reschedule__day {
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  border-radius: 8px;
+  height: 34px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.staff-reschedule__day.muted {
+  opacity: 0.35;
+}
+
+.staff-reschedule__day:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.staff-reschedule__day.selected {
+  border-color: #1b4080;
+  background: #eff6ff;
+  color: #1b4080;
+  font-weight: 600;
+}
+
+.staff-reschedule__slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 44px;
+  margin-bottom: 16px;
+}
+
+.staff-reschedule__slot {
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  border-radius: 999px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.staff-reschedule__slot.selected {
+  border-color: #1b4080;
+  background: #1b4080;
+  color: #fff;
+}
+
+.staff-reschedule__hint {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.staff-reschedule__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.staff-reschedule__actions button {
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  border-radius: 8px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.staff-reschedule__actions button.primary {
+  border-color: #1b4080;
+  background: #1b4080;
+  color: #fff;
+}
+
+.staff-reschedule__actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

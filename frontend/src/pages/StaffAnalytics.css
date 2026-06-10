@@ -1,0 +1,146 @@
+.staff-analytics__content {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 20px 24px 28px;
+}
+
+.staff-analytics__stat-grid {
+  margin-bottom: 20px;
+}
+
+.staff-analytics__panels {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.staff-analytics__panel {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.staff-analytics__panel:last-child {
+  grid-column: 1 / -1;
+}
+
+.staff-analytics__panel-title {
+  margin: 0 0 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.staff-analytics__bars {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.staff-analytics__bar-row {
+  display: grid;
+  grid-template-columns: 110px 1fr 32px;
+  gap: 10px;
+  align-items: center;
+}
+
+.staff-analytics__bar-label {
+  font-size: 12px;
+  color: #475569;
+}
+
+.staff-analytics__bar-track {
+  height: 8px;
+  background: #f1f5f9;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.staff-analytics__bar-fill {
+  height: 100%;
+  border-radius: 999px;
+}
+
+.staff-analytics__bar-fill--open {
+  background: #ef4444;
+}
+
+.staff-analytics__bar-fill--progress {
+  background: #f59e0b;
+}
+
+.staff-analytics__bar-fill--sched {
+  background: #3b82f6;
+}
+
+.staff-analytics__bar-fill--resolved {
+  background: #22c55e;
+}
+
+.staff-analytics__bar-value {
+  font-size: 12px;
+  font-weight: 600;
+  color: #0f172a;
+  text-align: right;
+}
+
+.staff-analytics__urgency-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.staff-analytics__urgency-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 14px;
+  text-align: center;
+}
+
+.staff-analytics__urgency-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  margin: 0 auto 8px;
+}
+
+.staff-analytics__urgency-count {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.staff-analytics__urgency-label {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.staff-analytics__urgency-pct {
+  margin-top: 4px;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.staff-analytics__empty,
+.staff-analytics__error {
+  margin: 0;
+  padding: 24px;
+  color: #64748b;
+}
+
+.staff-analytics__error {
+  color: #b91c1c;
+}
+
+@media (max-width: 1100px) {
+  .staff-analytics__panels {
+    grid-template-columns: 1fr;
+  }
+
+  .staff-analytics__panel:last-child {
+    grid-column: auto;
+  }
+}

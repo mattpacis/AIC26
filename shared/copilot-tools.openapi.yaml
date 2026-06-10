@@ -1,0 +1,153 @@
+openapi: 3.0.3
+info:
+  title: Campus360 Agent Tools
+  description: |
+    Copilot Studio custom connector — agent routes only.
+    Import this file, set Host to your ngrok host, Base URL `/api`.
+
+    Use **invoke_agent_tool** for every read/write from Copilot.
+    Do not use browser-session routes (`/tickets`, `/holds`, etc.).
+
+    Identity: header `Campus360-User-Email` → policy → `X-Campus360-User-Email`
+    or `userEmail` in the JSON body.
+  version: 0.2.0
+
+servers:
+  - url: http://localhost:3001/api
+    description: Local dev (use ngrok host in Copilot Studio)
+
+security:
+  - AgentApiKey: []
+
+components:
+  securitySchemes:
+    AgentApiKey:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: "Bearer campus360-dev-agent-key"
+
+  parameters:
+    Campus360UserEmail:
+      name: Campus360-User-Email
+      in: header
+      required: false
+      schema:
+        type: string
+      description: Student email — map from Global.campus360Email in Copilot.
+
+  schemas:
+    InvokeAgentToolRequest:
+      type: object
+      required: [toolName]
+      properties:
+        toolName:
+          type: string
+          description: |
+            Exact tool name with underscores, e.g. list_holds, create_ticket, get_context.
+        userEmail:
+          type: string
+          description: Optional fallback if email header is empty.
+        concern:
+          type: string
+        department:
+          type: string
+          description: |
+            Department label, e.g. Campus Health, IT Department, Student Services.
+            Required for get_availability and request_appointment.
+        description:
+          type: string
+        urgency:
+          type: string
+          enum: [LOW, MEDIUM, HIGH]
+        ticketNumber:
+          type: string
+        content:
+          type: string
+        title:
+          type: string
+        purpose:
+          type: string
+        scheduledAt:
+          type: string
+          format: date-time
+        appointmentId:
+          type: string
+        year:
+          type: integer
+        calendarMonth:
+          type: integer
+          description: Human month number 1-12 (June = 6, July = 7). Preferred for get_availability.
+        month:
+          type: integer
+          description: Alias for calendarMonth in agent tools (1-12). Not 0-based.
+        monthIndex:
+          type: integer
+          description: Optional 0-based month (June = 5). Use calendarMonth instead when possible.
+        status:
+          type: string
+          enum: [all, upcoming, completed]
+        threadId:
+          type: string
+      additionalProperties: true
+
+paths:
+  /agent/health:
+    get:
+      operationId: agent_health
+      summary: Agent bridge health check
+      security: []
+      responses:
+        '200':
+          description: OK
+
+  /agent/tools:
+    get:
+      operationId: list_agent_tools
+      summary: List allow-listed tool names
+      parameters:
+        - $ref: '#/components/parameters/Campus360UserEmail'
+      responses:
+        '200':
+          description: OK
+
+  /agent/invoke:
+    post:
+      operationId: invoke_agent_tool
+      summary: Run a Campus360 agent tool (use this for all Copilot actions)
+      description: |
+        Primary Copilot action. Put toolName and tool fields in one JSON body.
+        Example create ticket:
+        {"toolName":"create_ticket","concern":"No wifi","department":"IT Department"}
+      parameters:
+        - $ref: '#/components/parameters/Campus360UserEmail'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvokeAgentToolRequest'
+      responses:
+        '200':
+          description: OK
+
+  /agent/tools/{toolName}:
+    post:
+      operationId: execute_agent_tool
+      summary: Execute tool by path (legacy — prefer invoke_agent_tool)
+      parameters:
+        - $ref: '#/components/parameters/Campus360UserEmail'
+        - name: toolName
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        '200':
+          description: OK
