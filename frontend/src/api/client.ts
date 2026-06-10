@@ -891,6 +891,19 @@ export async function listStaffTickets(filters?: {
   return parseJson(response);
 }
 
+export async function createStaffTicket(input: {
+  studentUserId: string;
+  concern: string;
+  description?: string;
+  urgency?: 'LOW' | 'MEDIUM' | 'HIGH';
+}): Promise<{ ticket: StaffQueueTicket }> {
+  const response = await apiFetch(`${API_BASE}/staff/tickets`, {
+    method: 'POST',
+    body: JSON.stringify(input),
+  });
+  return parseJson(response);
+}
+
 export async function takeStaffTicket(ticketNumber: string): Promise<{
   ticket: TicketDetail & { queue?: StaffQueueTicket };
 }> {

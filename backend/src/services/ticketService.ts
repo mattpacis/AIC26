@@ -78,12 +78,14 @@ function parseDetailPayload(ticket: Ticket) {
 }
 
 export function serializeTicketSummary(ticket: Ticket) {
+  const display = resolveTicketDisplayStatus(ticket);
+
   return {
     id: `#${ticket.ticketNumber}`,
     ticketNumber: ticket.ticketNumber,
     concern: ticket.concern,
-    status: STATUS_API[ticket.status],
-    statusLabel: STATUS_LABELS[ticket.status],
+    status: display.status,
+    statusLabel: display.statusLabel,
     urgency: URGENCY_API[ticket.urgency],
     urgencyLabel: URGENCY_LABELS[ticket.urgency],
     department: ticket.department,
@@ -144,6 +146,137 @@ export function buildAiCreatedTrackSteps(department: string, assignedTo?: string
   return steps;
 }
 
+type TrackStep = {
+  label: string;
+  sub: string;
+  state: string;
+  lineState: string;
+  icon: string;
+};
+
+function asTrackSteps(value: unknown): TrackStep[] {
+  if (!Array.isArray(value)) return [];
+
+  return value.filter(
+    (step): step is TrackStep =>
+      typeof step === 'object' &&
+      step !== null &&
+      typeof (step as TrackStep).label === 'string',
+  );
+}
+
+export function resolveTrackStepsDisplay(
+  steps: TrackStep[],
+  resolvedAt: Date,
+): TrackStep[] {
+  if (steps.length === 0) return steps;
+
+  const resolvedLabel = formatDisplayDateTime(resolvedAt);
+
+  return steps.map((step, index) => {
+    const isResolvedStep =
+      step.label === 'Resolved' || index === steps.length - 1;
+
+    if (isResolvedStep) {
+      return {
+        ...step,
+        sub: resolvedLabel,
+        state: 'done',
+        lineState: 'done',
+        icon: 'check',
+      };
+    }
+
+    return {
+      ...step,
+      state: 'done',
+      lineState: 'done',
+      icon: 'check',
+    };
+  });
+}
+
+function trackStepsForTicket(
+  detail: Record<string, unknown> | null,
+  ticket: Ticket,
+): TrackStep[] {
+  const stored = asTrackSteps(detail?.trackSteps);
+  const steps =
+    stored.length > 0
+      ? stored
+      : buildAiCreatedTrackSteps(ticket.department, ticket.assignedTo);
+
+  if (ticket.status === TicketStatus.RESOLVED) {
+    return resolveTrackStepsDisplay(steps, ticket.updatedAt);
+  }
+
+  return steps;
+}
+
+export function resolveTicketDisplayStatus(ticket: Ticket) {
+  const detail = parseDetailPayload(ticket);
+
+  if (ticket.status === TicketStatus.RESOLVED) {
+    return {
+      status: STATUS_API.RESOLVED,
+      statusLabel: STATUS_LABELS.RESOLVED,
+    };
+  }
+
+  if (ticket.status === TicketStatus.PENDING) {
+    return {
+      status: STATUS_API.PENDING,
+      statusLabel: STATUS_LABELS.PENDING,
+    };
+  }
+
+  const steps = trackStepsForTicket(detail, ticket);
+  const activeStep = steps.find((step) => step.state === 'active');
+  if (activeStep) {
+    return {
+      status: trackStepToApiStatus(activeStep.label, ticket.status),
+      statusLabel: activeStep.label,
+    };
+  }
+
+  const pendingResolved = steps.find(
+    (step) => step.label === 'Resolved' && step.state === 'pending',
+  );
+  if (pendingResolved) {
+    const lastDone = [...steps].reverse().find((step) => step.state === 'done');
+    if (lastDone) {
+      return {
+        status: 'progress',
+        statusLabel: lastDone.label,
+      };
+    }
+  }
+
+  if (ticket.status === TicketStatus.IN_PROGRESS) {
+    return {
+      status: STATUS_API.IN_PROGRESS,
+      statusLabel: STATUS_LABELS.IN_PROGRESS,
+    };
+  }
+
+  return {
+    status: STATUS_API[ticket.status],
+    statusLabel: STATUS_LABELS[ticket.status],
+  };
+}
+
+function trackStepToApiStatus(stepLabel: string, dbStatus: TicketStatus) {
+  if (stepLabel === 'Resolved') {
+    return STATUS_API.RESOLVED;
+  }
+
+  if (dbStatus === TicketStatus.PENDING) {
+    return STATUS_API.PENDING;
+  }
+
+  return STATUS_API.IN_PROGRESS;
+}
+
 export function serializeTicketReplies(replies: TicketReplyRecord[] = []) {
   return replies.map((reply) => ({
     id: reply.id,
@@ -180,7 +313,6 @@ export function serializeTicketDetail(
       typeof detail?.shortTitle === 'string' ? detail.shortTitle : ticket.concern,
     title,
     description: ticket.description,
-    statusLabel: STATUS_LABELS[ticket.status],
     urgencyLabel: URGENCY_LABELS[ticket.urgency],
     submitted: formatDisplayDate(ticket.createdAt),
     submittedShort: `Submitted ${formatDisplayDateTime(ticket.createdAt)}`,
@@ -197,7 +329,7 @@ export function serializeTicketDetail(
       : null,
     appointment:
       detail && typeof detail.appointment === 'object' ? detail.appointment : null,
-    trackSteps: Array.isArray(detail?.trackSteps) ? detail.trackSteps : [],
+    trackSteps: trackStepsForTicket(detail, ticket),
     aiUpdates: Array.isArray(detail?.aiUpdates) ? detail.aiUpdates : [],
     timeline: Array.isArray(detail?.timeline) ? detail.timeline : [],
     related: Array.isArray(detail?.related) ? detail.related : [],
@@ -325,7 +457,7 @@ export async function createTicket(ctx: AuthContext, input: CreateTicketInput) {
       concern: input.concern,
       title: input.title,
       description: input.description,
-      status: TicketStatus.OPEN,
+      status: TicketStatus.IN_PROGRESS,
       urgency: input.urgency ?? TicketUrgency.MEDIUM,
       department,
       schoolId: ctx.schoolId,
@@ -504,7 +636,16 @@ export async function resolveTicket(ctx: AuthContext, ticketNumber: string) {
           dotColor: '#16A34A',
           showLine: false,
         });
-        return { ...detail, timeline };
+
+        const baseSteps = asTrackSteps(detail.trackSteps);
+        const trackSteps = resolveTrackStepsDisplay(
+          baseSteps.length > 0
+            ? baseSteps
+            : buildAiCreatedTrackSteps(existing.department, existing.assignedTo),
+          now,
+        );
+
+        return { ...detail, timeline, trackSteps };
       }),
     },
     include: {

@@ -3,15 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import {
   IconBuildingCommunity,
   IconDownload,
-  IconLogout,
   IconPlus,
-  IconSettings,
   IconTrendingDown,
 } from '@tabler/icons-react';
 import { getStaffAnalytics, type StaffAnalytics as StaffAnalyticsData } from '../api/client';
-import { StaffNotifications } from '../components/StaffNotifications';
+import { StaffNewTicketModal } from '../components/StaffNewTicketModal';
+import { StaffTopbar } from '../components/StaffTopbar';
+import '../components/StaffTopbar.css';
 import { useShellScale } from '../hooks/useShellScale';
 import { useStaffShell } from '../hooks/useStaffShell';
+import { exportStaffAnalyticsCsv } from '../utils/exportStaffAnalytics';
 import './StaffDashboard.css';
 import './StaffAnalytics.css';
 
@@ -24,10 +25,12 @@ const URGENCY_COLORS = {
 export function StaffAnalytics() {
   const navigate = useNavigate();
   const { outerRef, shellRef } = useShellScale({ mobileBreakpoint: 1100 });
-  const { staffUser, navItems, handleLogout } = useStaffShell();
+  const { staffUser, navItems, profileTheme, updateProfileTheme, updateStaffUser } =
+    useStaffShell();
   const [analytics, setAnalytics] = useState<StaffAnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showNewTicket, setShowNewTicket] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -76,7 +79,13 @@ export function StaffAnalytics() {
 
             <div className="staff-dashboard__sb-staff-wrap">
               <div className="staff-dashboard__sb-staff">
-                <div className="staff-dashboard__sb-avatar">
+                <div
+                  className="staff-dashboard__sb-avatar"
+                  style={{
+                    background: profileTheme.bg,
+                    color: profileTheme.color,
+                  }}
+                >
                   {staffUser?.initials ?? '—'}
                 </div>
                 <div>
@@ -114,21 +123,6 @@ export function StaffAnalytics() {
                 ),
               )}
             </nav>
-
-            <div className="staff-dashboard__sb-footer">
-              <button type="button" className="staff-dashboard__nav-item">
-                <IconSettings size={16} aria-hidden />
-                Settings
-              </button>
-              <button
-                type="button"
-                className="staff-dashboard__nav-item"
-                onClick={() => void handleLogout()}
-              >
-                <IconLogout size={16} aria-hidden />
-                Log out
-              </button>
-            </div>
           </aside>
 
           <main className="staff-dashboard__main">
@@ -137,17 +131,45 @@ export function StaffAnalytics() {
                 {departmentLabel} — Analytics
               </div>
               <div className="staff-dashboard__topbar-right">
-                <StaffNotifications />
-                <button type="button" className="staff-dashboard__topbar-btn">
-                  <IconDownload size={15} aria-hidden />
+                <button
+                  type="button"
+                  className="staff-dashboard__tb-btn"
+                  onClick={() => {
+                    if (!analytics) return;
+                    exportStaffAnalyticsCsv(analytics, departmentLabel);
+                  }}
+                  disabled={!analytics}
+                >
+                  <IconDownload size={14} aria-hidden />
                   Export
                 </button>
-                <button type="button" className="staff-dashboard__topbar-btn primary">
-                  <IconPlus size={15} aria-hidden />
+                <button
+                  type="button"
+                  className="staff-dashboard__tb-btn staff-dashboard__tb-btn-primary"
+                  onClick={() => setShowNewTicket(true)}
+                >
+                  <IconPlus size={14} aria-hidden />
                   New ticket
                 </button>
+                {staffUser && (
+                  <StaffTopbar
+                    user={staffUser}
+                    profileTheme={profileTheme}
+                    onUserUpdated={updateStaffUser}
+                    onThemeUpdated={(theme) => updateProfileTheme(theme.id)}
+                  />
+                )}
               </div>
             </header>
+
+            {showNewTicket && staffUser?.department && (
+              <StaffNewTicketModal
+                open={showNewTicket}
+                department={staffUser.department}
+                onClose={() => setShowNewTicket(false)}
+                onCreated={() => navigate('/staff-dashboard')}
+              />
+            )}
 
             <div className="staff-analytics__content">
               {loading && (

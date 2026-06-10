@@ -4,11 +4,9 @@ import {
   IconBuildingCommunity,
   IconCalendarPlus,
   IconCash,
-  IconLogout,
   IconMail,
   IconNotes,
   IconSearch,
-  IconSettings,
   IconTicket,
 } from '@tabler/icons-react';
 import {
@@ -17,7 +15,8 @@ import {
   type StaffStudentListItem,
   type StaffStudentProfile,
 } from '../api/client';
-import { StaffNotifications } from '../components/StaffNotifications';
+import { StaffTopbar } from '../components/StaffTopbar';
+import '../components/StaffTopbar.css';
 import { useShellScale } from '../hooks/useShellScale';
 import { useStaffShell } from '../hooks/useStaffShell';
 import './StaffStudents.css';
@@ -100,7 +99,8 @@ function matchesSearch(student: StaffStudentListItem, query: string) {
 export function StaffStudents() {
   const navigate = useNavigate();
   const { outerRef, shellRef } = useShellScale({ mobileBreakpoint: 1100 });
-  const { staffUser, navItems, handleLogout } = useStaffShell();
+  const { staffUser, navItems, profileTheme, updateProfileTheme, updateStaffUser } =
+    useStaffShell();
 
   const [students, setStudents] = useState<StaffStudentListItem[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -209,7 +209,13 @@ export function StaffStudents() {
 
             <div className="staff-students__sb-staff-wrap">
               <div className="staff-students__sb-staff">
-                <div className="staff-students__sb-avatar">
+                <div
+                  className="staff-students__sb-avatar"
+                  style={{
+                    background: profileTheme.bg,
+                    color: profileTheme.color,
+                  }}
+                >
                   {staffUser?.initials ?? '—'}
                 </div>
                 <div>
@@ -248,33 +254,20 @@ export function StaffStudents() {
               )}
             </nav>
 
-            <div className="staff-students__sb-dept staff-students__sb-dept.system">
-              System
-            </div>
-            <div className="staff-students__sb-system">
-              <button type="button" className="staff-students__nav-item">
-                <IconSettings size={16} aria-hidden />
-                Settings
-              </button>
-              <button
-                type="button"
-                className="staff-students__nav-item"
-                onClick={() => void handleLogout()}
-              >
-                <IconLogout size={16} aria-hidden />
-                Logout
-              </button>
-            </div>
             <div className="staff-students__sb-spacer" />
           </aside>
 
           <div className="staff-students__main">
             <header className="staff-students__topbar">
               <div className="staff-students__topbar-title">Students</div>
-              <StaffNotifications
-                buttonClassName="staff-students__tb-icon"
-                dotClassName="staff-students__notif-dot"
-              />
+              {staffUser && (
+                <StaffTopbar
+                  user={staffUser}
+                  profileTheme={profileTheme}
+                  onUserUpdated={updateStaffUser}
+                  onThemeUpdated={(theme) => updateProfileTheme(theme.id)}
+                />
+              )}
             </header>
 
             {error && <div className="staff-students__error">{error}</div>}

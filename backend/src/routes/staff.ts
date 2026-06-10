@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { TicketStatus } from '@prisma/client';
+import { TicketStatus, TicketUrgency } from '@prisma/client';
 import { z } from 'zod';
 import { requireAuth } from '../middleware/auth.js';
 import { loadAuthContext } from '../middleware/context.js';
@@ -9,6 +9,7 @@ import { getStaffDashboard } from '../services/staffDashboardService.js';
 import { listStudents, getStudentProfile } from '../services/studentService.js';
 import { listStaffDirectory } from '../services/staffDirectoryService.js';
 import {
+  createStaffTicket,
   getStaffTicketByNumber,
   listStaffQueueTickets,
   rescheduleStaffTicket,
@@ -51,6 +52,28 @@ staffRouter.get('/tickets', async (req, res, next) => {
       mineOnly: req.query.mineOnly === 'true',
     });
     res.json({ tickets });
+  } catch (err) {
+    next(err);
+  }
+});
+
+const createStaffTicketSchema = z.object({
+  studentUserId: z.string().min(1),
+  concern: z.string().trim().min(1).max(200),
+  description: z.string().trim().max(2000).optional(),
+  urgency: z.enum(['LOW', 'MEDIUM', 'HIGH']).optional(),
+});
+
+staffRouter.post('/tickets', async (req, res, next) => {
+  try {
+    const body = createStaffTicketSchema.parse(req.body);
+    const ticket = await createStaffTicket(req.auth!, {
+      studentUserId: body.studentUserId,
+      concern: body.concern,
+      description: body.description,
+      urgency: body.urgency as TicketUrgency | undefined,
+    });
+    res.status(201).json({ ticket });
   } catch (err) {
     next(err);
   }

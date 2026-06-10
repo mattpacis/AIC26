@@ -28,13 +28,15 @@ export function useShellScale({
         shellEl.style.transform = '';
         shellEl.style.marginBottom = '';
         outerEl.style.height = '';
+        outerEl.style.minHeight = '';
         return;
       }
 
       const w = outerEl.clientWidth || 680;
       const s = Math.min(w / designWidth, 1);
       shellEl.style.transform = `scale(${s})`;
-      outerEl.style.height = `${Math.round(designHeight * s)}px`;
+      outerEl.style.height = '';
+      outerEl.style.minHeight = `${Math.round(designHeight * s)}px`;
       shellEl.style.marginBottom =
         s < 1 ? `${Math.round(designHeight * (s - 1))}px` : '';
     };

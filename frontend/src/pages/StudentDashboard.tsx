@@ -428,6 +428,7 @@ export function StudentDashboard() {
 
             <div className="student-dashboard__content-area">
               <div className="student-dashboard__center-col">
+                <div className="student-dashboard__center-top">
                 <div className="student-dashboard__card student-dashboard__chat-card">
                   <div className="student-dashboard__chat-header">
                     <div className="student-dashboard__chat-title">
@@ -469,6 +470,9 @@ export function StudentDashboard() {
                   ))}
                 </div>
 
+                </div>
+
+                <div className="student-dashboard__center-scroll">
                 <div className="student-dashboard__card student-dashboard__tickets-card">
                   <div className="student-dashboard__section-header">
                     <div className="student-dashboard__section-title">
@@ -564,6 +568,7 @@ export function StudentDashboard() {
                       )}
                     </tbody>
                   </table>
+                </div>
                 </div>
               </div>
 

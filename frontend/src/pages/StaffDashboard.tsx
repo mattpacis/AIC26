@@ -7,12 +7,11 @@ import {
   IconDownload,
   IconEyeOff,
   IconInbox,
-  IconLogout,
   IconMessage,
+  IconPlus,
   IconRefresh,
   IconRobot,
   IconSend,
-  IconSettings,
   IconTrendingDown,
 } from '@tabler/icons-react';
 import {
@@ -25,8 +24,10 @@ import {
   type StaffQueueTicket,
   type StaffTodayAppointment,
 } from '../api/client';
-import { StaffNotifications } from '../components/StaffNotifications';
+import { StaffNewTicketModal } from '../components/StaffNewTicketModal';
 import { StaffRescheduleModal } from '../components/StaffRescheduleModal';
+import { StaffTopbar } from '../components/StaffTopbar';
+import '../components/StaffTopbar.css';
 import { useShellScale } from '../hooks/useShellScale';
 import { useStaffShell } from '../hooks/useStaffShell';
 import { exportStaffTicketsCsv } from '../utils/exportStaffTickets';
@@ -70,7 +71,7 @@ export function StaffDashboard() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { outerRef, shellRef } = useShellScale({ mobileBreakpoint: 1100 });
-  const { staffUser, summary, navItems, handleLogout, refreshShell } =
+  const { staffUser, summary, navItems, profileTheme, updateProfileTheme, updateStaffUser, refreshShell } =
     useStaffShell();
 
   const [tickets, setTickets] = useState<StaffQueueTicket[]>([]);
@@ -88,6 +89,7 @@ export function StaffDashboard() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [hideResolved, setHideResolved] = useState(true);
   const [showReschedule, setShowReschedule] = useState(false);
+  const [showNewTicket, setShowNewTicket] = useState(false);
 
   const loadTickets = useCallback(async (filter: FilterKey, includeResolved: boolean, onlyMine: boolean) => {
     setLoadingTickets(true);
@@ -271,6 +273,14 @@ export function StaffDashboard() {
     time: ticket.time,
   }));
 
+  function handleExportTickets() {
+    if (filteredTickets.length === 0) {
+      window.alert('No tickets to export for the current filter.');
+      return;
+    }
+    exportStaffTicketsCsv(filteredTickets);
+  }
+
   return (
     <div className="staff-dashboard">
       <h2 className="staff-dashboard__sr-only">
@@ -291,7 +301,13 @@ export function StaffDashboard() {
 
             <div className="staff-dashboard__sb-staff-wrap">
               <div className="staff-dashboard__sb-staff">
-                <div className="staff-dashboard__sb-avatar">
+                <div
+                  className="staff-dashboard__sb-avatar"
+                  style={{
+                    background: profileTheme.bg,
+                    color: profileTheme.color,
+                  }}
+                >
                   {staffUser?.initials ?? '—'}
                 </div>
                 <div>
@@ -330,23 +346,6 @@ export function StaffDashboard() {
               )}
             </nav>
 
-            <div className="staff-dashboard__sb-dept staff-dashboard__sb-dept.system">
-              System
-            </div>
-            <div className="staff-dashboard__sb-system">
-              <button type="button" className="staff-dashboard__nav-item">
-                <IconSettings size={16} aria-hidden />
-                Settings
-              </button>
-              <button
-                type="button"
-                className="staff-dashboard__nav-item"
-                onClick={() => void handleLogout()}
-              >
-                <IconLogout size={16} aria-hidden />
-                Logout
-              </button>
-            </div>
             <div className="staff-dashboard__sb-spacer" />
           </aside>
 
@@ -359,14 +358,41 @@ export function StaffDashboard() {
                 <button
                   type="button"
                   className="staff-dashboard__tb-btn"
-                  onClick={() => exportStaffTicketsCsv(filteredTickets)}
+                  onClick={handleExportTickets}
                 >
                   <IconDownload size={14} aria-hidden />
                   Export
                 </button>
-                <StaffNotifications />
+                <button
+                  type="button"
+                  className="staff-dashboard__tb-btn staff-dashboard__tb-btn-primary"
+                  onClick={() => setShowNewTicket(true)}
+                >
+                  <IconPlus size={14} aria-hidden />
+                  New ticket
+                </button>
+                {staffUser && (
+                  <StaffTopbar
+                    user={staffUser}
+                    profileTheme={profileTheme}
+                    onUserUpdated={updateStaffUser}
+                    onThemeUpdated={(theme) => updateProfileTheme(theme.id)}
+                  />
+                )}
               </div>
             </header>
+
+            {showNewTicket && staffUser?.department && (
+              <StaffNewTicketModal
+                open={showNewTicket}
+                department={staffUser.department}
+                onClose={() => setShowNewTicket(false)}
+                onCreated={(ticketId) => {
+                  setSelectedId(ticketId);
+                  void loadTickets(activeFilter, !hideResolved, mineOnly);
+                }}
+              />
+            )}
 
             {showReschedule && selected && staffUser?.department && (
               <StaffRescheduleModal

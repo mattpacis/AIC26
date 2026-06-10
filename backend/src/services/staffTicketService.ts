@@ -17,7 +17,9 @@ import {
 import { logAction } from './actionLogService.js';
 import {
   buildAiCreatedTrackSteps,
+  createTicket,
   mergeDetailPayload,
+  resolveTicketDisplayStatus,
   serializeTicketDetail,
   serializeTicketReplies,
 } from './ticketService.js';
@@ -219,6 +221,10 @@ export function serializeStaffQueueTicket(
       ? `Scheduled · ${formatShortDate(ticket.scheduledDate)}`
       : undefined;
 
+  const display = resolveTicketDisplayStatus(ticket);
+  const staffStatus =
+    display.status === 'pending' ? 'sched' : display.status;
+
   return {
     id: `#${ticket.ticketNumber}`,
     ticketNumber: ticket.ticketNumber,
@@ -226,8 +232,8 @@ export function serializeStaffQueueTicket(
     concern: ticket.concern,
     studentName: ticket.studentUser.name,
     studentEmail: ticket.studentUser.email,
-    status: STAFF_STATUS_API[ticket.status],
-    statusLabel: STAFF_STATUS_LABELS[ticket.status],
+    status: staffStatus,
+    statusLabel: display.statusLabel,
     urgency: URGENCY_API[ticket.urgency],
     urgencyLabel: URGENCY_LABELS[ticket.urgency],
     aiTriaged: Array.isArray(detail?.aiUpdates) && detail.aiUpdates.length > 0,
@@ -757,4 +763,33 @@ export async function updateStaffTicket(
       appointmentId,
     ),
   };
+}
+
+export type CreateStaffTicketInput = {
+  studentUserId: string;
+  concern: string;
+  description?: string;
+  urgency?: TicketUrgency;
+};
+
+export async function createStaffTicket(
+  ctx: AuthContext,
+  input: CreateStaffTicketInput,
+) {
+  assertCanUpdateTicket(ctx);
+
+  if (!ctx.department) {
+    throw new AppError(400, 'Your staff account is not assigned to a department');
+  }
+
+  const created = await createTicket(ctx, {
+    studentUserId: input.studentUserId,
+    concern: input.concern,
+    description: input.description,
+    department: ctx.department,
+    urgency: input.urgency,
+  });
+
+  const result = await takeStaffTicket(ctx, created.ticketNumber);
+  return result.queue;
 }

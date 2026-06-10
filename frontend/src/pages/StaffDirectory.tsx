@@ -2,12 +2,11 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   IconBuildingCommunity,
-  IconLogout,
   IconMail,
-  IconSettings,
 } from '@tabler/icons-react';
 import { listStaffDirectory, type StaffDirectoryMember } from '../api/client';
-import { StaffNotifications } from '../components/StaffNotifications';
+import { StaffTopbar } from '../components/StaffTopbar';
+import '../components/StaffTopbar.css';
 import { useShellScale } from '../hooks/useShellScale';
 import { useStaffShell } from '../hooks/useStaffShell';
 import './StaffDashboard.css';
@@ -16,7 +15,8 @@ import './StaffDirectory.css';
 export function StaffDirectory() {
   const navigate = useNavigate();
   const { outerRef, shellRef } = useShellScale({ mobileBreakpoint: 1100 });
-  const { staffUser, navItems, handleLogout } = useStaffShell();
+  const { staffUser, navItems, profileTheme, updateProfileTheme, updateStaffUser } =
+    useStaffShell();
   const [members, setMembers] = useState<StaffDirectoryMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -64,7 +64,13 @@ export function StaffDirectory() {
 
             <div className="staff-dashboard__sb-staff-wrap">
               <div className="staff-dashboard__sb-staff">
-                <div className="staff-dashboard__sb-avatar">
+                <div
+                  className="staff-dashboard__sb-avatar"
+                  style={{
+                    background: profileTheme.bg,
+                    color: profileTheme.color,
+                  }}
+                >
                   {staffUser?.initials ?? '—'}
                 </div>
                 <div>
@@ -103,23 +109,6 @@ export function StaffDirectory() {
               )}
             </nav>
 
-            <div className="staff-dashboard__sb-dept staff-dashboard__sb-dept.system">
-              System
-            </div>
-            <div className="staff-dashboard__sb-system">
-              <button type="button" className="staff-dashboard__nav-item">
-                <IconSettings size={16} aria-hidden />
-                Settings
-              </button>
-              <button
-                type="button"
-                className="staff-dashboard__nav-item"
-                onClick={() => void handleLogout()}
-              >
-                <IconLogout size={16} aria-hidden />
-                Logout
-              </button>
-            </div>
             <div className="staff-dashboard__sb-spacer" />
           </aside>
 
@@ -128,7 +117,14 @@ export function StaffDirectory() {
               <div className="staff-dashboard__topbar-title">
                 {departmentLabel} — Directory
               </div>
-              <StaffNotifications />
+              {staffUser && (
+                <StaffTopbar
+                  user={staffUser}
+                  profileTheme={profileTheme}
+                  onUserUpdated={updateStaffUser}
+                  onThemeUpdated={(theme) => updateProfileTheme(theme.id)}
+                />
+              )}
             </header>
 
             <div className="staff-directory__content">

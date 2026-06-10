@@ -10,10 +10,16 @@ import {
 } from '@tabler/icons-react';
 import {
   getStaffDashboard,
+  getUserSettings,
   logout,
   type StaffDashboardSummary,
   type StaffDashboardUser,
 } from '../api/client';
+import {
+  getProfileTheme,
+  type ProfileTheme,
+  type ProfileThemeId,
+} from '../utils/profileTheme';
 
 export type StaffNavItem = {
   label: string;
@@ -69,6 +75,9 @@ export function useStaffShell() {
   const { pathname } = useLocation();
   const [staffUser, setStaffUser] = useState<StaffDashboardUser | null>(null);
   const [summary, setSummary] = useState<StaffDashboardSummary | null>(null);
+  const [profileTheme, setProfileTheme] = useState<ProfileTheme>(
+    getProfileTheme('blue'),
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -78,9 +87,13 @@ export function useStaffShell() {
 
   const loadShell = useCallback(async () => {
     try {
-      const data = await getStaffDashboard();
+      const [data, settingsData] = await Promise.all([
+        getStaffDashboard(),
+        getUserSettings(),
+      ]);
       setStaffUser(data.user);
       setSummary(data.summary);
+      setProfileTheme(getProfileTheme(settingsData.settings.profileTheme));
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load staff session');
@@ -105,13 +118,24 @@ export function useStaffShell() {
     navigate('/login');
   }
 
+  function updateProfileTheme(themeId: ProfileThemeId) {
+    setProfileTheme(getProfileTheme(themeId));
+  }
+
+  function updateStaffUser(user: StaffDashboardUser) {
+    setStaffUser(user);
+  }
+
   return {
     staffUser,
     summary,
     navItems,
+    profileTheme,
     loading,
     error,
     handleLogout,
     refreshShell: loadShell,
+    updateProfileTheme,
+    updateStaffUser,
   };
 }
