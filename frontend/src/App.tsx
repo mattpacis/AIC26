@@ -1,4 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { About } from './pages/About';
 import { Login } from './pages/Login';
 import { OAuthCallback } from './pages/OAuthCallback';
 import { StaffAppointments } from './pages/StaffAppointments';
@@ -27,6 +28,7 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/about" element={<About />} />
             <Route path="/login/oauth-callback" element={<OAuthCallback />} />
             <Route path="/dashboard" element={<StudentDashboard />} />
             <Route path="/appointments" element={<StudentAppointments />} />

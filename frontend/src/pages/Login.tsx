@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   IconBriefcase,
   IconCheck,
@@ -372,6 +372,10 @@ export function Login() {
             <div className="login-page__left-footer">
               <span>© 2026 Campus360</span>
               <span>·</span>
+              <Link className="login-page__footer-link" to="/about">
+                About us
+              </Link>
+              <span>·</span>
               <span>Privacy policy</span>
               <span>·</span>
               <span>Support</span>
@@ -394,7 +398,6 @@ export function Login() {
             <div className="login-page__login-card-wrap">
               <div className="login-page__login-card">
               <div className="login-page__login-header">
-                <div className="login-page__login-accent" aria-hidden />
                 <h2 className="login-page__login-title">
                   {mode === 'signin' ? 'Welcome back' : 'Create your account'}
                 </h2>

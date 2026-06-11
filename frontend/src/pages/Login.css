@@ -497,6 +497,17 @@
   display: flex;
   align-items: center;
   gap: 16px;
+  flex-wrap: wrap;
+}
+
+.login-page__footer-link {
+  color: rgba(255, 255, 255, 0.45);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.login-page__footer-link:hover {
+  color: #bfdbfe;
 }
 
 .login-page__right-panel {
@@ -648,21 +659,6 @@
   overflow: hidden;
 }
 
-.login-page__login-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(
-    90deg,
-    var(--c360-navy-900) 0%,
-    var(--c360-blue-400) 48%,
-    #34d399 100%
-  );
-}
-
 .login-page__login-card::after {
   content: '';
   position: absolute;
@@ -680,15 +676,6 @@
   text-align: center;
   margin-bottom: 24px;
   position: relative;
-}
-
-.login-page__login-accent {
-  width: 40px;
-  height: 4px;
-  border-radius: 999px;
-  margin: 0 auto 14px;
-  background: linear-gradient(90deg, var(--c360-navy-700), var(--c360-blue-400));
-  opacity: 0.85;
 }
 
 .login-page__login-title {
