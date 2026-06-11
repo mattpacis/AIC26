@@ -73,6 +73,13 @@ export function assertCanReplyToTicket(
     );
   }
 
+  if (ticket.assignedStaffUserId !== ctx.userId) {
+    throw new AppError(
+      403,
+      'Only the staff member who took this ticket can reply',
+    );
+  }
+
   assertStaffDepartmentAccess(ctx, ticket.department);
 }
 

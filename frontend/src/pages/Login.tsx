@@ -2,16 +2,17 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   IconBriefcase,
+  IconCalendarEvent,
   IconCheck,
+  IconClock,
   IconEye,
   IconEyeOff,
-  IconLayoutDashboard,
+  IconListCheck,
   IconLock,
   IconLogin,
   IconMail,
+  IconMapPin,
   IconMessageChatbot,
-  IconSparkles,
-  IconTicket,
   IconUser,
 } from '@tabler/icons-react';
 import {
@@ -37,29 +38,29 @@ const FEATURES = [
     icon: IconMessageChatbot,
     color: '#2563EB',
     tone: 'ai',
-    title: 'AI helpdesk that understands you',
-    sub: 'Ask anything naturally — the AI identifies the right department and resolves or escalates for you.',
+    title: 'Ask the AI anything',
+    sub: 'Stuck on a hold, ID issue, or Wi‑Fi problem? Just type what’s going on — no need to hunt for the right office.',
   },
   {
-    icon: IconTicket,
+    icon: IconListCheck,
     color: '#059669',
     tone: 'ticket',
-    title: 'Smart ticket routing',
-    sub: 'Tickets are created with full context, urgency, and suggested next steps — no back-and-forth needed.',
+    title: 'Track your requests',
+    sub: 'See ticket status, deadlines, and updates in one place so you’re not left wondering what happened.',
   },
   {
-    icon: IconLayoutDashboard,
+    icon: IconCalendarEvent,
     color: '#D97706',
     tone: 'unified',
-    title: 'Unified for students and staff',
-    sub: 'Students track their concerns. Staff see clean, AI-summarized cases ready to act on.',
+    title: 'Book campus appointments',
+    sub: 'Schedule visits with registrar, health, guidance, and more — without bouncing between websites.',
   },
 ] as const;
 
 const TRUST_SIGNALS = [
-  { icon: IconSparkles, label: 'AI triage' },
+  { icon: IconClock, label: 'Open anytime' },
   { icon: IconLock, label: 'Secure sign-in' },
-  { icon: IconCheck, label: 'Always on' },
+  { icon: IconMapPin, label: 'Right office' },
 ] as const;
 
 function GoogleLogo() {
@@ -325,9 +326,9 @@ export function Login() {
 
             <div className="login-page__hero-section">
               <div className="login-page__hero-tag">
-                <IconSparkles size={13} aria-hidden />
+                <IconMessageChatbot size={13} aria-hidden />
                 <span className="login-page__hero-tag-text">
-                  AI-powered university service hub
+                  Your campus helpdesk
                 </span>
               </div>
               <h1 className="login-page__hero-title">
@@ -336,9 +337,9 @@ export function Login() {
                 <span>campus concern.</span>
               </h1>
               <p className="login-page__hero-sub">
-                Stop figuring out which office to email. Just describe your
-                concern and Campus360 AI handles the rest — from tuition holds
-                to medical certificates.
+                Not sure who to email? Tell us what’s going on — from tuition holds
+                to medical certs — and we’ll help you get to the right office or
+                fix it on the spot.
               </p>
 
               <div className="login-page__trust-row" aria-hidden>

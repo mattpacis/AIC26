@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   IconCalendarCheck,
@@ -42,7 +42,6 @@ export function StudentTicketDetail() {
   const { ticketId } = useParams<{ ticketId: string }>();
   usePageTitle(ticketId ? `Ticket #${ticketId}` : 'Ticket');
   const { outerRef, shellRef } = useShellScale();
-  const replySectionRef = useRef<HTMLDivElement>(null);
 
   const [user, setUser] = useState<User | null>(null);
   const [ticket, setTicket] = useState<TicketDetail | null>(null);
@@ -175,10 +174,6 @@ export function StudentTicketDetail() {
     await sendReply();
   }
 
-  function scrollToReply() {
-    replySectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
   async function handleResolveTicket() {
     if (!ticketId || !ticket?.canResolve || resolving) return;
 
@@ -267,15 +262,6 @@ export function StudentTicketDetail() {
                     </div>
                   </div>
                   <div className="student-ticket-detail__header-actions">
-                    <button
-                      type="button"
-                      className="student-ticket-detail__btn"
-                      onClick={scrollToReply}
-                      disabled={!ticket.canReply}
-                    >
-                      <IconMessage size={13} aria-hidden />
-                      Follow up
-                    </button>
                     {ticket.canResolve && (
                       <button
                         type="button"
@@ -335,6 +321,84 @@ export function StudentTicketDetail() {
                         );
                       })}
                     </div>
+                  </div>
+                </div>
+
+                <div className="student-ticket-detail__card c360-stagger" style={{ '--c360-stagger': 1 } as CSSProperties}>
+                  <div className="student-ticket-detail__card-header">
+                    <div className="student-ticket-detail__card-title">
+                      <IconMessage size={15} color="#2E5BA8" aria-hidden />
+                      Conversation
+                    </div>
+                  </div>
+                  <div className="student-ticket-detail__card-body">
+                    {ticket.replies.length > 0 ? (
+                      <div className="student-ticket-detail__reply-thread">
+                        {ticket.replies.map((item) => (
+                          <div
+                            key={item.id}
+                            className={`student-ticket-detail__reply-message${
+                              item.isStudent ? ' student' : ''
+                            }`}
+                          >
+                            <div className="student-ticket-detail__reply-meta">
+                              <strong>{item.authorName}</strong>
+                              <span title={item.timeLabel}>
+                                {formatRelativeTime(item.createdAt)}
+                              </span>
+                            </div>
+                            <p>{item.content}</p>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="student-ticket-detail__reply-empty">
+                        {ticket.canReply
+                          ? 'No messages yet. Send a note below — staff will see it even before someone takes your ticket.'
+                          : 'This ticket is resolved. Messaging is closed.'}
+                      </p>
+                    )}
+                    <form
+                      className="student-ticket-detail__reply-box"
+                      onSubmit={handleSendReply}
+                    >
+                      <textarea
+                        className="student-ticket-detail__reply-input"
+                        rows={3}
+                        placeholder={
+                          ticket.canReply
+                            ? 'Type a message to staff about this ticket…'
+                            : 'Messaging is closed for resolved tickets.'
+                        }
+                        value={reply}
+                        onChange={(e) => setReply(e.target.value)}
+                        onKeyDown={(event) =>
+                          handleChatTextareaKeyDown(event, () => {
+                            if (ticket.canReply) {
+                              void sendReply();
+                            }
+                          })
+                        }
+                        disabled={!ticket.canReply}
+                      />
+                      <div className="student-ticket-detail__reply-actions">
+                        <span className="student-ticket-detail__reply-hint">
+                          {ticket.canReply
+                            ? ticket.isTaken
+                              ? `${ticket.assignedTo} can reply here. Enter to send, Shift+Enter for a new line.`
+                              : `${ticket.department} will see your message. Staff can reply once they take your ticket. Enter to send, Shift+Enter for a new line.`
+                            : 'This ticket is resolved. Messaging is closed.'}
+                        </span>
+                        <button
+                          type="submit"
+                          className="student-ticket-detail__reply-send"
+                          disabled={sending || !reply.trim() || !ticket.canReply}
+                        >
+                          <IconSend size={13} aria-hidden />
+                          Send
+                        </button>
+                      </div>
+                    </form>
                   </div>
                 </div>
 
@@ -411,74 +475,6 @@ export function StudentTicketDetail() {
                         </div>
                       ))}
                     </div>
-                  </div>
-                </div>
-
-                <div className="student-ticket-detail__card c360-stagger" style={{ '--c360-stagger': 1 } as CSSProperties} ref={replySectionRef}>
-                  <div className="student-ticket-detail__card-header">
-                    <div className="student-ticket-detail__card-title">
-                      <IconMessage size={15} color="#2E5BA8" aria-hidden />
-                      Send a follow-up
-                    </div>
-                  </div>
-                  <div className="student-ticket-detail__card-body">
-                    {ticket.replies.length > 0 && (
-                      <div className="student-ticket-detail__reply-thread">
-                        {ticket.replies.map((item) => (
-                          <div
-                            key={item.id}
-                            className={`student-ticket-detail__reply-message${
-                              item.isStudent ? ' student' : ''
-                            }`}
-                          >
-                            <div className="student-ticket-detail__reply-meta">
-                              <strong>{item.authorName}</strong>
-                              <span title={item.timeLabel}>
-                                {formatRelativeTime(item.createdAt)}
-                              </span>
-                            </div>
-                            <p>{item.content}</p>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    <form
-                      className="student-ticket-detail__reply-box"
-                      onSubmit={handleSendReply}
-                    >
-                      <textarea
-                        className="student-ticket-detail__reply-input"
-                        rows={3}
-                        placeholder="Ask a question or add more details about this ticket…"
-                        value={reply}
-                        onChange={(e) => setReply(e.target.value)}
-                        onKeyDown={(event) =>
-                          handleChatTextareaKeyDown(event, () => {
-                            if (ticket.canReply) {
-                              void sendReply();
-                            }
-                          })
-                        }
-                        disabled={!ticket.canReply}
-                      />
-                      <div className="student-ticket-detail__reply-actions">
-                        <span className="student-ticket-detail__reply-hint">
-                          {ticket.canReply
-                            ? ticket.isTaken
-                              ? `Your message will be seen by ${ticket.assignedTo}. Enter to send, Shift+Enter for a new line.`
-                              : `Your message will be sent to ${ticket.department}. Staff will respond when available. Enter to send, Shift+Enter for a new line.`
-                            : 'This ticket is resolved. Messaging is closed.'}
-                        </span>
-                        <button
-                          type="submit"
-                          className="student-ticket-detail__reply-send"
-                          disabled={sending || !reply.trim() || !ticket.canReply}
-                        >
-                          <IconSend size={13} aria-hidden />
-                          Send
-                        </button>
-                      </div>
-                    </form>
                   </div>
                 </div>
               </div>

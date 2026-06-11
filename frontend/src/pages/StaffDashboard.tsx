@@ -113,7 +113,6 @@ export function StaffDashboard() {
   const [mineOnly, setMineOnly] = useState(false);
   const [notes, setNotes] = useState('');
   const [replyText, setReplyText] = useState('');
-  const [showReply, setShowReply] = useState(false);
   const [loadingTickets, setLoadingTickets] = useState(true);
   const [actionBusy, setActionBusy] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -180,7 +179,6 @@ export function StaffDashboard() {
   useEffect(() => {
     if (selected) {
       setNotes(selected.staffNotes ?? '');
-      setShowReply(false);
       setReplyText('');
     }
   }, [selected?.id, selected?.staffNotes]);
@@ -222,6 +220,12 @@ export function StaffDashboard() {
 
   async function handleReply() {
     if (!selected || !replyText.trim() || actionBusy || isTicketClosed(selected)) return;
+    if (
+      !selected.isTaken ||
+      selected.assignedStaffUserId !== staffUser?.id
+    ) {
+      return;
+    }
     setActionBusy(true);
     try {
       const { ticket } = await addStaffTicketReply(
@@ -236,7 +240,6 @@ export function StaffDashboard() {
         ),
       );
       setReplyText('');
-      setShowReply(false);
       await refreshAfterAction();
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : 'Failed to send reply');
@@ -267,7 +270,6 @@ export function StaffDashboard() {
           return updated.id;
         });
       }
-      setShowReply(false);
       setShowReschedule(false);
       setFlashTicketId(selected.id);
       window.setTimeout(() => setFlashTicketId(null), 1200);
@@ -308,6 +310,12 @@ export function StaffDashboard() {
 
   const departmentLabel = staffUser?.department ?? 'Staff';
   const selectedClosed = selected ? isTicketClosed(selected) : false;
+  const canStaffReply = Boolean(
+    selected &&
+      selected.isTaken &&
+      selected.assignedStaffUserId === staffUser?.id &&
+      !selectedClosed,
+  );
   const recentActivity = tickets.slice(0, 4).map((ticket) => ({
     dot: ticket.aiTriaged ? ('blue' as const) : ('amber' as const),
     text: `${ticket.id} — ${ticket.concern}`,
@@ -643,17 +651,7 @@ export function StaffDashboard() {
                               >
                                 Take ticket
                               </button>
-                            ) : (
-                              <button
-                                type="button"
-                                className="staff-dashboard__action-btn"
-                                disabled={actionBusy}
-                                onClick={() => setShowReply((v) => !v)}
-                              >
-                                <IconSend size={13} aria-hidden />
-                                Reply
-                              </button>
-                            )}
+                            ) : null}
                             <button
                               type="button"
                               className="staff-dashboard__action-btn"
@@ -701,33 +699,54 @@ export function StaffDashboard() {
                         </div>
                       ) : (
                         <p className="staff-dashboard__reply-empty">
-                          {selected.isTaken
+                          {canStaffReply
                             ? 'No messages yet. Send a reply to start the conversation.'
-                            : 'Take this ticket to start messaging the student.'}
+                            : selected.isTaken
+                              ? `This ticket is assigned to ${selected.info.assignedTo}. Only they can reply.`
+                              : 'Take this ticket to start messaging the student.'}
                         </p>
                       )}
-                      {showReply && selected.isTaken && !selectedClosed && (
+                      {!selectedClosed && (
                         <div className="staff-dashboard__reply-compose">
                           <textarea
                             className="staff-dashboard__notes-area"
                             rows={3}
-                            placeholder="Write a reply to the student… (Shift+Enter for new line)"
+                            placeholder={
+                              canStaffReply
+                                ? 'Write a reply to the student… (Shift+Enter for new line)'
+                                : selected.isTaken
+                                  ? 'Only the assigned staff member can send messages on this ticket.'
+                                  : 'Take this ticket to reply to the student.'
+                            }
                             value={replyText}
                             onChange={(e) => setReplyText(e.target.value)}
                             onKeyDown={(event) =>
                               handleChatTextareaKeyDown(event, () => {
-                                void handleReply();
+                                if (canStaffReply) {
+                                  void handleReply();
+                                }
                               })
                             }
+                            disabled={!canStaffReply || actionBusy}
                           />
-                          <button
-                            type="button"
-                            className="staff-dashboard__action-btn staff-dashboard__action-btn-success"
-                            disabled={actionBusy || !replyText.trim()}
-                            onClick={() => void handleReply()}
-                          >
-                            Send reply
-                          </button>
+                          <div className="staff-dashboard__reply-compose-actions">
+                            <span className="staff-dashboard__reply-hint">
+                              {canStaffReply
+                                ? 'Enter to send, Shift+Enter for a new line.'
+                                : selected.isTaken
+                                  ? 'Messaging is limited to the staff member who took this ticket.'
+                                  : 'Student messages are visible here — take the ticket to respond.'}
+                            </span>
+                            <button
+                              type="button"
+                              className="staff-dashboard__action-btn staff-dashboard__action-btn-success"
+                              disabled={actionBusy || !replyText.trim() || !canStaffReply}
+                              onClick={() => void handleReply()}
+                            >
+                              <IconSend size={13} aria-hidden />
+                              Send
+                            </button>
+                          </div>
                         </div>
                       )}
                     </div>

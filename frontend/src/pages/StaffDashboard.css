@@ -781,6 +781,27 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 12px;
+}
+
+.staff-dashboard__reply-compose-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.staff-dashboard__reply-hint {
+  font-size: 11px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.staff-dashboard__notes-area:disabled {
+  background: #f9fafb;
+  color: #9ca3af;
+  cursor: not-allowed;
 }
 
 .staff-dashboard__ai-summary-card {

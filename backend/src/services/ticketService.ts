@@ -308,6 +308,7 @@ export function serializeTicketDetail(
     (viewer?.role === 'STUDENT'
       ? true
       : isTaken &&
+        viewer?.userId === ticket.assignedStaffUserId &&
         (!viewer ||
           viewer.role !== 'STAFF' ||
           viewer.department === ticket.department));
