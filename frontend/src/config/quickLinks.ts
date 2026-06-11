@@ -40,11 +40,41 @@ export const QUICK_LINKS: QuickLink[] = [
     bgColor: '#ECFDF5',
     url: 'https://ateneo.bluphr.ph',
   },
-  { label: 'Library', icon: IconBooks, iconColor: '#374151', bgColor: '#F3F4F6' },
-  { label: 'Printing', icon: IconPrinter, iconColor: '#9333EA', bgColor: '#FDF4FF' },
-  { label: 'Facilities', icon: IconBuilding, iconColor: '#EA580C', bgColor: '#FFF7ED' },
-  { label: 'Cashier', icon: IconCash, iconColor: '#0369A1', bgColor: '#EFF6FF' },
-  { label: 'Registrar', icon: IconUserCircle, iconColor: '#DB2777', bgColor: '#FDF2F8' },
+  {
+    label: 'Library',
+    icon: IconBooks,
+    iconColor: '#374151',
+    bgColor: '#F3F4F6',
+    url: 'https://rizal.library.ateneo.edu',
+  },
+  {
+    label: 'Printing',
+    icon: IconPrinter,
+    iconColor: '#9333EA',
+    bgColor: '#FDF4FF',
+    url: 'https://rizal.library.ateneo.edu/multimedia_resource_center',
+  },
+  {
+    label: 'Facilities',
+    icon: IconBuilding,
+    iconColor: '#EA580C',
+    bgColor: '#FFF7ED',
+    url: 'https://sites.google.com/ateneo.edu/lsreservations/home',
+  },
+  {
+    label: 'Cashier',
+    icon: IconCash,
+    iconColor: '#0369A1',
+    bgColor: '#EFF6FF',
+    url: 'https://www.ateneo.edu/directory',
+  },
+  {
+    label: 'Registrar',
+    icon: IconUserCircle,
+    iconColor: '#DB2777',
+    bgColor: '#FDF2F8',
+    url: 'https://www.ateneo.edu/directory',
+  },
 ];
 
 export function openCampusPortal(url: string, title: string) {

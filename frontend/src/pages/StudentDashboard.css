@@ -111,6 +111,15 @@
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+.student-dashboard__nav-item--logout {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.student-dashboard__nav-item--logout:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #fecaca;
+}
+
 .student-dashboard__main {
   flex: 1;
   display: flex;
@@ -121,27 +130,41 @@
 }
 
 .student-dashboard__topbar {
-  height: 56px;
+  height: auto;
+  min-height: 60px;
   background: #fff;
   border-bottom: 1px solid #e2e8f0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
+  gap: 16px;
+  padding: 14px 24px;
   flex-shrink: 0;
+  position: relative;
+  z-index: 20;
 }
 
 .student-dashboard__topbar-left {
+  min-width: 0;
+  flex: 1;
+}
+
+.student-dashboard__greeting {
+  display: block;
   font-size: 18px;
   font-weight: 700;
   color: #1b3a6b;
   letter-spacing: -0.01em;
+  line-height: 1.25;
 }
 
 .student-dashboard__topbar-right {
   display: flex;
   align-items: center;
   gap: 16px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 21;
 }
 
 .student-dashboard__topbar-icon {
@@ -266,9 +289,31 @@
   height: clamp(420px, 58vh, 580px);
   min-height: 420px;
   overflow: hidden;
+  position: relative;
+  border-color: rgba(147, 197, 253, 0.5);
+  box-shadow:
+    var(--c360-shadow-sm, 0 1px 2px rgba(15, 42, 82, 0.04)),
+    var(--c360-shadow-md, 0 8px 20px rgba(15, 42, 82, 0.08)),
+    0 12px 36px rgba(46, 91, 168, 0.1);
+  animation: c360-fade-up 0.45s var(--c360-ease, ease) both;
+}
+
+.student-dashboard__chat-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 90% 55% at 50% -10%,
+    rgba(147, 197, 253, 0.18) 0%,
+    transparent 65%
+  );
 }
 
 .student-dashboard__chat-header {
+  position: relative;
+  z-index: 1;
   padding: 14px 18px;
   border-bottom: 1px solid #e2e8f0;
   display: flex;
@@ -289,9 +334,20 @@
   background: #eff6ff;
   color: #2563eb;
   font-size: 11px;
-  padding: 2px 8px;
+  padding: 2px 8px 2px 6px;
   border-radius: 20px;
   font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.student-dashboard__ai-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #2563eb;
+  animation: c360-glow-pulse 2.4s ease-in-out infinite;
 }
 
 .student-dashboard__online-status {
@@ -527,7 +583,7 @@
 }
 
 .student-dashboard__ticket-row:hover td {
-  background: #f9fafb;
+  background: #f8fbff;
 }
 
 .student-dashboard__ticket-id {
@@ -609,6 +665,8 @@
 .student-dashboard__ql-btn:hover {
   border-color: #93c5fd;
   background: #eff6ff;
+  transform: translateY(-2px);
+  box-shadow: var(--c360-elev-surface);
 }
 
 .student-dashboard__ql-icon {
@@ -686,6 +744,7 @@
 
 .student-dashboard__cal-day:hover {
   background: #eff6ff;
+  transform: translateY(-1px);
 }
 
 .student-dashboard__cal-day.today {
@@ -822,6 +881,14 @@
   border-radius: 8px;
   padding: 10px 12px;
   border-left: 3px solid;
+  transition:
+    transform var(--c360-duration-fast) var(--c360-ease),
+    box-shadow var(--c360-duration-fast) var(--c360-ease);
+}
+
+.student-dashboard__appt-card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--c360-elev-surface);
 }
 
 .student-dashboard__appt-card.health {
@@ -908,11 +975,11 @@
 }
 
 .student-dashboard__right-section-label {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   color: #64748b;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.09em;
   margin-bottom: 8px;
 }
 
@@ -1010,12 +1077,12 @@
 }
 
 .student-dashboard__progress-value.green {
-  font-weight: 500;
+  font-weight: 700;
   color: #16a34a;
 }
 
 .student-dashboard__progress-value.amber {
-  font-weight: 500;
+  font-weight: 700;
   color: #d97706;
 }
 

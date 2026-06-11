@@ -1,17 +1,20 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  IconBuildingCommunity,
   IconDownload,
   IconPlus,
   IconTrendingDown,
 } from '@tabler/icons-react';
 import { getStaffAnalytics, type StaffAnalytics as StaffAnalyticsData } from '../api/client';
+import { Campus360Logo } from '../components/Campus360Logo';
 import { StaffNewTicketModal } from '../components/StaffNewTicketModal';
 import { StaffTopbar } from '../components/StaffTopbar';
 import '../components/StaffTopbar.css';
+import { EmptyState } from '../components/EmptyState';
+import { SkeletonCard } from '../components/Skeleton';
 import { useShellScale } from '../hooks/useShellScale';
 import { useStaffShell } from '../hooks/useStaffShell';
+import { usePageTitle } from '../hooks/usePageTitle';
 import { exportStaffAnalyticsCsv } from '../utils/exportStaffAnalytics';
 import './StaffDashboard.css';
 import './StaffAnalytics.css';
@@ -24,6 +27,7 @@ const URGENCY_COLORS = {
 
 export function StaffAnalytics() {
   const navigate = useNavigate();
+  usePageTitle('Analytics');
   const { outerRef, shellRef } = useShellScale({ mobileBreakpoint: 1100 });
   const { staffUser, navItems, profileTheme, updateProfileTheme, updateStaffUser } =
     useStaffShell();
@@ -71,10 +75,7 @@ export function StaffAnalytics() {
         <div className="staff-dashboard__shell" ref={shellRef}>
           <aside className="staff-dashboard__sidebar">
             <div className="staff-dashboard__sb-logo">
-              <div className="staff-dashboard__sb-logo-icon">
-                <IconBuildingCommunity size={18} aria-hidden />
-              </div>
-              <span className="staff-dashboard__sb-logo-text">Campus360</span>
+              <Campus360Logo variant="sidebar-staff" />
             </div>
 
             <div className="staff-dashboard__sb-staff-wrap">
@@ -173,31 +174,41 @@ export function StaffAnalytics() {
 
             <div className="staff-analytics__content">
               {loading && (
-                <p className="staff-analytics__empty">Loading analytics…</p>
+                <div className="staff-dashboard__stat-grid staff-analytics__stat-grid">
+                  {Array.from({ length: 4 }).map((_, index) => (
+                    <SkeletonCard key={index} />
+                  ))}
+                </div>
               )}
               {error && <p className="staff-analytics__error">{error}</p>}
+              {!loading && !analytics && !error && (
+                <EmptyState
+                  title="No analytics yet"
+                  description="Ticket data will show up here once your department has activity."
+                />
+              )}
               {!loading && analytics && (
                 <>
                   <div className="staff-dashboard__stat-grid staff-analytics__stat-grid">
-                    <div className="staff-dashboard__stat-card">
+                    <div className="staff-dashboard__stat-card c360-stagger" style={{ '--c360-stagger': 0 } as CSSProperties}>
                       <div className="staff-dashboard__stat-num">
                         {analytics.summary.queueCount}
                       </div>
                       <div className="staff-dashboard__stat-label">Open queue</div>
                     </div>
-                    <div className="staff-dashboard__stat-card">
+                    <div className="staff-dashboard__stat-card c360-stagger" style={{ '--c360-stagger': 1 } as CSSProperties}>
                       <div className="staff-dashboard__stat-num amber">
                         {analytics.summary.openCount}
                       </div>
                       <div className="staff-dashboard__stat-label">Action needed</div>
                     </div>
-                    <div className="staff-dashboard__stat-card">
+                    <div className="staff-dashboard__stat-card c360-stagger" style={{ '--c360-stagger': 2 } as CSSProperties}>
                       <div className="staff-dashboard__stat-num blue">
                         {analytics.summary.progressCount}
                       </div>
                       <div className="staff-dashboard__stat-label">In progress</div>
                     </div>
-                    <div className="staff-dashboard__stat-card">
+                    <div className="staff-dashboard__stat-card c360-stagger" style={{ '--c360-stagger': 3 } as CSSProperties}>
                       <div className="staff-dashboard__stat-num green">
                         {analytics.summary.resolvedCount}
                       </div>
@@ -206,7 +217,7 @@ export function StaffAnalytics() {
                   </div>
 
                   <div className="staff-analytics__panels">
-                    <section className="staff-analytics__panel">
+                    <section className="staff-analytics__panel c360-stagger" style={{ '--c360-stagger': 4 } as CSSProperties}>
                       <h3 className="staff-analytics__panel-title">Ticket status</h3>
                       <div className="staff-analytics__bars">
                         {analytics.statusBreakdown.map((row) => {
@@ -234,7 +245,7 @@ export function StaffAnalytics() {
                       </div>
                     </section>
 
-                    <section className="staff-analytics__panel">
+                    <section className="staff-analytics__panel c360-stagger" style={{ '--c360-stagger': 5 } as CSSProperties}>
                       <h3 className="staff-analytics__panel-title">
                         Open tickets by urgency
                       </h3>
@@ -265,7 +276,7 @@ export function StaffAnalytics() {
                       </div>
                     </section>
 
-                    <section className="staff-analytics__panel">
+                    <section className="staff-analytics__panel c360-stagger" style={{ '--c360-stagger': 6 } as CSSProperties}>
                       <h3 className="staff-analytics__panel-title">Resolution time</h3>
                       <div className="staff-dashboard__resolution-panel">
                         <div className="staff-dashboard__resolution-value">

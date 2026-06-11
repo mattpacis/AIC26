@@ -2,6 +2,7 @@ import { AppointmentStatus, TicketStatus } from '@prisma/client';
 import { prisma } from '../lib/db.js';
 import { type AuthContext, assertStaff, staffDepartmentScope } from '../lib/permissions.js';
 import { listStaffQueueTickets } from './staffTicketService.js';
+import { getStaffAnalytics } from './staffAnalyticsService.js';
 
 function startOfDay(date: Date) {
   const copy = new Date(date);
@@ -47,6 +48,7 @@ export async function getStaffDashboard(ctx: AuthContext) {
     resolvedCount,
     todayAppointments,
     queuePreview,
+    analytics,
   ] = await Promise.all([
     prisma.ticket.count({
       where: {
@@ -79,6 +81,7 @@ export async function getStaffDashboard(ctx: AuthContext) {
       orderBy: { scheduledAt: 'asc' },
     }),
     listStaffQueueTickets(ctx, { limit: 5 }),
+    getStaffAnalytics(ctx),
   ]);
 
   const initials = user.name
@@ -117,5 +120,6 @@ export async function getStaffDashboard(ctx: AuthContext) {
       ticketNumber: appt.ticketNumber ? `#${appt.ticketNumber}` : null,
     })),
     queuePreview,
+    resolution: analytics.resolution,
   };
 }

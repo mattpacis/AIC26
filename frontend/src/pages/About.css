@@ -1,0 +1,328 @@
+.about-page {
+  min-height: 100vh;
+  background: var(--c360-page-bg);
+  font-family: var(--c360-font-body);
+  color: #111827;
+}
+
+.about-page__shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(280px, 420px) 1fr;
+}
+
+.about-page__brand {
+  position: relative;
+  padding: 48px 40px;
+  background: linear-gradient(
+    145deg,
+    #12386e 0%,
+    var(--c360-navy-900) 42%,
+    var(--c360-navy-950) 100%
+  );
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+}
+
+.about-page__brand::before {
+  content: '';
+  position: absolute;
+  width: 360px;
+  height: 360px;
+  top: -80px;
+  right: -80px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(96, 165, 250, 0.2) 0%, transparent 68%);
+  pointer-events: none;
+}
+
+.about-page__brand-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.about-page__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 28px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: #dbeafe;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s ease;
+  flex-shrink: 0;
+}
+
+.about-page__back:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.about-page__logo-wrap {
+  margin-bottom: 28px;
+}
+
+.about-page__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(147, 197, 253, 0.35);
+  background: rgba(255, 255, 255, 0.07);
+  color: #bfdbfe;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.about-page__title {
+  margin: 0 0 14px;
+  font-family: var(--c360-font-display);
+  font-size: 34px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.04em;
+  line-height: 1.15;
+}
+
+.about-page__lead {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.75;
+  color: rgba(255, 255, 255, 0.65);
+  max-width: 340px;
+}
+
+.about-page__brand-footer {
+  position: relative;
+  z-index: 1;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.about-page__main {
+  position: relative;
+  padding: 48px clamp(24px, 5vw, 64px);
+  background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+  overflow-y: auto;
+}
+
+.about-page__main::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle, rgba(15, 42, 82, 0.05) 1px, transparent 1px);
+  background-size: 26px 26px;
+  opacity: 0.7;
+}
+
+.about-page__content {
+  position: relative;
+  z-index: 1;
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+.about-page__section-title {
+  margin: 0 0 8px;
+  font-family: var(--c360-font-display);
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--c360-text-heading);
+  letter-spacing: -0.03em;
+}
+
+.about-page__section-sub {
+  margin: 0 0 28px;
+  font-size: 14px;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+.about-page__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+  align-items: stretch;
+}
+
+.about-page__card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 22px 20px 20px;
+  box-shadow: 0 8px 24px rgba(15, 42, 82, 0.06);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  height: 100%;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.about-page__card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 32px rgba(15, 42, 82, 0.1);
+}
+
+.about-page__photo-wrap {
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-bottom: 12px;
+  border: 3px solid #eff6ff;
+  box-shadow: 0 8px 20px rgba(46, 91, 168, 0.12);
+  background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.about-page__photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.about-page__initials {
+  font-family: var(--c360-font-display);
+  font-size: 28px;
+  font-weight: 800;
+  color: #1b4080;
+  letter-spacing: -0.03em;
+}
+
+.about-page__name {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: #0f2a52;
+  line-height: 1.25;
+}
+
+.about-page__details {
+  display: grid;
+  grid-template-rows: auto auto auto auto auto auto;
+  justify-items: center;
+  width: 100%;
+}
+
+.about-page__name-slot {
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2px;
+}
+
+.about-page__role-slot {
+  min-height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+
+.about-page__role {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #1b4080;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+}
+
+.about-page__school {
+  margin: 0 0 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #1b4080;
+  line-height: 1.3;
+}
+
+.about-page__course {
+  margin: 0 0 8px;
+  font-size: 12px;
+  line-height: 1.35;
+  color: #64748b;
+}
+
+.about-page__email {
+  margin-bottom: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #2563eb;
+  text-decoration: none;
+  word-break: break-word;
+}
+
+.about-page__email:hover {
+  text-decoration: underline;
+}
+
+.about-page__linkedin {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 18px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #0a66c2;
+  text-decoration: none;
+}
+
+.about-page__linkedin:hover {
+  text-decoration: underline;
+}
+
+.about-page__linkedin--placeholder {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+@media (max-width: 900px) {
+  .about-page__shell {
+    grid-template-columns: 1fr;
+  }
+
+  .about-page__brand {
+    padding: 32px 24px;
+  }
+
+  .about-page__title {
+    font-size: 28px;
+  }
+
+  .about-page__main {
+    padding: 32px 20px 40px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-page__card:hover {
+    transform: none;
+  }
+}

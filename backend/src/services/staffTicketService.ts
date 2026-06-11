@@ -18,6 +18,7 @@ import { logAction } from './actionLogService.js';
 import {
   buildAiCreatedTrackSteps,
   createTicket,
+  getTicketTrackSteps,
   mergeDetailPayload,
   resolveTicketDisplayStatus,
   serializeTicketDetail,
@@ -261,6 +262,7 @@ export function serializeStaffQueueTicket(
       assignedTo: ticket.assignedTo ?? 'Unassigned',
     },
     steps: buildSuggestedSteps(ticket, detail),
+    trackSteps: getTicketTrackSteps(ticket),
     suggestedStaffNotes: buildSuggestedStaffNotes(ticket),
     replies: serializeTicketReplies(ticket.replies ?? []),
   };
@@ -273,6 +275,8 @@ export type StaffQueueFilters = {
   limit?: number;
   includeResolved?: boolean;
   mineOnly?: boolean;
+  search?: string;
+  sort?: 'newest' | 'oldest' | 'urgency' | 'student';
 };
 
 const STATUS_FILTER_MAP: Record<string, TicketStatus> = {
@@ -302,6 +306,7 @@ export async function listStaffQueueTickets(
     urgency?: TicketUrgency;
     department?: string;
     assignedStaffUserId?: string;
+    OR?: Array<Record<string, unknown>>;
   } = { schoolId: ctx.schoolId };
 
   if (filters.mineOnly) {
@@ -329,6 +334,26 @@ export async function listStaffQueueTickets(
     where.department = filters.department;
   }
 
+  const search = filters.search?.trim();
+  if (search) {
+    where.OR = [
+      { concern: { contains: search } },
+      { ticketNumber: { contains: search } },
+      { studentUser: { name: { contains: search } } },
+      { studentUser: { email: { contains: search } } },
+    ];
+  }
+
+  const sortKey = filters.sort ?? 'newest';
+  const orderBy =
+    sortKey === 'oldest'
+      ? [{ updatedAt: 'asc' as const }]
+      : sortKey === 'student'
+        ? [{ studentUser: { name: 'asc' as const } }]
+        : sortKey === 'urgency'
+          ? [{ urgency: 'desc' as const }, { updatedAt: 'desc' as const }]
+          : [{ updatedAt: 'desc' as const }, { urgency: 'desc' as const }];
+
   const tickets = await prisma.ticket.findMany({
     where,
     include: {
@@ -353,7 +378,7 @@ export async function listStaffQueueTickets(
         },
       },
     },
-    orderBy: [{ urgency: 'desc' }, { updatedAt: 'desc' }],
+    orderBy,
     take: filters.limit,
   });
 

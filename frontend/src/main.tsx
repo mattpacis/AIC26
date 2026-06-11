@@ -1,4 +1,5 @@
 import { createRoot } from 'react-dom/client'
+import './styles/campus360-theme.css'
 import './index.css'
 import App from './App.tsx'
 

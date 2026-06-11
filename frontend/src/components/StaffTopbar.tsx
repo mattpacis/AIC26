@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import {
   IconBell,
@@ -11,6 +12,7 @@ import {
   logout,
   markAllNotificationsRead,
   markNotificationRead,
+  clearAllNotifications,
   updateProfile,
   updateUserSettings,
   userInitials,
@@ -24,6 +26,8 @@ import {
   type ProfileTheme,
   type ProfileThemeId,
 } from '../utils/profileTheme';
+import { useNotificationToasts } from '../hooks/useNotificationToasts';
+import { useAnchoredMenu } from '../hooks/useAnchoredMenu';
 import '../components/StudentTopbar.css';
 import './StaffTopbar.css';
 
@@ -40,9 +44,12 @@ export function StaffTopbar({
   onUserUpdated,
   onThemeUpdated,
 }: StaffTopbarProps) {
+  useNotificationToasts(true);
   const navigate = useNavigate();
   const menuRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
+  const profileDropdownRef = useRef<HTMLDivElement>(null);
+  const notifDropdownRef = useRef<HTMLDivElement>(null);
 
   const [profileOpen, setProfileOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
@@ -55,6 +62,10 @@ export function StaffTopbar({
   const [error, setError] = useState<string | null>(null);
   const [notifications, setNotifications] = useState<NotificationRecord[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+
+  const profileMenuStyle = useAnchoredMenu(profileOpen, menuRef);
+  const notifMenuStyle = useAnchoredMenu(notifOpen, notifRef);
+  const portalTarget = typeof document !== 'undefined' ? document.body : null;
 
   useEffect(() => {
     setName(user.name);
@@ -109,10 +120,20 @@ export function StaffTopbar({
   useEffect(() => {
     function handleClick(event: MouseEvent) {
       const target = event.target as Node;
-      if (profileOpen && menuRef.current && !menuRef.current.contains(target)) {
+      if (
+        profileOpen &&
+        menuRef.current &&
+        !menuRef.current.contains(target) &&
+        !profileDropdownRef.current?.contains(target)
+      ) {
         setProfileOpen(false);
       }
-      if (notifOpen && notifRef.current && !notifRef.current.contains(target)) {
+      if (
+        notifOpen &&
+        notifRef.current &&
+        !notifRef.current.contains(target) &&
+        !notifDropdownRef.current?.contains(target)
+      ) {
         setNotifOpen(false);
       }
     }
@@ -194,206 +215,244 @@ export function StaffTopbar({
     setUnreadCount(0);
   }
 
+  async function handleClearAll() {
+    const data = await clearAllNotifications();
+    setNotifications(data.notifications);
+    setUnreadCount(0);
+  }
+
   return (
     <>
       <div className="student-topbar__menu-wrap" ref={notifRef}>
-          <button
-            type="button"
-            className="student-dashboard__topbar-icon"
-            aria-label="Notifications"
-            onClick={() => {
-              setNotifOpen((open) => !open);
-              setProfileOpen(false);
-            }}
-          >
-            <IconBell size={18} aria-hidden />
-            {unreadCount > 0 && <span className="student-dashboard__notif-badge" />}
-          </button>
+        <button
+          type="button"
+          className="student-dashboard__topbar-icon"
+          aria-label="Notifications"
+          onClick={() => {
+            setNotifOpen((open) => !open);
+            setProfileOpen(false);
+          }}
+        >
+          <IconBell size={18} aria-hidden />
+          {unreadCount > 0 && <span className="student-dashboard__notif-badge" />}
+        </button>
+      </div>
 
-          {notifOpen && (
-            <div className="student-topbar__dropdown student-topbar__dropdown--wide">
-              <div className="student-topbar__dropdown-header">
-                <strong>Notifications</strong>
-                {unreadCount > 0 && (
-                  <button type="button" onClick={() => void handleMarkAllRead()}>
-                    Mark all read
+      <div className="student-topbar__menu-wrap" ref={menuRef}>
+        <button
+          type="button"
+          className="student-dashboard__user-pill student-topbar__profile-btn"
+          onClick={() => {
+            setProfileOpen((open) => !open);
+            setNotifOpen(false);
+          }}
+        >
+          <div
+            className="student-dashboard__user-avatar"
+            style={{ background: profileTheme.bg, color: profileTheme.color }}
+          >
+            {user.initials}
+          </div>
+          <div className="student-dashboard__user-info">
+            <div className="student-dashboard__user-name">{user.name}</div>
+            <div className="student-dashboard__user-email">{user.email}</div>
+          </div>
+        </button>
+      </div>
+
+      {portalTarget &&
+        notifOpen &&
+        createPortal(
+          <div
+            ref={notifDropdownRef}
+            className="student-topbar__dropdown student-topbar__dropdown--wide student-topbar__dropdown--portal"
+            style={notifMenuStyle}
+          >
+            <div className="student-topbar__dropdown-header">
+              <strong>Notifications</strong>
+              {notifications.length > 0 && (
+                <div className="student-topbar__dropdown-actions">
+                  {unreadCount > 0 && (
+                    <button type="button" onClick={() => void handleMarkAllRead()}>
+                      Mark all read
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    className="student-topbar__dropdown-action--muted"
+                    onClick={() => void handleClearAll()}
+                  >
+                    Clear all
                   </button>
-                )}
-              </div>
-              {notifications.length === 0 ? (
-                <p className="student-topbar__empty">No notifications yet.</p>
-              ) : (
-                <ul className="student-topbar__notif-list">
-                  {notifications.map((notification) => (
-                    <li key={notification.id}>
-                      <button
-                        type="button"
-                        className={`student-topbar__notif-item${notification.read ? '' : ' unread'}`}
-                        onClick={() => {
-                          if (!notification.read) {
-                            void handleMarkRead(notification.id);
-                          }
-                          if (notification.link) {
-                            navigate(notification.link);
-                            setNotifOpen(false);
-                          }
-                        }}
-                      >
-                        <strong>{notification.title}</strong>
-                        <span>{notification.body}</span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
+                </div>
               )}
             </div>
-          )}
-        </div>
-
-        <div className="student-topbar__menu-wrap" ref={menuRef}>
-          <button
-            type="button"
-            className="student-dashboard__user-pill student-topbar__profile-btn"
-            onClick={() => {
-              setProfileOpen((open) => !open);
-              setNotifOpen(false);
-            }}
-          >
-            <div
-              className="student-dashboard__user-avatar"
-              style={{ background: profileTheme.bg, color: profileTheme.color }}
-            >
-              {user.initials}
-            </div>
-            <div className="student-dashboard__user-info">
-              <div className="student-dashboard__user-name">{user.name}</div>
-              <div className="student-dashboard__user-email">{user.email}</div>
-            </div>
-          </button>
-
-          {profileOpen && (
-            <div className="student-topbar__dropdown student-topbar__dropdown--profile">
-              <div className="student-topbar__dropdown-section">
-                <span className="student-topbar__dropdown-label">Profile color</span>
-                <div className="student-topbar__theme-swatches">
-                  {PROFILE_THEMES.map((theme) => (
+            {notifications.length === 0 ? (
+              <p className="student-topbar__empty">No notifications yet.</p>
+            ) : (
+              <ul className="student-topbar__notif-list">
+                {notifications.map((notification) => (
+                  <li key={notification.id}>
                     <button
-                      key={theme.id}
                       type="button"
-                      className={`student-topbar__theme-swatch${
-                        settings?.profileTheme === theme.id ? ' active' : ''
-                      }`}
-                      style={{ background: theme.bg }}
-                      aria-label={theme.label}
-                      aria-pressed={settings?.profileTheme === theme.id}
-                      disabled={savingTheme}
-                      onClick={() => void handleThemeChange(theme.id)}
-                    />
-                  ))}
+                      className={`student-topbar__notif-item${notification.read ? '' : ' unread'}`}
+                      onClick={() => {
+                        if (!notification.read) {
+                          void handleMarkRead(notification.id);
+                        }
+                        if (notification.link) {
+                          navigate(notification.link);
+                          setNotifOpen(false);
+                        }
+                      }}
+                    >
+                      <strong>{notification.title}</strong>
+                      <span>{notification.body}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>,
+          portalTarget,
+        )}
+
+      {portalTarget &&
+        profileOpen &&
+        createPortal(
+          <div
+            ref={profileDropdownRef}
+            className="student-topbar__dropdown student-topbar__dropdown--profile student-topbar__dropdown--portal"
+            style={profileMenuStyle}
+          >
+            <div className="student-topbar__dropdown-section">
+              <span className="student-topbar__dropdown-label">Profile color</span>
+              <div className="student-topbar__theme-swatches">
+                {PROFILE_THEMES.map((theme) => (
+                  <button
+                    key={theme.id}
+                    type="button"
+                    className={`student-topbar__theme-swatch${
+                      settings?.profileTheme === theme.id ? ' active' : ''
+                    }`}
+                    style={{ background: theme.bg }}
+                    aria-label={theme.label}
+                    aria-pressed={settings?.profileTheme === theme.id}
+                    disabled={savingTheme}
+                    onClick={() => void handleThemeChange(theme.id)}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className="student-topbar__dropdown-divider" />
+
+            <button
+              type="button"
+              className="student-topbar__menu-item"
+              onClick={() => {
+                setEditOpen(true);
+                setProfileOpen(false);
+              }}
+            >
+              Edit details
+            </button>
+            <button
+              type="button"
+              className="student-topbar__menu-item"
+              onClick={() => {
+                setSettingsOpen(true);
+                setProfileOpen(false);
+              }}
+            >
+              <IconSettings size={15} aria-hidden />
+              Settings
+            </button>
+            <button
+              type="button"
+              className="student-topbar__menu-item"
+              onClick={() => void handleLogout()}
+            >
+              <IconLogout size={15} aria-hidden />
+              Logout
+            </button>
+          </div>,
+          portalTarget,
+        )}
+
+      {portalTarget &&
+        editOpen &&
+        createPortal(
+          <div className="student-topbar__modal-overlay">
+            <div className="student-topbar__modal" role="dialog" aria-modal="true">
+              <h3>Edit profile</h3>
+              <label>
+                Full name
+                <input value={name} onChange={(e) => setName(e.target.value)} />
+              </label>
+              <p className="student-topbar__modal-note">Email: {user.email}</p>
+              {error && <p className="student-topbar__error">{error}</p>}
+              <div className="student-topbar__modal-actions">
+                <button type="button" onClick={() => setEditOpen(false)} disabled={saving}>
+                  Cancel
+                </button>
+                <button type="button" onClick={() => void handleSaveProfile()} disabled={saving}>
+                  {saving ? 'Saving…' : 'Save'}
+                </button>
+              </div>
+            </div>
+          </div>,
+          portalTarget,
+        )}
+
+      {portalTarget &&
+        settingsOpen &&
+        settings &&
+        createPortal(
+          <div className="student-topbar__modal-overlay">
+            <div className="student-topbar__modal" role="dialog" aria-modal="true">
+              <h3>Settings</h3>
+              <div className="staff-topbar__settings-row">
+                <div>
+                  <strong>Email notifications</strong>
+                  <p className="student-topbar__modal-note">
+                    Receive updates when ticket status changes.
+                  </p>
                 </div>
+                <button
+                  type="button"
+                  className={`staff-topbar__toggle${settings.emailNotifications ? ' on' : ''}`}
+                  role="switch"
+                  aria-checked={settings.emailNotifications}
+                  onClick={() => void handleToggleSetting('emailNotifications')}
+                  disabled={saving}
+                />
               </div>
-
-              <div className="student-topbar__dropdown-divider" />
-
-              <button
-                type="button"
-                className="student-topbar__menu-item"
-                onClick={() => {
-                  setEditOpen(true);
-                  setProfileOpen(false);
-                }}
-              >
-                Edit details
-              </button>
-              <button
-                type="button"
-                className="student-topbar__menu-item"
-                onClick={() => {
-                  setSettingsOpen(true);
-                  setProfileOpen(false);
-                }}
-              >
-                <IconSettings size={15} aria-hidden />
-                Settings
-              </button>
-              <button
-                type="button"
-                className="student-topbar__menu-item"
-                onClick={() => void handleLogout()}
-              >
-                <IconLogout size={15} aria-hidden />
-                Logout
-              </button>
-            </div>
-          )}
-        </div>
-
-      {editOpen && (
-        <div className="student-topbar__modal-overlay">
-          <div className="student-topbar__modal" role="dialog" aria-modal="true">
-            <h3>Edit profile</h3>
-            <label>
-              Full name
-              <input value={name} onChange={(e) => setName(e.target.value)} />
-            </label>
-            <p className="student-topbar__modal-note">Email: {user.email}</p>
-            {error && <p className="student-topbar__error">{error}</p>}
-            <div className="student-topbar__modal-actions">
-              <button type="button" onClick={() => setEditOpen(false)} disabled={saving}>
-                Cancel
-              </button>
-              <button type="button" onClick={() => void handleSaveProfile()} disabled={saving}>
-                {saving ? 'Saving…' : 'Save'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {settingsOpen && settings && (
-        <div className="student-topbar__modal-overlay">
-          <div className="student-topbar__modal" role="dialog" aria-modal="true">
-            <h3>Settings</h3>
-            <div className="staff-topbar__settings-row">
-              <div>
-                <strong>Email notifications</strong>
-                <p className="student-topbar__modal-note">
-                  Receive updates when ticket status changes.
-                </p>
+              <div className="staff-topbar__settings-row">
+                <div>
+                  <strong>Appointment reminders</strong>
+                  <p className="student-topbar__modal-note">
+                    Get reminders before scheduled appointments.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className={`staff-topbar__toggle${settings.appointmentReminders ? ' on' : ''}`}
+                  role="switch"
+                  aria-checked={settings.appointmentReminders}
+                  onClick={() => void handleToggleSetting('appointmentReminders')}
+                  disabled={saving}
+                />
               </div>
-              <button
-                type="button"
-                className={`staff-topbar__toggle${settings.emailNotifications ? ' on' : ''}`}
-                role="switch"
-                aria-checked={settings.emailNotifications}
-                onClick={() => void handleToggleSetting('emailNotifications')}
-                disabled={saving}
-              />
-            </div>
-            <div className="staff-topbar__settings-row">
-              <div>
-                <strong>Appointment reminders</strong>
-                <p className="student-topbar__modal-note">
-                  Get reminders before scheduled appointments.
-                </p>
+              <div className="student-topbar__modal-actions">
+                <button type="button" onClick={() => setSettingsOpen(false)}>
+                  Close
+                </button>
               </div>
-              <button
-                type="button"
-                className={`staff-topbar__toggle${settings.appointmentReminders ? ' on' : ''}`}
-                role="switch"
-                aria-checked={settings.appointmentReminders}
-                onClick={() => void handleToggleSetting('appointmentReminders')}
-                disabled={saving}
-              />
             </div>
-            <div className="student-topbar__modal-actions">
-              <button type="button" onClick={() => setSettingsOpen(false)}>
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          portalTarget,
+        )}
     </>
   );
 }

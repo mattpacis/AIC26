@@ -1,7 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useState, type CSSProperties } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
-  IconBuildingCommunity,
   IconPlus,
   IconRefresh,
   IconTicket,
@@ -14,16 +13,19 @@ import {
   type TicketSummary,
   type User,
 } from '../api/client';
+import { StudentSidebar } from '../components/StudentSidebar';
 import { StudentTopbar } from '../components/StudentTopbar';
 import '../components/StudentTopbar.css';
-import { getStudentNavItems } from '../config/studentNav';
+import { EmptyState } from '../components/EmptyState';
+import { Skeleton } from '../components/Skeleton';
+import { usePageTitle } from '../hooks/usePageTitle';
 import { useShellScale } from '../hooks/useShellScale';
 import {
   TICKET_BADGE_CLASS,
   TICKET_URGENCY_CLASS,
 } from '../utils/ticketDisplay';
+import { formatRelativeTime } from '../utils/relativeTime';
 import './StudentDashboard.css';
-import './StudentTicketDetail.css';
 import './StudentTickets.css';
 
 type StatusFilter = 'all' | 'open' | 'resolved';
@@ -32,7 +34,7 @@ const OPEN_STATUSES: TicketSummary['status'][] = ['open', 'progress', 'pending']
 
 export function StudentTickets() {
   const navigate = useNavigate();
-  const location = useLocation();
+  usePageTitle('My Tickets');
   const { outerRef, shellRef } = useShellScale();
   const [user, setUser] = useState<User | null>(null);
   const [tickets, setTickets] = useState<TicketSummary[]>([]);
@@ -43,8 +45,6 @@ export function StudentTickets() {
   const [deletingTicketNumber, setDeletingTicketNumber] = useState<string | null>(
     null,
   );
-
-  const navItems = getStudentNavItems(location.pathname);
 
   async function loadTickets(silent = false) {
     if (!silent) {
@@ -104,7 +104,7 @@ export function StudentTickets() {
 
   function goToHelpdesk() {
     setHelpdeskPromptOpen(false);
-    navigate('/dashboard', { state: { focusHelpdesk: true } });
+    navigate('/dashboard');
   }
 
   async function handleDeleteTicket(
@@ -139,45 +139,17 @@ export function StudentTickets() {
   }
 
   return (
-    <div className="student-ticket-detail student-tickets">
-      <h2 className="student-ticket-detail__sr-only">
+    <div className="student-dashboard student-tickets">
+      <h2 className="student-dashboard__sr-only">
         Campus360 my tickets page listing all support tickets with status filters
       </h2>
 
-      <div className="student-ticket-detail__outer" ref={outerRef}>
-        <div className="student-ticket-detail__shell" ref={shellRef}>
-          <aside className="student-ticket-detail__sidebar">
-            <div className="student-ticket-detail__sb-logo">
-              <div className="student-ticket-detail__sb-logo-icon">
-                <IconBuildingCommunity size={20} aria-hidden />
-              </div>
-              <span className="student-ticket-detail__sb-logo-text">
-                Campus360
-              </span>
-            </div>
+      <div className="student-dashboard__outer" ref={outerRef}>
+        <div className="student-dashboard__shell" ref={shellRef}>
+          <StudentSidebar />
 
-            <nav className="student-ticket-detail__sb-nav">
-              {navItems.map(({ label, icon: Icon, path, active, badge }) => (
-                <button
-                  key={label}
-                  type="button"
-                  className={`student-ticket-detail__nav-item${active ? ' active' : ''}`}
-                  onClick={() => navigate(path)}
-                >
-                  <Icon size={17} aria-hidden />
-                  {label}
-                  {badge !== undefined && (
-                    <span className="student-ticket-detail__nav-badge">
-                      {badge}
-                    </span>
-                  )}
-                </button>
-              ))}
-            </nav>
-          </aside>
-
-          <div className="student-ticket-detail__main">
-            <header className="student-ticket-detail__topbar">
+          <div className="student-dashboard__main">
+            <header className="student-dashboard__topbar">
               <div className="student-tickets__topbar-title">
                 <IconTicket size={18} color="#2E5BA8" aria-hidden />
                 My Tickets
@@ -187,17 +159,17 @@ export function StudentTickets() {
 
             <div className="student-tickets__content">
               <div className="student-tickets__summary-row">
-                <div className="student-tickets__summary-card">
+                <div className="student-tickets__summary-card c360-stagger" style={{ '--c360-stagger': 0 } as CSSProperties}>
                   <span className="student-tickets__summary-label">Total</span>
-                  <strong>{tickets.length}</strong>
+                  <strong className="c360-tabular">{tickets.length}</strong>
                 </div>
-                <div className="student-tickets__summary-card">
+                <div className="student-tickets__summary-card c360-stagger" style={{ '--c360-stagger': 1 } as CSSProperties}>
                   <span className="student-tickets__summary-label">Open</span>
-                  <strong>{openCount}</strong>
+                  <strong className="c360-tabular">{openCount}</strong>
                 </div>
-                <div className="student-tickets__summary-card">
+                <div className="student-tickets__summary-card c360-stagger" style={{ '--c360-stagger': 2 } as CSSProperties}>
                   <span className="student-tickets__summary-label">Resolved</span>
-                  <strong>
+                  <strong className="c360-tabular">
                     {tickets.filter((ticket) => ticket.status === 'resolved').length}
                   </strong>
                 </div>
@@ -251,7 +223,7 @@ export function StudentTickets() {
                 </div>
               </div>
 
-              <div className="student-dashboard__card student-tickets__table-card">
+              <div className="student-dashboard__card student-tickets__table-card c360-stagger" style={{ '--c360-stagger': 3 } as CSSProperties}>
                 <table className="student-dashboard__tickets-table">
                   <thead>
                     <tr>
@@ -267,12 +239,48 @@ export function StudentTickets() {
                   </thead>
                   <tbody>
                     {loading ? (
-                      <tr>
-                        <td colSpan={8}>Loading tickets…</td>
-                      </tr>
+                      Array.from({ length: 5 }).map((_, index) => (
+                        <tr key={index}>
+                          <td colSpan={8}>
+                            <Skeleton height={16} />
+                          </td>
+                        </tr>
+                      ))
                     ) : filteredTickets.length === 0 ? (
                       <tr>
-                        <td colSpan={8}>No tickets match this filter.</td>
+                        <td colSpan={8}>
+                          <EmptyState
+                            title={
+                              filter === 'all'
+                                ? 'No tickets yet'
+                                : `No ${filter} tickets`
+                            }
+                            description={
+                              filter === 'all'
+                                ? 'Ask the AI helpdesk to open your first ticket.'
+                                : 'Try a different filter or start a new request.'
+                            }
+                            action={
+                              filter === 'all' ? (
+                                <button
+                                  type="button"
+                                  className="student-tickets__create-btn"
+                                  onClick={goToHelpdesk}
+                                >
+                                  Ask the AI helpdesk
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  className="student-tickets__create-btn"
+                                  onClick={() => setHelpdeskPromptOpen(true)}
+                                >
+                                  New ticket
+                                </button>
+                              )
+                            }
+                          />
+                        </td>
                       </tr>
                     ) : (
                       filteredTickets.map((ticket) => (
@@ -283,7 +291,7 @@ export function StudentTickets() {
                             navigate(`/tickets/${ticket.ticketNumber}`)
                           }
                         >
-                          <td className="student-dashboard__ticket-id">
+                          <td className="student-dashboard__ticket-id c360-tabular">
                             {ticket.id}
                           </td>
                           <td>{ticket.concern}</td>
@@ -295,12 +303,18 @@ export function StudentTickets() {
                             </span>
                           </td>
                           <td>
-                            <span className={TICKET_URGENCY_CLASS[ticket.urgency]}>
-                              {ticket.urgencyLabel}
+                            <span className="student-dashboard__urgency-cell">
+                              <span
+                                className={`student-dashboard__urgency-dot student-dashboard__urgency-dot--${ticket.urgency}`}
+                                aria-hidden
+                              />
+                              <span className={TICKET_URGENCY_CLASS[ticket.urgency]}>
+                                {ticket.urgencyLabel}
+                              </span>
                             </span>
                           </td>
                           <td>{ticket.department}</td>
-                          <td className="student-dashboard__ticket-date">
+                          <td className="student-dashboard__ticket-date c360-tabular">
                             {ticket.scheduledDate
                               ? new Date(ticket.scheduledDate).toLocaleDateString(
                                   'en-US',
@@ -312,8 +326,8 @@ export function StudentTickets() {
                                 )
                               : '—'}
                           </td>
-                          <td className="student-dashboard__ticket-date">
-                            {ticket.lastUpdate}
+                          <td className="student-dashboard__ticket-date c360-tabular">
+                            {formatRelativeTime(ticket.updatedAt)}
                           </td>
                           <td className="student-tickets__action-col">
                             {ticket.status === 'resolved' && (

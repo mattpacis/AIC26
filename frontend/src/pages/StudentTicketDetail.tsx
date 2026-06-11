@@ -1,7 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
-  IconBuildingCommunity,
   IconCalendarCheck,
   IconCheck,
   IconChevronRight,
@@ -18,11 +17,15 @@ import {
   getMe,
   getTicket,
   resolveTicket,
-  userInitials,
   type TicketDetail,
   type User,
 } from '../api/client';
-import { getStudentNavItems } from '../config/studentNav';
+import { StudentSidebar } from '../components/StudentSidebar';
+import { StudentTopbar } from '../components/StudentTopbar';
+import '../components/StudentTopbar.css';
+import { EmptyState } from '../components/EmptyState';
+import { SkeletonBlock } from '../components/Skeleton';
+import { usePageTitle } from '../hooks/usePageTitle';
 import { useShellScale } from '../hooks/useShellScale';
 import {
   handleChatTextareaKeyDown,
@@ -30,12 +33,14 @@ import {
   TICKET_URGENCY_BADGE_CLASS,
 } from '../utils/ticketDisplay';
 import { getRelatedTicketIcon, getTrackStepIcon } from '../utils/ticketIcons';
+import { formatRelativeTime } from '../utils/relativeTime';
+import './StudentDashboard.css';
 import './StudentTicketDetail.css';
 
 export function StudentTicketDetail() {
   const navigate = useNavigate();
-  const location = useLocation();
   const { ticketId } = useParams<{ ticketId: string }>();
+  usePageTitle(ticketId ? `Ticket #${ticketId}` : 'Ticket');
   const { outerRef, shellRef } = useShellScale();
   const replySectionRef = useRef<HTMLDivElement>(null);
 
@@ -47,7 +52,6 @@ export function StudentTicketDetail() {
   const [sending, setSending] = useState(false);
   const [resolving, setResolving] = useState(false);
 
-  const navItems = getStudentNavItems(location.pathname);
 
   useEffect(() => {
     let cancelled = false;
@@ -109,21 +113,45 @@ export function StudentTicketDetail() {
   }, [navigate, ticketId]);
 
   if (loading) {
-    return null;
-  }
-
-  if (!ticket || error) {
     return (
-      <div className="student-ticket-detail">
-        <p>{error ?? 'Ticket not found'}</p>
+      <div className="student-dashboard">
+        <div className="student-dashboard__outer" ref={outerRef}>
+          <div className="student-dashboard__shell" ref={shellRef}>
+            <StudentSidebar />
+            <div className="student-dashboard__main">
+              <div className="student-ticket-detail__content" style={{ padding: 24 }}>
+                <SkeletonBlock lines={5} />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
-  const displayUser = {
-    initials: user ? userInitials(user.name) : '—',
-    name: user?.name ?? 'Student',
-  };
+  if (!ticket || error) {
+    return (
+      <div className="student-dashboard">
+        <div className="student-dashboard__outer">
+          <div className="student-dashboard__main" style={{ padding: 32 }}>
+            <EmptyState
+              title={error ?? 'Ticket not found'}
+              description="This ticket may have been removed or you may not have access."
+              action={
+                <button
+                  type="button"
+                  className="student-tickets__create-btn"
+                  onClick={() => navigate('/tickets')}
+                >
+                  Back to tickets
+                </button>
+              }
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   async function sendReply() {
     const trimmed = reply.trim();
@@ -172,47 +200,19 @@ export function StudentTicketDetail() {
   }
 
   return (
-    <div className="student-ticket-detail">
+    <div className="student-dashboard student-ticket-detail">
       <h2 className="student-ticket-detail__sr-only">
         Campus360 student ticket detail view showing ticket status tracker, AI
         updates, activity timeline, and a follow-up reply box
       </h2>
 
-      <div className="student-ticket-detail__outer" ref={outerRef}>
-        <div className="student-ticket-detail__shell" ref={shellRef}>
-          <aside className="student-ticket-detail__sidebar">
-            <div className="student-ticket-detail__sb-logo">
-              <div className="student-ticket-detail__sb-logo-icon">
-                <IconBuildingCommunity size={20} aria-hidden />
-              </div>
-              <span className="student-ticket-detail__sb-logo-text">
-                Campus360
-              </span>
-            </div>
+      <div className="student-dashboard__outer" ref={outerRef}>
+        <div className="student-dashboard__shell" ref={shellRef}>
+          <StudentSidebar />
 
-            <nav className="student-ticket-detail__sb-nav">
-              {navItems.map(({ label, icon: Icon, path, active, badge }) => (
-                <button
-                  key={label}
-                  type="button"
-                  className={`student-ticket-detail__nav-item${active ? ' active' : ''}`}
-                  onClick={() => navigate(path)}
-                >
-                  <Icon size={17} aria-hidden />
-                  {label}
-                  {badge !== undefined && (
-                    <span className="student-ticket-detail__nav-badge">
-                      {badge}
-                    </span>
-                  )}
-                </button>
-              ))}
-            </nav>
-          </aside>
-
-          <div className="student-ticket-detail__main">
-            <header className="student-ticket-detail__topbar">
-              <nav className="student-ticket-detail__breadcrumb">
+          <div className="student-dashboard__main">
+            <header className="student-dashboard__topbar">
+              <nav className="student-ticket-detail__breadcrumb" aria-label="Breadcrumb">
                 <button
                   type="button"
                   className="student-ticket-detail__breadcrumb-link"
@@ -225,14 +225,9 @@ export function StudentTicketDetail() {
                   {ticket.id} — {ticket.shortTitle}
                 </span>
               </nav>
-              <div className="student-ticket-detail__topbar-right">
-                <div className="student-ticket-detail__user-avatar">
-                  {displayUser.initials}
-                </div>
-                <div className="student-ticket-detail__user-name">
-                  {displayUser.name}
-                </div>
-              </div>
+              {user && (
+                <StudentTopbar user={user} onUserUpdated={setUser} />
+              )}
             </header>
 
             <div className="student-ticket-detail__content">
@@ -295,14 +290,14 @@ export function StudentTicketDetail() {
                   </div>
                 </div>
 
-                <div className="student-ticket-detail__card">
+                <div className="student-ticket-detail__card c360-stagger" style={{ '--c360-stagger': 0 } as CSSProperties}>
                   <div className="student-ticket-detail__card-header">
                     <div className="student-ticket-detail__card-title">
                       <IconMapPin size={15} color="#2E5BA8" aria-hidden />
                       Ticket status
                     </div>
                     <span className="student-ticket-detail__card-meta">
-                      Last updated: {ticket.lastUpdated}
+                      Last updated {formatRelativeTime(ticket.updatedAt)}
                     </span>
                   </div>
                   <div className="student-ticket-detail__card-body">
@@ -419,7 +414,7 @@ export function StudentTicketDetail() {
                   </div>
                 </div>
 
-                <div className="student-ticket-detail__card" ref={replySectionRef}>
+                <div className="student-ticket-detail__card c360-stagger" style={{ '--c360-stagger': 1 } as CSSProperties} ref={replySectionRef}>
                   <div className="student-ticket-detail__card-header">
                     <div className="student-ticket-detail__card-title">
                       <IconMessage size={15} color="#2E5BA8" aria-hidden />
@@ -438,7 +433,9 @@ export function StudentTicketDetail() {
                           >
                             <div className="student-ticket-detail__reply-meta">
                               <strong>{item.authorName}</strong>
-                              <span>{item.timeLabel}</span>
+                              <span title={item.timeLabel}>
+                                {formatRelativeTime(item.createdAt)}
+                              </span>
                             </div>
                             <p>{item.content}</p>
                           </div>

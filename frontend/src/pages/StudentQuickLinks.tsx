@@ -1,23 +1,22 @@
-import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useEffect, useState, type CSSProperties } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
-  IconBuildingCommunity,
   IconLink,
 } from '@tabler/icons-react';
 import { getMe, type User } from '../api/client';
+import { StudentSidebar } from '../components/StudentSidebar';
 import { StudentTopbar } from '../components/StudentTopbar';
 import '../components/StudentTopbar.css';
-import { getStudentNavItems } from '../config/studentNav';
 import { openCampusPortal, QUICK_LINKS } from '../config/quickLinks';
 import { useShellScale } from '../hooks/useShellScale';
+import { usePageTitle } from '../hooks/usePageTitle';
 import { randomGreeting } from '../utils/greeting';
 import './StudentDashboard.css';
 import './StudentQuickLinks.css';
 
 export function StudentQuickLinks() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const navItems = getStudentNavItems(location.pathname);
+  usePageTitle('Quick Links');
   const { outerRef, shellRef } = useShellScale();
   const [user, setUser] = useState<User | null>(null);
   const [greeting, setGreeting] = useState('');
@@ -52,49 +51,32 @@ export function StudentQuickLinks() {
     <div className="student-dashboard">
       <div className="student-dashboard__outer" ref={outerRef}>
         <div className="student-dashboard__shell" ref={shellRef}>
-          <aside className="student-dashboard__sidebar">
-            <div className="student-dashboard__sidebar-logo">
-              <div className="student-dashboard__logo-icon">
-                <IconBuildingCommunity size={20} aria-hidden />
-              </div>
-              <span className="student-dashboard__logo-text">Campus360</span>
-            </div>
-
-            <nav className="student-dashboard__sidebar-nav">
-              {navItems.map(({ label, icon: Icon, path, active, badge }) => (
-                <button
-                  key={label}
-                  type="button"
-                  className={`student-dashboard__nav-item${active ? ' active' : ''}`}
-                  onClick={() => path && navigate(path)}
-                >
-                  <Icon size={17} aria-hidden />
-                  {label}
-                  {badge !== undefined && (
-                    <span className="student-dashboard__nav-badge">{badge}</span>
-                  )}
-                </button>
-              ))}
-            </nav>
-          </aside>
+          <StudentSidebar />
 
           <div className="student-dashboard__main">
             <header className="student-dashboard__topbar">
-              <div className="student-dashboard__topbar-left">{greeting}</div>
+              <div className="student-dashboard__topbar-left">
+                <span className="student-dashboard__greeting">{greeting}</span>
+              </div>
               <StudentTopbar user={user} onUserUpdated={setUser} />
             </header>
 
             <div className="student-quicklinks__content">
-              <h1 className="student-quicklinks__title">
-                <IconLink size={22} aria-hidden />
-                Quick Links
-              </h1>
-              <div className="student-quicklinks__grid">
-                {QUICK_LINKS.map(({ label, icon: Icon, iconColor, bgColor, url }) => (
+              <div className="student-quicklinks__inner">
+                <h1 className="student-quicklinks__title">
+                  <IconLink size={22} aria-hidden />
+                  Quick Links
+                </h1>
+                <p className="student-quicklinks__subtitle">
+                  Campus portals and services in one place.
+                </p>
+                <div className="student-quicklinks__grid">
+                {QUICK_LINKS.map(({ label, icon: Icon, iconColor, bgColor, url }, index) => (
                   <button
                     key={label}
                     type="button"
-                    className="student-quicklinks__card"
+                    className="student-quicklinks__card c360-stagger"
+                    style={{ '--c360-stagger': index } as CSSProperties}
                     onClick={() => {
                       if (url) {
                         openCampusPortal(url, label);
@@ -110,6 +92,7 @@ export function StudentQuickLinks() {
                     <span className="student-quicklinks__label">{label}</span>
                   </button>
                 ))}
+                </div>
               </div>
             </div>
           </div>

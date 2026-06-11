@@ -229,6 +229,39 @@ export async function logout(): Promise<void> {
   await parseJson(response);
 }
 
+export async function requestPasswordReset(
+  email: string,
+): Promise<{ ok: boolean; message: string; resetToken?: string }> {
+  const response = await apiFetch(`${API_BASE}/auth/forgot-password`, {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  });
+  return parseJson(response);
+}
+
+export async function resetPassword(input: {
+  email: string;
+  token: string;
+  password: string;
+}): Promise<{ ok: boolean; message: string }> {
+  const response = await apiFetch(`${API_BASE}/auth/reset-password`, {
+    method: 'POST',
+    body: JSON.stringify(input),
+  });
+  return parseJson(response);
+}
+
+export async function changePassword(input: {
+  currentPassword: string;
+  newPassword: string;
+}): Promise<{ ok: boolean; message: string }> {
+  const response = await apiFetch(`${API_BASE}/me/password`, {
+    method: 'PATCH',
+    body: JSON.stringify(input),
+  });
+  return parseJson(response);
+}
+
 export async function getMe(): Promise<{ user: User }> {
   const response = await apiFetch(`${API_BASE}/me`);
   return parseJson(response);
@@ -267,6 +300,7 @@ export type UserSettings = {
   emailNotifications: boolean;
   appointmentReminders: boolean;
   profileTheme: 'blue' | 'teal' | 'amber' | 'purple' | 'green';
+  onboardingComplete: boolean;
 };
 
 export async function getUserSettings(): Promise<{ settings: UserSettings }> {
@@ -321,6 +355,17 @@ export async function markAllNotificationsRead(): Promise<{
   unreadCount: number;
 }> {
   const response = await apiFetch(`${API_BASE}/notifications/read-all`, {
+    method: 'POST',
+    body: JSON.stringify({}),
+  });
+  return parseJson(response);
+}
+
+export async function clearAllNotifications(): Promise<{
+  notifications: NotificationRecord[];
+  unreadCount: number;
+}> {
+  const response = await apiFetch(`${API_BASE}/notifications/clear-all`, {
     method: 'POST',
     body: JSON.stringify({}),
   });
@@ -614,6 +659,7 @@ export async function createAppointment(input: {
   deadline?: string;
   ticketNumber?: string;
   bringItems?: string[];
+  studentUserId?: string;
 }): Promise<{ appointment: AppointmentRecord }> {
   const response = await apiFetch(`${API_BASE}/appointments`, {
     method: 'POST',
@@ -753,6 +799,7 @@ export type StaffQueueTicket = {
     assignedTo: string;
   };
   steps: Array<{ text: string; tag?: string }>;
+  trackSteps?: TicketTrackStep[];
   suggestedStaffNotes?: string;
   replies: TicketReply[];
 };
@@ -849,11 +896,19 @@ export type StaffKbArticleDetail = StaffKbArticleSummary & {
   relatedIds: string[];
 };
 
+export type StaffResolutionSummary = {
+  average: string | null;
+  withinTargetPercent: number | null;
+  targetLabel: string;
+  sampleSize: number;
+};
+
 export async function getStaffDashboard(): Promise<{
   user: StaffDashboardUser;
   summary: StaffDashboardSummary;
   todayAppointments: StaffTodayAppointment[];
   queuePreview: StaffQueueTicket[];
+  resolution: StaffResolutionSummary;
 }> {
   const response = await apiFetch(`${API_BASE}/staff/dashboard`);
   return parseJson(response);
@@ -878,12 +933,16 @@ export async function listStaffTickets(filters?: {
   urgency?: string;
   includeResolved?: boolean;
   mineOnly?: boolean;
+  search?: string;
+  sort?: 'newest' | 'oldest' | 'urgency' | 'student';
 }): Promise<{ tickets: StaffQueueTicket[] }> {
   const params = new URLSearchParams();
   if (filters?.status) params.set('status', filters.status);
   if (filters?.urgency) params.set('urgency', filters.urgency);
   if (filters?.includeResolved) params.set('includeResolved', 'true');
   if (filters?.mineOnly) params.set('mineOnly', 'true');
+  if (filters?.search) params.set('search', filters.search);
+  if (filters?.sort) params.set('sort', filters.sort);
   const query = params.toString();
   const response = await apiFetch(
     `${API_BASE}/staff/tickets${query ? `?${query}` : ''}`,

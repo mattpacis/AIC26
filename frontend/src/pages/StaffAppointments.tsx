@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  IconBuildingCommunity,
   IconCalendarEvent,
   IconCalendarPlus,
   IconCalendarX,
@@ -20,11 +19,17 @@ import {
   userInitials,
   type AppointmentRecord,
 } from '../api/client';
+import { Campus360Logo } from '../components/Campus360Logo';
 import { StaffTopbar } from '../components/StaffTopbar';
 import '../components/StaffTopbar.css';
+import { EmptyState } from '../components/EmptyState';
+import { SkeletonCard } from '../components/Skeleton';
 import { StaffRescheduleModal } from '../components/StaffRescheduleModal';
+import { StaffNewAppointmentModal } from '../components/StaffNewAppointmentModal';
+import { exportStaffAppointmentsCsv } from '../utils/exportStaffAppointments';
 import { DEMO_TODAY } from '../config/demoDate';
 import { useShellScale } from '../hooks/useShellScale';
+import { usePageTitle } from '../hooks/usePageTitle';
 import { useStaffShell } from '../hooks/useStaffShell';
 import {
   buildCalendarGrid,
@@ -71,6 +76,7 @@ function formatQueueTime(iso: string) {
 
 export function StaffAppointments() {
   const navigate = useNavigate();
+  usePageTitle('Staff Appointments');
   const { outerRef, shellRef } = useShellScale({ mobileBreakpoint: 1100 });
   const { staffUser, summary, navItems, profileTheme, updateProfileTheme, updateStaffUser } =
     useStaffShell();
@@ -89,6 +95,7 @@ export function StaffAppointments() {
   const [rescheduleTarget, setRescheduleTarget] = useState<AppointmentRecord | null>(
     null,
   );
+  const [showNewAppointment, setShowNewAppointment] = useState(false);
 
   const loadAppointments = useCallback(async () => {
     setLoading(true);
@@ -203,10 +210,7 @@ export function StaffAppointments() {
         <div className="staff-dashboard__shell" ref={shellRef}>
           <aside className="staff-dashboard__sidebar">
             <div className="staff-dashboard__sb-logo">
-              <div className="staff-dashboard__sb-logo-icon">
-                <IconBuildingCommunity size={18} aria-hidden />
-              </div>
-              <span className="staff-dashboard__sb-logo-text">Campus360</span>
+              <Campus360Logo variant="sidebar-staff" />
             </div>
             <div className="staff-dashboard__sb-staff-wrap">
               <div className="staff-dashboard__sb-staff">
@@ -266,13 +270,18 @@ export function StaffAppointments() {
                   <IconFilter size={14} aria-hidden />
                   Filter
                 </button>
-                <button type="button" className="staff-dashboard__tb-btn">
+                <button
+                  type="button"
+                  className="staff-dashboard__tb-btn"
+                  onClick={() => exportStaffAppointmentsCsv(filteredAppointments)}
+                >
                   <IconDownload size={14} aria-hidden />
                   Export
                 </button>
                 <button
                   type="button"
                   className="staff-dashboard__tb-btn staff-dashboard__tb-btn-primary"
+                  onClick={() => setShowNewAppointment(true)}
                 >
                   <IconPlus size={14} aria-hidden />
                   New appointment
@@ -303,6 +312,16 @@ export function StaffAppointments() {
                 busy={actionBusy}
                 onClose={() => setRescheduleTarget(null)}
                 onConfirm={(startsAt) => void handleReschedule(startsAt)}
+              />
+            )}
+
+            {showNewAppointment && staffUser?.department && (
+              <StaffNewAppointmentModal
+                open={showNewAppointment}
+                department={staffUser.department}
+                staffName={staffUser.name}
+                onClose={() => setShowNewAppointment(false)}
+                onCreated={() => void loadAppointments()}
               />
             )}
 
@@ -357,15 +376,15 @@ export function StaffAppointments() {
                 </div>
 
                 <div className="staff-dashboard__ticket-list">
-                  {loading && (
-                    <div style={{ padding: 16, color: '#64748b' }}>
-                      Loading appointments…
-                    </div>
-                  )}
+                  {loading &&
+                    Array.from({ length: 4 }).map((_, index) => (
+                      <SkeletonCard key={index} />
+                    ))}
                   {!loading && filteredAppointments.length === 0 && (
-                    <div style={{ padding: 16, color: '#64748b' }}>
-                      No appointments for this view.
-                    </div>
+                    <EmptyState
+                      title="No appointments in this view"
+                      description="Try another filter or pick a different day on the calendar."
+                    />
                   )}
                   {filteredAppointments.map((appt) => {
                     const badge = statusBadge(appt.status);

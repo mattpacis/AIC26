@@ -1,0 +1,557 @@
+/* Campus360 global visual polish — layered on existing BEM class names */
+
+/* ── Page frames ── */
+.student-dashboard,
+.staff-dashboard,
+.staff-students,
+.staff-kb,
+.student-ticket-detail,
+.student-appointments {
+  background: var(--c360-page-bg);
+}
+
+.student-dashboard__outer,
+.staff-dashboard__outer,
+.staff-students__outer,
+.staff-kb__outer,
+.student-ticket-detail__outer,
+.student-appointments__outer {
+  border-color: rgba(226, 232, 240, 0.85);
+  box-shadow: var(--c360-shadow-md);
+}
+
+.student-dashboard__shell,
+.staff-dashboard__shell,
+.staff-students__shell,
+.staff-kb__shell,
+.student-ticket-detail__shell,
+.student-appointments__shell {
+  background: var(--c360-gradient-shell);
+}
+
+/* ── Sidebars ── */
+.student-dashboard__sidebar,
+.student-ticket-detail__sidebar,
+.student-appointments__sidebar {
+  background: var(--c360-gradient-sidebar-student);
+  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.06);
+}
+
+.staff-dashboard__sidebar,
+.staff-students__sidebar,
+.staff-kb__sidebar {
+  background: var(--c360-gradient-sidebar-staff);
+  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.06);
+}
+
+/* ── Brand marks (legacy icon tiles — wordmark uses Campus360Logo only) ── */
+.student-dashboard__logo-icon,
+.student-ticket-detail__sb-logo-icon,
+.student-appointments__sb-logo-icon,
+.staff-dashboard__sb-logo-icon,
+.staff-students__sb-logo-icon,
+.staff-kb__sb-logo-icon {
+  background: var(--c360-gradient-logo);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.c360-logo__wordmark,
+.student-dashboard__logo-text,
+.student-ticket-detail__sb-logo-text,
+.student-appointments__sb-logo-text,
+.staff-dashboard__sb-logo-text,
+.staff-students__sb-logo-text,
+.staff-kb__sb-logo-text {
+  font-family: var(--c360-font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* ── Sidebar nav ── */
+.student-dashboard__nav-item.active,
+.student-ticket-detail__nav-item.active,
+.student-appointments__nav-item.active {
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: inset 0 0 0 1px rgba(147, 197, 253, 0.25);
+}
+
+.staff-dashboard__nav-item.active,
+.staff-students__nav-item.active,
+.staff-kb__nav-item.active {
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(147, 197, 253, 0.22);
+}
+
+.student-dashboard__nav-item,
+.student-ticket-detail__nav-item,
+.student-appointments__nav-item,
+.staff-dashboard__nav-item,
+.staff-students__nav-item,
+.staff-kb__nav-item {
+  transition:
+    background var(--c360-duration-fast) var(--c360-ease),
+    color var(--c360-duration-fast) var(--c360-ease),
+    transform var(--c360-duration-fast) var(--c360-ease);
+}
+
+.student-dashboard__nav-item:hover,
+.student-ticket-detail__nav-item:hover,
+.student-appointments__nav-item:hover,
+.staff-dashboard__nav-item:hover,
+.staff-students__nav-item:hover,
+.staff-kb__nav-item:hover {
+  transform: translateX(2px);
+}
+
+/* ── Topbars ── */
+.student-dashboard__topbar,
+.student-ticket-detail__topbar,
+.student-appointments__topbar,
+.staff-dashboard__topbar,
+.staff-students__topbar,
+.staff-kb__topbar {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(14px);
+  box-shadow:
+    0 1px 0 rgba(226, 232, 240, 0.92),
+    0 8px 18px rgba(15, 42, 82, 0.07);
+}
+
+.student-dashboard__topbar-left,
+.student-tickets__topbar-title,
+.student-appointments__topbar-title,
+.student-settings__title,
+.student-quicklinks__title,
+.staff-dashboard__topbar-title,
+.staff-students__topbar-title,
+.staff-students__section-title,
+.staff-kb__topbar-title {
+  font-family: var(--c360-font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--c360-text-heading);
+  font-size: 18px;
+}
+
+/* ── Cards & panels ── */
+.student-dashboard__card,
+.student-ticket-detail__card,
+.student-settings__card,
+.student-quicklinks__card,
+.staff-dashboard__conversation-card,
+.staff-dashboard__ai-summary-card,
+.staff-dashboard__student-card,
+.staff-dashboard__info-card,
+.staff-dashboard__stat-card,
+.staff-dashboard__resolution-panel,
+.staff-analytics__panel,
+.staff-directory__card,
+.staff-students__profile-card,
+.staff-students__detail-card {
+  border-color: rgba(226, 232, 240, 0.95);
+  border-radius: var(--c360-radius-lg);
+  box-shadow: var(--c360-elev-card);
+  transition:
+    box-shadow var(--c360-duration-normal) var(--c360-ease),
+    transform var(--c360-duration-normal) var(--c360-ease),
+    border-color var(--c360-duration-normal) var(--c360-ease);
+}
+
+.student-quicklinks__card:hover,
+.staff-directory__card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--c360-shadow-lg);
+  border-color: #bfdbfe;
+}
+
+.staff-directory__card.self {
+  background: linear-gradient(135deg, #f8fbff 0%, #eff6ff 100%);
+  border-color: #93c5fd;
+}
+
+/* ── Primary buttons ── */
+.login-page__login-btn,
+.student-tickets__create-btn,
+.student-appointments__tb-btn-primary,
+.student-ticket-detail__btn-success,
+.staff-dashboard__action-btn-success,
+.staff-dashboard__tb-btn-primary,
+.staff-kb__tb-btn-primary,
+.staff-new-ticket__submit,
+.staff-reschedule__actions button.primary,
+.copilot-webchat__open-btn {
+  background: var(--c360-gradient-primary-btn) !important;
+  box-shadow: var(--c360-shadow-btn);
+  font-weight: 600;
+  transition:
+    transform var(--c360-duration-fast) var(--c360-ease),
+    box-shadow var(--c360-duration-fast) var(--c360-ease),
+    filter var(--c360-duration-fast) var(--c360-ease);
+}
+
+.login-page__login-btn:hover:not(:disabled),
+.student-tickets__create-btn:hover,
+.student-appointments__tb-btn-primary:hover:not(:disabled),
+.student-ticket-detail__btn-success:hover:not(:disabled),
+.staff-dashboard__action-btn-success:hover:not(:disabled),
+.staff-dashboard__tb-btn-primary:hover,
+.staff-kb__tb-btn-primary:hover,
+.staff-new-ticket__submit:hover:not(:disabled),
+.staff-reschedule__actions button.primary:hover:not(:disabled),
+.copilot-webchat__open-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.04);
+}
+
+/* ── Secondary / outline buttons ── */
+.staff-dashboard__action-btn,
+.staff-dashboard__tb-btn,
+.staff-students__tb-btn,
+.student-ticket-detail__btn,
+.student-appointments__action-btn,
+.student-dashboard__refresh-btn,
+.staff-dashboard__queue-refresh {
+  transition:
+    border-color var(--c360-duration-fast) var(--c360-ease),
+    box-shadow var(--c360-duration-fast) var(--c360-ease),
+    transform var(--c360-duration-fast) var(--c360-ease),
+    background var(--c360-duration-fast) var(--c360-ease);
+}
+
+.staff-dashboard__action-btn:hover,
+.staff-dashboard__tb-btn:hover,
+.student-ticket-detail__btn:hover:not(:disabled) {
+  box-shadow: var(--c360-shadow-sm);
+}
+
+/* ── Form inputs ── */
+.login-page__form-input,
+.staff-new-ticket__field input,
+.staff-new-ticket__field textarea,
+.staff-new-ticket__field select,
+.student-topbar__modal input,
+.student-appointments__form-input,
+.student-appointments__modal input,
+.student-appointments__modal select,
+.student-appointments__modal textarea,
+.staff-reschedule__modal input,
+.staff-reschedule__modal select {
+  border-color: var(--c360-frame-border);
+  border-radius: var(--c360-radius-md);
+  transition:
+    border-color var(--c360-duration-fast) var(--c360-ease),
+    box-shadow var(--c360-duration-fast) var(--c360-ease),
+    background var(--c360-duration-fast) var(--c360-ease);
+}
+
+.login-page__form-input:focus,
+.staff-new-ticket__field input:focus,
+.staff-new-ticket__field textarea:focus,
+.staff-new-ticket__field select:focus,
+.student-topbar__modal input:focus,
+.student-appointments__form-input:focus,
+.student-appointments__modal input:focus,
+.student-appointments__modal select:focus,
+.student-appointments__modal textarea:focus,
+.staff-reschedule__modal input:focus,
+.staff-reschedule__modal select:focus {
+  border-color: var(--c360-blue-400);
+  box-shadow: var(--c360-gradient-focus-ring);
+  background: #fff;
+}
+
+/* ── Dropdowns & modals ── */
+.student-topbar__dropdown {
+  border-radius: var(--c360-radius-md);
+  box-shadow: var(--c360-shadow-lg);
+  border-color: rgba(226, 232, 240, 0.95);
+}
+
+.student-topbar__modal,
+.student-appointments__modal,
+.staff-new-ticket__modal,
+.staff-reschedule__modal,
+.student-tickets__modal {
+  border-radius: var(--c360-radius-xl);
+  box-shadow: var(--c360-shadow-lg);
+}
+
+.student-topbar__modal-overlay,
+.student-appointments__modal-overlay,
+.staff-new-ticket__overlay,
+.staff-reschedule__overlay,
+.student-tickets__modal-overlay {
+  backdrop-filter: blur(4px);
+}
+
+.student-topbar__modal h3,
+.student-appointments__modal h3,
+.staff-new-ticket__modal h2,
+.staff-reschedule__modal h3,
+.student-tickets__modal h3 {
+  font-family: var(--c360-font-display);
+  font-weight: 700;
+  color: var(--c360-text-heading);
+}
+
+/* ── Filter chips & toggles ── */
+.student-tickets__filter-btn.active,
+.staff-dashboard__filter-chip.active,
+.staff-students__filter-chip.active {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border-color: #93c5fd;
+  color: #1d4ed8;
+  font-weight: 600;
+}
+
+.login-page__role-btn.active,
+.student-appointments__filter-chip.active {
+  box-shadow: 0 2px 8px rgba(15, 42, 82, 0.08);
+}
+
+.student-settings__toggle.on {
+  background: var(--c360-gradient-primary-btn);
+}
+
+/* ── Ticket queue & tables ── */
+.staff-dashboard__ticket-item.selected {
+  background: linear-gradient(90deg, #eff6ff 0%, #f8fbff 100%);
+  border-left-color: var(--c360-blue-600);
+}
+
+.staff-dashboard__ticket-item,
+.student-dashboard__ticket-row,
+.student-tickets__ticket-row,
+.staff-students__ticket-row {
+  transition: background var(--c360-duration-fast) var(--c360-ease);
+}
+
+.student-dashboard__ticket-row:hover,
+.student-tickets__ticket-row:hover,
+.staff-students__ticket-row:hover {
+  background: #f8fbff;
+}
+
+/* ── Page titles ── */
+.student-ticket-detail__page-title,
+.staff-dashboard__detail-title {
+  font-family: var(--c360-font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* ── Quick link tiles ── */
+.student-quicklinks__icon,
+.student-dashboard__ql-icon {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.student-quicklinks__card {
+  animation: c360-fade-up 0.45s var(--c360-ease) both;
+}
+
+.student-quicklinks__card:nth-child(2) {
+  animation-delay: 0.04s;
+}
+
+.student-quicklinks__card:nth-child(3) {
+  animation-delay: 0.08s;
+}
+
+.student-quicklinks__card:nth-child(4) {
+  animation-delay: 0.12s;
+}
+
+/* ── Analytics bars ── */
+.staff-analytics__bar-fill {
+  background: linear-gradient(90deg, var(--c360-blue-600), var(--c360-blue-400));
+}
+
+.staff-analytics__bar-fill--open {
+  background: linear-gradient(90deg, #dc2626, #f87171);
+}
+
+.staff-analytics__bar-fill--progress {
+  background: linear-gradient(90deg, #d97706, #fbbf24);
+}
+
+.staff-analytics__bar-fill--sched {
+  background: linear-gradient(90deg, #2563eb, #60a5fa);
+}
+
+.staff-analytics__bar-fill--resolved {
+  background: linear-gradient(90deg, #059669, #34d399);
+}
+
+/* ── Copilot chat card ── */
+.student-dashboard__chat-card {
+  box-shadow:
+    var(--c360-shadow-card),
+    0 12px 36px rgba(46, 91, 168, 0.1);
+  border-color: rgba(147, 197, 253, 0.45);
+}
+
+.student-dashboard__chat-title {
+  font-family: var(--c360-font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.student-dashboard__ai-badge {
+  font-family: var(--c360-font-display);
+  font-weight: 600;
+}
+
+.copilot-webchat__toolbar {
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+/* ── Status / badges ── */
+.login-page__status-bar,
+.student-dashboard__online-status {
+  border-radius: var(--c360-radius-pill);
+}
+
+.login-page__status-dot {
+  animation: c360-status-pulse 2.4s ease-in-out infinite;
+}
+
+.student-dashboard__status-dot,
+.staff-dashboard__status-dot {
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+}
+
+/* ── Staff topbar toggle ── */
+.staff-topbar__toggle.on {
+  background: var(--c360-gradient-primary-btn);
+}
+
+/* ── App.css legacy ── */
+.chat-form {
+  border-radius: var(--c360-radius-lg);
+  box-shadow: var(--c360-shadow-card);
+}
+
+.chat-form button {
+  background: var(--c360-gradient-primary-btn);
+  border-radius: var(--c360-radius-md);
+  font-weight: 600;
+  box-shadow: var(--c360-shadow-btn);
+}
+
+.chat-form textarea:focus {
+  outline: none;
+  border-color: var(--c360-blue-400);
+  box-shadow: var(--c360-gradient-focus-ring);
+}
+
+.home h1 {
+  font-family: var(--c360-font-display);
+  color: var(--c360-text-heading);
+}
+
+.staff-students__profile-card,
+.student-tickets__summary-card,
+.student-appointments__stat-card,
+.student-appointments__appt-card-inner,
+.staff-kb__article-card {
+  border-color: rgba(226, 232, 240, 0.95);
+  box-shadow: var(--c360-shadow-card);
+  transition:
+    box-shadow var(--c360-duration-normal) var(--c360-ease),
+    transform var(--c360-duration-normal) var(--c360-ease);
+}
+
+.student-appointments__appt-card-inner:hover,
+.staff-kb__article-card:hover {
+  box-shadow: var(--c360-shadow-md);
+}
+
+.student-tickets__summary-card strong,
+.student-appointments__stat-num,
+.staff-dashboard__stat-num {
+  font-family: var(--c360-font-display);
+  font-weight: 700;
+}
+
+.student-dashboard__section-title,
+.student-appointments__section-title {
+  font-family: var(--c360-font-display);
+  font-weight: 700;
+  color: var(--c360-text-heading);
+}
+
+.student-dashboard__topbar-left,
+.staff-dashboard__topbar-title,
+.staff-dashboard__detail-title,
+.staff-dashboard__queue-title,
+.staff-analytics__page-title,
+.student-tickets__topbar-title,
+.student-appointments__topbar-title {
+  font-family: var(--c360-font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--c360-text-heading);
+}
+
+.student-dashboard__ticket-id,
+.staff-dashboard__ti-id,
+.staff-dashboard__detail-id,
+.student-ticket-detail__page-id {
+  font-variant-numeric: tabular-nums;
+}
+
+.staff-dashboard__stat-num {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+}
+
+.student-dashboard__topbar-left,
+.student-dashboard__user-name,
+.student-topbar__menu-item,
+.student-dashboard__topbar-icon {
+  transition: background var(--c360-duration-fast) var(--c360-ease);
+}
+
+.student-dashboard__topbar-icon:hover {
+  background: #eff6ff;
+  color: var(--c360-blue-600);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .student-quicklinks__card,
+  .login-page__status-dot,
+  .student-dashboard__ai-badge-dot {
+    animation: none;
+  }
+
+  .staff-dashboard__ticket-item {
+    animation: none;
+  }
+
+  .student-dashboard__chat-card,
+  .copilot-webchat__prompts,
+  .copilot-webchat__webchat-host {
+    animation: none;
+  }
+
+  .student-dashboard__nav-item:hover,
+  .student-quicklinks__card:hover,
+  .staff-directory__card:hover,
+  .login-page__login-btn:hover:not(:disabled),
+  .student-tickets__create-btn:hover,
+  .copilot-webchat__open-btn:hover {
+    transform: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .student-dashboard,
+  .staff-dashboard,
+  .staff-students,
+  .staff-kb,
+  .student-ticket-detail,
+  .student-appointments {
+    background: var(--c360-shell-bg);
+  }
+}

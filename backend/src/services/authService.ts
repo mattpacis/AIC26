@@ -1,8 +1,36 @@
 import bcrypt from 'bcryptjs';
+import crypto from 'node:crypto';
 import { AuthProvider, Role } from '@prisma/client';
 import { prisma } from '../lib/db.js';
 import { normalizeStaffDepartment } from '../lib/departments.js';
+import { env } from '../lib/env.js';
 import { AppError } from '../lib/permissions.js';
+
+const RESET_TOKEN_TTL_MS = 60 * 60 * 1000;
+
+function readPreferencesObject(raw: string | null | undefined) {
+  if (!raw) return {} as Record<string, unknown>;
+  try {
+    const parsed = JSON.parse(raw);
+    return typeof parsed === 'object' && parsed !== null
+      ? (parsed as Record<string, unknown>)
+      : {};
+  } catch {
+    return {};
+  }
+}
+
+async function mergeUserPreferences(userId: string, patch: Record<string, unknown>) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { preferences: true },
+  });
+  const merged = { ...readPreferencesObject(user?.preferences), ...patch };
+  await prisma.user.update({
+    where: { id: userId },
+    data: { preferences: JSON.stringify(merged) },
+  });
+}
 
 function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
@@ -117,6 +145,107 @@ export async function updateUserProfile(userId: string, name: string) {
     where: { id: userId },
     data: { name: trimmed },
     include: { school: true, student: true },
+  });
+}
+
+export async function changePassword(
+  userId: string,
+  currentPassword: string,
+  newPassword: string,
+) {
+  if (newPassword.length < 8) {
+    throw new AppError(400, 'Password must be at least 8 characters');
+  }
+
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user?.passwordHash) {
+    throw new AppError(400, 'This account uses Google or Microsoft sign-in');
+  }
+
+  const valid = await bcrypt.compare(currentPassword, user.passwordHash);
+  if (!valid) {
+    throw new AppError(401, 'Current password is incorrect');
+  }
+
+  const passwordHash = await bcrypt.hash(newPassword, 10);
+  await prisma.user.update({
+    where: { id: userId },
+    data: { passwordHash },
+  });
+}
+
+export async function requestPasswordReset(email: string) {
+  const normalized = normalizeEmail(email);
+  const user = await prisma.user.findUnique({ where: { email: normalized } });
+
+  if (!user?.passwordHash) {
+    return { ok: true as const, message: 'If that account exists, reset instructions were sent.' };
+  }
+
+  const token = crypto.randomBytes(32).toString('hex');
+  const resetTokenHash = crypto.createHash('sha256').update(token).digest('hex');
+  const resetTokenExpires = new Date(Date.now() + RESET_TOKEN_TTL_MS).toISOString();
+
+  await mergeUserPreferences(user.id, { resetTokenHash, resetTokenExpires });
+
+  const response: {
+    ok: true;
+    message: string;
+    resetToken?: string;
+  } = {
+    ok: true,
+    message: 'If that account exists, reset instructions were sent.',
+  };
+
+  if (env.NODE_ENV !== 'production') {
+    response.resetToken = token;
+  }
+
+  return response;
+}
+
+export async function resetPasswordWithToken(
+  email: string,
+  token: string,
+  newPassword: string,
+) {
+  if (newPassword.length < 8) {
+    throw new AppError(400, 'Password must be at least 8 characters');
+  }
+
+  const normalized = normalizeEmail(email);
+  const user = await prisma.user.findUnique({ where: { email: normalized } });
+  if (!user?.passwordHash) {
+    throw new AppError(400, 'Invalid or expired reset link');
+  }
+
+  const prefs = readPreferencesObject(user.preferences);
+  const storedHash = typeof prefs.resetTokenHash === 'string' ? prefs.resetTokenHash : null;
+  const expires =
+    typeof prefs.resetTokenExpires === 'string' ? prefs.resetTokenExpires : null;
+
+  if (!storedHash || !expires) {
+    throw new AppError(400, 'Invalid or expired reset link');
+  }
+
+  if (new Date(expires).getTime() < Date.now()) {
+    throw new AppError(400, 'Reset link has expired');
+  }
+
+  const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+  if (tokenHash !== storedHash) {
+    throw new AppError(400, 'Invalid or expired reset link');
+  }
+
+  const passwordHash = await bcrypt.hash(newPassword, 10);
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { passwordHash },
+  });
+
+  await mergeUserPreferences(user.id, {
+    resetTokenHash: null,
+    resetTokenExpires: null,
   });
 }
 

@@ -1,0 +1,413 @@
+/* Shared motion + depth utilities */
+
+@keyframes c360-toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes c360-empty-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes c360-success-flash {
+  0% {
+    background: #ecfdf5;
+  }
+  100% {
+    background: transparent;
+  }
+}
+
+@keyframes c360-mesh-shift {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    transform: translate(22px, -14px) scale(1.04);
+    opacity: 1;
+  }
+}
+
+.c360-stagger {
+  animation: c360-fade-up 0.42s var(--c360-ease, ease) both;
+  animation-delay: calc(var(--c360-stagger, 0) * 50ms);
+}
+
+.c360-empty__icon {
+  animation: c360-empty-pop 0.4s var(--c360-ease, ease) both;
+}
+
+.staff-dashboard__ticket-item--flash {
+  animation: c360-success-flash 0.9s ease-out;
+}
+
+.student-dashboard__content-area,
+.staff-dashboard__content {
+  position: relative;
+}
+
+.student-dashboard__content-area::before,
+.staff-dashboard__content::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 70% 45% at 12% 8%, rgba(147, 197, 253, 0.09) 0%, transparent 55%),
+    radial-gradient(ellipse 55% 40% at 88% 18%, rgba(46, 91, 168, 0.07) 0%, transparent 50%);
+  animation: c360-mesh-shift 18s ease-in-out infinite;
+}
+
+.student-dashboard__center-col,
+.staff-dashboard__queue-col,
+.staff-dashboard__center-col,
+.staff-dashboard__right-col {
+  position: relative;
+  z-index: 1;
+}
+
+/* Typography scale */
+.c360-title-page {
+  font-family: var(--c360-font-display);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--c360-text-heading);
+}
+
+.c360-title-section {
+  font-family: var(--c360-font-display);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--c360-text-heading);
+}
+
+.c360-title-label {
+  font-family: var(--c360-font-display);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.c360-tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Stat gradient numbers */
+.staff-dashboard__stat-num {
+  background: var(--c360-gradient-accent-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.staff-dashboard__stat-num.amber {
+  background: linear-gradient(90deg, #fbbf24 0%, #d97706 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.staff-dashboard__stat-num.green {
+  background: linear-gradient(90deg, #34d399 0%, #059669 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.staff-dashboard__stat-num.blue {
+  background: linear-gradient(90deg, #60a5fa 0%, #2563eb 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* Card depth + hover */
+.student-dashboard__card,
+.staff-dashboard__stat-card,
+.staff-dashboard__info-card,
+.student-tickets__summary-card,
+.student-quicklinks__card {
+  transition:
+    transform var(--c360-duration-fast, 0.15s) var(--c360-ease, ease),
+    box-shadow var(--c360-duration-normal, 0.25s) var(--c360-ease, ease);
+}
+
+.student-dashboard__card:hover,
+.staff-dashboard__stat-card:hover,
+.student-tickets__summary-card:hover,
+.student-quicklinks__card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--c360-shadow-md);
+}
+
+.student-dashboard__card--focus,
+.staff-dashboard__right-panel--hero {
+  box-shadow: var(--c360-elev-focus);
+  border-radius: 14px;
+}
+
+.student-dashboard__right-panel,
+.staff-dashboard__right-panel {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: var(--c360-elev-card);
+}
+
+.student-dashboard__right-panel--hero,
+.staff-dashboard__right-panel--hero {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  border-color: rgba(147, 197, 253, 0.45);
+}
+
+/* Primary / action press */
+.staff-dashboard__action-btn,
+.staff-dashboard__tb-btn-primary,
+.student-dashboard__see-all,
+.login-page__login-btn,
+.staff-new-ticket__submit,
+.student-tickets__create-btn {
+  transition: transform var(--c360-duration-fast, 0.15s) ease;
+}
+
+.staff-dashboard__action-btn:active:not(:disabled),
+.staff-dashboard__tb-btn-primary:active,
+.login-page__login-btn:active:not(:disabled),
+.staff-new-ticket__submit:active:not(:disabled),
+.student-tickets__create-btn:active {
+  transform: scale(0.98);
+}
+
+/* Filter chips */
+.staff-dashboard__filter-chip,
+.student-tickets__filter-btn {
+  transition:
+    background var(--c360-duration-fast, 0.15s) var(--c360-ease, ease),
+    border-color var(--c360-duration-fast, 0.15s) var(--c360-ease, ease),
+    color var(--c360-duration-fast, 0.15s) var(--c360-ease, ease),
+    transform var(--c360-duration-fast, 0.15s) var(--c360-ease, ease);
+}
+
+.staff-dashboard__filter-chip.active,
+.student-tickets__filter-btn.active {
+  transform: translateY(-1px);
+}
+
+.staff-dashboard__filter-chip:active,
+.student-tickets__filter-btn:active {
+  transform: scale(0.97);
+}
+
+/* Modal entrance */
+.staff-new-ticket__overlay {
+  animation: c360-fade-up 0.2s ease both;
+}
+
+.staff-new-ticket__modal {
+  animation: c360-fade-up 0.32s var(--c360-ease, ease) both;
+}
+
+/* Focus rings */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: none;
+  box-shadow: var(--c360-gradient-focus-ring);
+}
+
+.staff-dashboard__b-student-reply {
+  background: #fef2f2;
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+
+/* Directory + analytics card hover */
+.staff-directory__card,
+.staff-analytics__panel {
+  transition:
+    transform var(--c360-duration-fast, 0.15s) var(--c360-ease, ease),
+    box-shadow var(--c360-duration-normal, 0.25s) var(--c360-ease, ease);
+}
+
+.staff-directory__card:hover,
+.staff-analytics__panel:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--c360-shadow-md);
+}
+
+.student-appointments__stat-card {
+  transition:
+    transform var(--c360-duration-fast, 0.15s) var(--c360-ease, ease),
+    box-shadow var(--c360-duration-normal, 0.25s) var(--c360-ease, ease);
+}
+
+.student-appointments__stat-card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--c360-shadow-md);
+}
+
+.staff-students__filter-chip {
+  transition:
+    background var(--c360-duration-fast, 0.15s) var(--c360-ease, ease),
+    border-color var(--c360-duration-fast, 0.15s) var(--c360-ease, ease),
+    color var(--c360-duration-fast, 0.15s) var(--c360-ease, ease),
+    transform var(--c360-duration-fast, 0.15s) var(--c360-ease, ease);
+}
+
+.staff-students__filter-chip.active {
+  transform: translateY(-1px);
+}
+
+.copilot-webchat__status--loading {
+  padding: 16px;
+  max-width: 320px;
+}
+
+/* Open badge pulse */
+.staff-dashboard__b-open--pulse {
+  position: relative;
+}
+
+.staff-dashboard__b-open--pulse::before {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  margin-top: -2px;
+  border-radius: 50%;
+  background: #dc2626;
+  animation: c360-status-pulse 2.4s ease-in-out infinite;
+}
+
+.staff-dashboard__b-open--pulse {
+  padding-left: 16px;
+}
+
+/* Urgency dots (student table) */
+.student-dashboard__urgency-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.student-dashboard__urgency-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.student-dashboard__urgency-dot--low {
+  background: #22c55e;
+}
+
+.student-dashboard__urgency-dot--med {
+  background: #f59e0b;
+}
+
+.student-dashboard__urgency-dot--high {
+  background: #ef4444;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
+/* Greeting subline */
+.student-dashboard__topbar-left {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.student-dashboard__greeting-sub {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-width: min(560px, 100%);
+}
+
+.student-dashboard__greeting-sub-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--c360-text-muted, #94a3b8);
+  line-height: 1.2;
+}
+
+.student-dashboard__greeting-sub-detail {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--c360-text-muted, #64748b);
+  line-height: 1.5;
+}
+
+.student-dashboard__ticket-row--high td:first-child {
+  border-left: 3px solid #ef4444;
+}
+
+.student-dashboard__ticket-row--med td:first-child {
+  border-left: 3px solid #f59e0b;
+}
+
+.student-dashboard__ticket-row--low td:first-child {
+  border-left: 3px solid #22c55e;
+}
+
+/* Calendar today ring */
+.student-dashboard__cal-day.today {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.95), 0 0 0 4px rgba(46, 91, 168, 0.35);
+}
+
+.student-dashboard__cal-day.has-event::after {
+  background: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25);
+}
+
+.student-dashboard__cal-day.today.has-event::after {
+  background: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .c360-stagger,
+  .c360-empty__icon,
+  .staff-dashboard__ticket-item--flash,
+  .staff-new-ticket__overlay,
+  .staff-new-ticket__modal,
+  .c360-toast {
+    animation: none;
+  }
+
+  .student-ticket-detail__status-track {
+    scroll-behavior: auto;
+  }
+
+  .student-dashboard__card:hover,
+  .staff-dashboard__stat-card:hover,
+  .student-tickets__summary-card:hover,
+  .student-quicklinks__card:hover,
+  .staff-directory__card:hover,
+  .staff-analytics__panel:hover,
+  .student-appointments__stat-card:hover {
+    transform: none;
+  }
+}

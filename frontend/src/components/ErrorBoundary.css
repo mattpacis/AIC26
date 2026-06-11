@@ -1,0 +1,63 @@
+.c360-error-boundary {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--c360-page-bg, #0f2a52);
+}
+
+.c360-error-boundary__card {
+  width: min(460px, 100%);
+  background: #fff;
+  border-radius: 20px;
+  padding: 28px 24px;
+  text-align: center;
+  box-shadow: var(--c360-shadow-lg);
+}
+
+.c360-error-boundary__icon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 14px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.c360-error-boundary__card h1 {
+  margin: 0 0 8px;
+  font-family: var(--c360-font-display);
+  color: #0f2a52;
+}
+
+.c360-error-boundary__card p {
+  margin: 0 0 18px;
+  color: #64748b;
+  line-height: 1.55;
+}
+
+.c360-error-boundary__actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.c360-error-boundary__actions button {
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--c360-gradient-primary-btn);
+  color: #fff;
+  box-shadow: var(--c360-shadow-btn);
+}
+
+.c360-error-boundary__actions button.secondary {
+  background: #eff6ff;
+  color: #1d4ed8;
+  box-shadow: none;
+}

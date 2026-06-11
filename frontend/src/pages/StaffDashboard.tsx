@@ -1,7 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
-  IconBuildingCommunity,
   IconCalendarPlus,
   IconCheck,
   IconDownload,
@@ -22,17 +21,32 @@ import {
   takeStaffTicket,
   updateStaffTicket,
   type StaffQueueTicket,
+  type StaffResolutionSummary,
   type StaffTodayAppointment,
 } from '../api/client';
 import { StaffNewTicketModal } from '../components/StaffNewTicketModal';
 import { StaffRescheduleModal } from '../components/StaffRescheduleModal';
+import { StaffTicketStatusTrack } from '../components/StaffTicketStatusTrack';
+import { Campus360Logo } from '../components/Campus360Logo';
 import { StaffTopbar } from '../components/StaffTopbar';
+import { EmptyState } from '../components/EmptyState';
+import { SkeletonCard } from '../components/Skeleton';
 import '../components/StaffTopbar.css';
 import { useShellScale } from '../hooks/useShellScale';
 import { useStaffShell } from '../hooks/useStaffShell';
+import { usePageTitle } from '../hooks/usePageTitle';
 import { exportStaffTicketsCsv } from '../utils/exportStaffTickets';
 import { handleChatTextareaKeyDown } from '../utils/ticketDisplay';
 import './StaffDashboard.css';
+
+type SortKey = 'newest' | 'oldest' | 'urgency' | 'student';
+
+const SORT_LABELS: Record<SortKey, string> = {
+  newest: 'Newest',
+  oldest: 'Oldest',
+  urgency: 'Urgency',
+  student: 'Student name',
+};
 
 type FilterKey = 'all' | 'high' | 'sched' | 'progress' | 'resolved';
 
@@ -67,8 +81,24 @@ function isTicketClosed(ticket: StaffQueueTicket) {
   return ticket.isClosed || ticket.status === 'resolved';
 }
 
+function queueAccentClass(ticket: StaffQueueTicket) {
+  if (isTicketClosed(ticket)) return 'accent-resolved';
+  if (ticket.urgency === 'high') return 'accent-high';
+  if (ticket.status === 'open') return 'accent-open';
+  if (ticket.status === 'sched') return 'accent-sched';
+  if (ticket.status === 'progress') return 'accent-progress';
+  return 'accent-default';
+}
+
+function hasPendingStudentReply(ticket: StaffQueueTicket) {
+  if (isTicketClosed(ticket)) return false;
+  const last = ticket.replies?.at(-1);
+  return Boolean(last?.isStudent);
+}
+
 export function StaffDashboard() {
   const navigate = useNavigate();
+  usePageTitle('Staff Queue');
   const [searchParams] = useSearchParams();
   const { outerRef, shellRef } = useShellScale({ mobileBreakpoint: 1100 });
   const { staffUser, summary, navItems, profileTheme, updateProfileTheme, updateStaffUser, refreshShell } =
@@ -90,8 +120,12 @@ export function StaffDashboard() {
   const [hideResolved, setHideResolved] = useState(true);
   const [showReschedule, setShowReschedule] = useState(false);
   const [showNewTicket, setShowNewTicket] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortKey, setSortKey] = useState<SortKey>('newest');
+  const [resolution, setResolution] = useState<StaffResolutionSummary | null>(null);
+  const [flashTicketId, setFlashTicketId] = useState<string | null>(null);
 
-  const loadTickets = useCallback(async (filter: FilterKey, includeResolved: boolean, onlyMine: boolean) => {
+  const loadTickets = useCallback(async (filter: FilterKey, includeResolved: boolean, onlyMine: boolean, search: string, sort: SortKey) => {
     setLoadingTickets(true);
     setLoadError(null);
     try {
@@ -103,11 +137,14 @@ export function StaffDashboard() {
           urgency,
           includeResolved: filter === 'resolved' ? undefined : includeResolved,
           mineOnly: onlyMine,
+          search: search.trim() || undefined,
+          sort,
         }),
         getStaffDashboard(),
       ]);
       setTickets(rows);
       setTodayAppointments(dashboard.todayAppointments);
+      setResolution(dashboard.resolution);
       setSelectedId((prev) => {
         if (prev && rows.some((t) => t.id === prev)) return prev;
         return rows[0]?.id ?? null;
@@ -121,8 +158,8 @@ export function StaffDashboard() {
   }, [refreshShell]);
 
   useEffect(() => {
-    void loadTickets(activeFilter, !hideResolved, mineOnly);
-  }, [activeFilter, hideResolved, mineOnly, loadTickets]);
+    void loadTickets(activeFilter, !hideResolved, mineOnly, searchQuery, sortKey);
+  }, [activeFilter, hideResolved, mineOnly, searchQuery, sortKey, loadTickets]);
 
   useEffect(() => {
     const ticketParam = searchParams.get('ticket');
@@ -152,7 +189,7 @@ export function StaffDashboard() {
     if (!selected || isTicketClosed(selected)) return;
 
     function refreshConversation() {
-      void loadTickets(activeFilter, !hideResolved, mineOnly);
+      void loadTickets(activeFilter, !hideResolved, mineOnly, searchQuery, sortKey);
     }
 
     const interval = window.setInterval(refreshConversation, 15000);
@@ -165,7 +202,7 @@ export function StaffDashboard() {
   }, [selected?.id, activeFilter, hideResolved, mineOnly, loadTickets]);
 
   async function refreshAfterAction() {
-    await loadTickets(activeFilter, !hideResolved, mineOnly);
+    await loadTickets(activeFilter, !hideResolved, mineOnly, searchQuery, sortKey);
   }
 
   async function handleTakeTicket() {
@@ -173,6 +210,8 @@ export function StaffDashboard() {
     setActionBusy(true);
     try {
       await takeStaffTicket(selected.ticketNumber);
+      setFlashTicketId(selected.id);
+      window.setTimeout(() => setFlashTicketId(null), 1200);
       await refreshAfterAction();
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : 'Failed to take ticket');
@@ -230,6 +269,8 @@ export function StaffDashboard() {
       }
       setShowReply(false);
       setShowReschedule(false);
+      setFlashTicketId(selected.id);
+      window.setTimeout(() => setFlashTicketId(null), 1200);
       await refreshAfterAction();
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : 'Failed to resolve ticket');
@@ -293,10 +334,7 @@ export function StaffDashboard() {
         <div className="staff-dashboard__shell" ref={shellRef}>
           <aside className="staff-dashboard__sidebar">
             <div className="staff-dashboard__sb-logo">
-              <div className="staff-dashboard__sb-logo-icon">
-                <IconBuildingCommunity size={18} aria-hidden />
-              </div>
-              <span className="staff-dashboard__sb-logo-text">Campus360</span>
+              <Campus360Logo variant="sidebar-staff" />
             </div>
 
             <div className="staff-dashboard__sb-staff-wrap">
@@ -389,7 +427,7 @@ export function StaffDashboard() {
                 onClose={() => setShowNewTicket(false)}
                 onCreated={(ticketId) => {
                   setSelectedId(ticketId);
-                  void loadTickets(activeFilter, !hideResolved, mineOnly);
+                  void loadTickets(activeFilter, !hideResolved, mineOnly, searchQuery, sortKey);
                 }}
               />
             )}
@@ -412,7 +450,7 @@ export function StaffDashboard() {
             )}
 
             <div className="staff-dashboard__content">
-              <div className="staff-dashboard__queue-col">
+              <div className="staff-dashboard__queue-col c360-stagger" style={{ '--c360-stagger': 0 } as CSSProperties}>
                 <div className="staff-dashboard__queue-header">
                   <div className="staff-dashboard__queue-title">
                     <IconInbox size={15} color="#1B4080" aria-hidden />
@@ -425,14 +463,39 @@ export function StaffDashboard() {
                     <button
                       type="button"
                       className="staff-dashboard__queue-refresh"
-                      onClick={() => void loadTickets(activeFilter, !hideResolved, mineOnly)}
+                      onClick={() => void loadTickets(activeFilter, !hideResolved, mineOnly, searchQuery, sortKey)}
                       disabled={loadingTickets}
                       aria-label="Refresh tickets"
                     >
                       <IconRefresh size={14} aria-hidden />
                     </button>
-                    <span className="staff-dashboard__queue-sort">Sort: Newest</span>
+                    <label className="staff-dashboard__queue-sort">
+                      Sort
+                      <select
+                        value={sortKey}
+                        onChange={(event) =>
+                          setSortKey(event.target.value as SortKey)
+                        }
+                        aria-label="Sort tickets"
+                      >
+                        {(Object.keys(SORT_LABELS) as SortKey[]).map((key) => (
+                          <option key={key} value={key}>
+                            {SORT_LABELS[key]}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
                   </div>
+                </div>
+
+                <div className="staff-dashboard__queue-search">
+                  <input
+                    type="search"
+                    value={searchQuery}
+                    onChange={(event) => setSearchQuery(event.target.value)}
+                    placeholder="Search tickets, students, IDs…"
+                    aria-label="Search tickets"
+                  />
                 </div>
 
                 <div className="staff-dashboard__filter-row">
@@ -466,21 +529,27 @@ export function StaffDashboard() {
                 </div>
 
                 <div className="staff-dashboard__ticket-list">
-                  {loadingTickets && (
-                    <div style={{ padding: 16, color: '#64748b' }}>
-                      Loading tickets…
-                    </div>
-                  )}
+                  {loadingTickets &&
+                    Array.from({ length: 4 }).map((_, index) => (
+                      <SkeletonCard key={index} />
+                    ))}
                   {!loadingTickets && filteredTickets.length === 0 && (
-                    <div style={{ padding: 16, color: '#64748b' }}>
-                      No tickets in this queue.
-                    </div>
+                    <EmptyState
+                      title="Queue is clear — nice work"
+                      description={
+                        searchQuery
+                          ? 'No tickets match your search. Try a different name or ticket ID.'
+                          : 'No tickets in this view right now. Enjoy the calm.'
+                      }
+                      icon={<IconInbox size={28} stroke={1.5} color="#059669" />}
+                    />
                   )}
-                  {filteredTickets.map((ticket) => (
+                  {filteredTickets.map((ticket, index) => (
                     <button
                       key={ticket.id}
                       type="button"
-                      className={`staff-dashboard__ticket-item${selected?.id === ticket.id ? ' selected' : ''}`}
+                      className={`staff-dashboard__ticket-item staff-dashboard__ticket-item--${queueAccentClass(ticket)}${selected?.id === ticket.id ? ' selected' : ''}${flashTicketId === ticket.id ? ' staff-dashboard__ticket-item--flash' : ''}`}
+                      style={{ animationDelay: `${Math.min(index, 8) * 45}ms` }}
                       onClick={() => {
                         setSelectedId(ticket.id);
                       }}
@@ -495,7 +564,7 @@ export function StaffDashboard() {
                       </div>
                       <div className="staff-dashboard__ti-tags">
                         <span
-                          className={`staff-dashboard__badge ${STATUS_BADGE[ticket.status]}`}
+                          className={`staff-dashboard__badge ${STATUS_BADGE[ticket.status]}${ticket.status === 'open' ? ' staff-dashboard__b-open--pulse' : ''}`}
                         >
                           {ticket.statusLabel}
                         </span>
@@ -507,6 +576,11 @@ export function StaffDashboard() {
                         {ticket.aiTriaged && (
                           <span className="staff-dashboard__badge staff-dashboard__b-ai">
                             AI-triaged
+                          </span>
+                        )}
+                        {hasPendingStudentReply(ticket) && (
+                          <span className="staff-dashboard__badge staff-dashboard__b-student-reply staff-dashboard__b-open--pulse">
+                            Student replied
                           </span>
                         )}
                         {!mineOnly &&
@@ -522,7 +596,7 @@ export function StaffDashboard() {
                 </div>
               </div>
 
-              <div className="staff-dashboard__center-col">
+              <div className="staff-dashboard__center-col c360-stagger" style={{ '--c360-stagger': 1 } as CSSProperties}>
                 {!selected ? (
                   <div className="staff-dashboard__ticket-detail" style={{ padding: 24 }}>
                     Select a ticket from the queue.
@@ -670,6 +744,13 @@ export function StaffDashboard() {
                       </div>
                     </div>
 
+                    {selected.trackSteps && selected.trackSteps.length > 0 && (
+                      <div className="staff-dashboard__info-card">
+                        <div className="staff-dashboard__info-label">Status track</div>
+                        <StaffTicketStatusTrack steps={selected.trackSteps} />
+                      </div>
+                    )}
+
                     <div className="staff-dashboard__student-card">
                       <div className="staff-dashboard__stu-avatar">
                         {selected.student.initials}
@@ -783,30 +864,30 @@ export function StaffDashboard() {
               </div>
 
               <aside className="staff-dashboard__right-col">
-                <div>
+                <div className="staff-dashboard__right-panel staff-dashboard__right-panel--hero c360-stagger" style={{ '--c360-stagger': 2 } as CSSProperties}>
                   <div className="staff-dashboard__right-section-label">
                     Today&apos;s overview
                   </div>
                   <div className="staff-dashboard__stat-grid">
-                    <div className="staff-dashboard__stat-card">
+                    <div className="staff-dashboard__stat-card c360-stagger" style={{ '--c360-stagger': 0 } as CSSProperties}>
                       <div className="staff-dashboard__stat-num">
                         {summary?.queueCount ?? 0}
                       </div>
                       <div className="staff-dashboard__stat-label">Open tickets</div>
                     </div>
-                    <div className="staff-dashboard__stat-card">
+                    <div className="staff-dashboard__stat-card c360-stagger" style={{ '--c360-stagger': 1 } as CSSProperties}>
                       <div className="staff-dashboard__stat-num amber">
                         {summary?.openCount ?? 0}
                       </div>
                       <div className="staff-dashboard__stat-label">Action needed</div>
                     </div>
-                    <div className="staff-dashboard__stat-card">
+                    <div className="staff-dashboard__stat-card c360-stagger" style={{ '--c360-stagger': 2 } as CSSProperties}>
                       <div className="staff-dashboard__stat-num green">
                         {summary?.resolvedCount ?? 0}
                       </div>
                       <div className="staff-dashboard__stat-label">Resolved</div>
                     </div>
-                    <div className="staff-dashboard__stat-card">
+                    <div className="staff-dashboard__stat-card c360-stagger" style={{ '--c360-stagger': 3 } as CSSProperties}>
                       <div className="staff-dashboard__stat-num blue">
                         {summary?.todayAppointmentCount ?? 0}
                       </div>
@@ -815,26 +896,38 @@ export function StaffDashboard() {
                   </div>
                 </div>
 
-                <div>
+                <div className="staff-dashboard__right-panel c360-stagger" style={{ '--c360-stagger': 3 } as CSSProperties}>
                   <div className="staff-dashboard__right-section-label">
                     Avg. resolution time
                   </div>
                   <div className="staff-dashboard__resolution-panel">
-                    <div className="staff-dashboard__resolution-value">—</div>
+                    <div className="staff-dashboard__resolution-value">
+                      {resolution?.average ?? '—'}
+                    </div>
                     <div className="staff-dashboard__resolution-trend">
                       <IconTrendingDown size={13} aria-hidden />
-                      Analytics coming soon
+                      {resolution?.withinTargetPercent != null
+                        ? `${resolution.withinTargetPercent}% within ${resolution.targetLabel}`
+                        : 'Collecting resolution data'}
                     </div>
                     <div className="staff-dashboard__resolution-track">
-                      <div className="staff-dashboard__resolution-fill" />
+                      <div
+                        className="staff-dashboard__resolution-fill"
+                        style={{
+                          width: `${resolution?.withinTargetPercent ?? 0}%`,
+                        }}
+                      />
                     </div>
                     <div className="staff-dashboard__resolution-target">
-                      Target: ≤ 2 days
+                      Target: {resolution?.targetLabel ?? '≤ 2 days'}
+                      {resolution?.sampleSize
+                        ? ` · ${resolution.sampleSize} resolved tickets`
+                        : ''}
                     </div>
                   </div>
                 </div>
 
-                <div>
+                <div className="staff-dashboard__right-panel c360-stagger" style={{ '--c360-stagger': 4 } as CSSProperties}>
                   <div className="staff-dashboard__right-section-label">
                     Today&apos;s appointments
                   </div>
@@ -860,7 +953,7 @@ export function StaffDashboard() {
                   </div>
                 </div>
 
-                <div>
+                <div className="staff-dashboard__right-panel c360-stagger" style={{ '--c360-stagger': 5 } as CSSProperties}>
                   <div className="staff-dashboard__right-section-label">
                     Recent activity
                   </div>

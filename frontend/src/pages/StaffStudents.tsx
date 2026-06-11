@@ -1,7 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  IconBuildingCommunity,
   IconCalendarPlus,
   IconCash,
   IconMail,
@@ -15,10 +14,16 @@ import {
   type StaffStudentListItem,
   type StaffStudentProfile,
 } from '../api/client';
+import { Campus360Logo } from '../components/Campus360Logo';
 import { StaffTopbar } from '../components/StaffTopbar';
 import '../components/StaffTopbar.css';
+import { EmptyState } from '../components/EmptyState';
+import { SkeletonBlock, SkeletonCard } from '../components/Skeleton';
 import { useShellScale } from '../hooks/useShellScale';
+import { usePageTitle } from '../hooks/usePageTitle';
 import { useStaffShell } from '../hooks/useStaffShell';
+import { formatRelativeTime } from '../utils/relativeTime';
+import { TICKET_URGENCY_CLASS } from '../utils/ticketDisplay';
 import './StaffStudents.css';
 
 type FilterKey = 'all' | 'holds' | 'health-flags' | 'open-tickets';
@@ -97,6 +102,7 @@ function matchesSearch(student: StaffStudentListItem, query: string) {
 }
 
 export function StaffStudents() {
+  usePageTitle('Students');
   const navigate = useNavigate();
   const { outerRef, shellRef } = useShellScale({ mobileBreakpoint: 1100 });
   const { staffUser, navItems, profileTheme, updateProfileTheme, updateStaffUser } =
@@ -201,10 +207,7 @@ export function StaffStudents() {
         <div className="staff-students__shell" ref={shellRef}>
           <aside className="staff-students__sidebar">
             <div className="staff-students__sb-logo">
-              <div className="staff-students__sb-logo-icon">
-                <IconBuildingCommunity size={18} aria-hidden />
-              </div>
-              <span className="staff-students__sb-logo-text">Campus360</span>
+              <Campus360Logo variant="sidebar-staff" />
             </div>
 
             <div className="staff-students__sb-staff-wrap">
@@ -303,11 +306,19 @@ export function StaffStudents() {
                 </div>
 
                 <div className="staff-students__student-list">
-                  {loading && (
-                    <p className="staff-students__empty">Loading students…</p>
-                  )}
+                  {loading &&
+                    Array.from({ length: 5 }).map((_, index) => (
+                      <SkeletonCard key={index} />
+                    ))}
                   {!loading && filteredStudents.length === 0 && (
-                    <p className="staff-students__empty">No students match this filter.</p>
+                    <EmptyState
+                      title="No students match"
+                      description={
+                        search.trim()
+                          ? 'Try a different name, ID, or email.'
+                          : 'Adjust filters to see more students in your department.'
+                      }
+                    />
                   )}
                   {filteredStudents.map((student) => {
                     const av = avatarStyle(student.name);
@@ -350,11 +361,12 @@ export function StaffStudents() {
 
               <div className="staff-students__profile-col">
                 {!selected ? (
-                  <div className="staff-students__empty-panel">
-                    Select a student from the list.
-                  </div>
+                  <EmptyState
+                    title="Select a student"
+                    description="Pick someone from the list to view holds, tickets, and notes."
+                  />
                 ) : (
-                  <div className="staff-students__profile-card">
+                  <div className="staff-students__profile-card c360-stagger" style={{ '--c360-stagger': 0 } as CSSProperties}>
                     <div className="staff-students__profile-header">
                       <div
                         className="staff-students__profile-av"
@@ -407,9 +419,9 @@ export function StaffStudents() {
                     </div>
 
                     {profileLoading && (
-                      <p className="staff-students__empty staff-students__empty--inset">
-                        Loading profile…
-                      </p>
+                      <div className="staff-students__empty staff-students__empty--inset">
+                        <SkeletonBlock lines={4} />
+                      </div>
                     )}
 
                     <div className="staff-students__profile-stats">
@@ -465,14 +477,28 @@ export function StaffStudents() {
                                   navigate(`/staff-dashboard?ticket=${ticket.ticketNumber}`)
                                 }
                               >
-                                <span className="staff-students__ticket-id">{ticket.id}</span>
+                                <span className="staff-students__ticket-id c360-tabular">
+                                  {ticket.id}
+                                </span>
                                 <span className="staff-students__ticket-concern">
                                   {ticket.concern}
+                                </span>
+                                <span className="student-dashboard__urgency-cell">
+                                  <span
+                                    className={`student-dashboard__urgency-dot student-dashboard__urgency-dot--${ticket.urgency}`}
+                                    aria-hidden
+                                  />
+                                  <span className={TICKET_URGENCY_CLASS[ticket.urgency]}>
+                                    {ticket.urgencyLabel}
+                                  </span>
                                 </span>
                                 <span
                                   className={`staff-students__badge ${ticketStatusClass(ticket.status)}`}
                                 >
                                   {ticket.statusLabel}
+                                </span>
+                                <span className="staff-students__ticket-date c360-tabular">
+                                  {formatRelativeTime(ticket.updatedAt)}
                                 </span>
                               </button>
                             ))}

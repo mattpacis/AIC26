@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Campus360Logo } from '../components/Campus360Logo';
 import {
   IconAlertTriangle,
   IconBook,
@@ -183,10 +184,7 @@ export function StaffKnowledgeBase() {
         <div className="staff-kb__shell" ref={shellRef}>
           <aside className="staff-kb__sidebar">
             <div className="staff-kb__sb-logo">
-              <div className="staff-kb__sb-logo-icon">
-                <IconBuildingCommunity size={18} aria-hidden />
-              </div>
-              <span className="staff-kb__sb-logo-text">Campus360</span>
+              <Campus360Logo variant="sidebar-staff" />
             </div>
 
             <div className="staff-kb__sb-staff-wrap">
