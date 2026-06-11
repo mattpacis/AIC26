@@ -245,6 +245,7 @@ model AppointmentSlot {
   school     School   @relation(fields: [schoolId], references: [id])
   department String
   startsAt   DateTime
+  isOpen     Boolean  @default(true)
   createdAt  DateTime @default(now())
 
   @@unique([schoolId, department, startsAt])

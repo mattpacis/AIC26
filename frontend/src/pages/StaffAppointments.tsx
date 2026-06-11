@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   IconCalendarEvent,
@@ -26,6 +26,7 @@ import { EmptyState } from '../components/EmptyState';
 import { SkeletonCard } from '../components/Skeleton';
 import { StaffRescheduleModal } from '../components/StaffRescheduleModal';
 import { StaffNewAppointmentModal } from '../components/StaffNewAppointmentModal';
+import { StaffAvailabilityPanel } from '../components/StaffAvailabilityPanel';
 import { exportStaffAppointmentsCsv } from '../utils/exportStaffAppointments';
 import { DEMO_TODAY } from '../config/demoDate';
 import { useShellScale } from '../hooks/useShellScale';
@@ -96,6 +97,8 @@ export function StaffAppointments() {
     null,
   );
   const [showNewAppointment, setShowNewAppointment] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const filterRef = useRef<HTMLDivElement>(null);
 
   const loadAppointments = useCallback(async () => {
     setLoading(true);
@@ -121,6 +124,16 @@ export function StaffAppointments() {
   useEffect(() => {
     void loadAppointments();
   }, [loadAppointments]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
+        setFilterOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const filteredAppointments = useMemo(() => {
     if (!selectedDay) return appointments;
@@ -266,10 +279,55 @@ export function StaffAppointments() {
                 {departmentLabel} — Appointments
               </div>
               <div className="staff-dashboard__topbar-right">
-                <button type="button" className="staff-dashboard__tb-btn">
-                  <IconFilter size={14} aria-hidden />
-                  Filter
-                </button>
+                <div className="staff-appts__filter-wrap" ref={filterRef}>
+                  <button
+                    type="button"
+                    className={`staff-dashboard__tb-btn${
+                      statusFilter !== 'upcoming' ? ' staff-dashboard__tb-btn-active' : ''
+                    }`}
+                    onClick={() => setFilterOpen((open) => !open)}
+                  >
+                    <IconFilter size={14} aria-hidden />
+                    Filter
+                  </button>
+                  {filterOpen && (
+                    <div className="staff-appts__filter-menu">
+                      {(
+                        [
+                          { value: 'upcoming' as const, label: 'Upcoming only' },
+                          { value: 'completed' as const, label: 'Completed only' },
+                          { value: 'all' as const, label: 'All appointments' },
+                        ] as const
+                      ).map(({ value, label }) => (
+                        <button
+                          key={value}
+                          type="button"
+                          className={`staff-appts__filter-option${
+                            statusFilter === value ? ' active' : ''
+                          }`}
+                          onClick={() => {
+                            setStatusFilter(value);
+                            setFilterOpen(false);
+                          }}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                      {selectedDay && (
+                        <button
+                          type="button"
+                          className="staff-appts__filter-option"
+                          onClick={() => {
+                            setSelectedDay(null);
+                            setFilterOpen(false);
+                          }}
+                        >
+                          Clear day filter
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
                 <button
                   type="button"
                   className="staff-dashboard__tb-btn"
@@ -652,6 +710,15 @@ export function StaffAppointments() {
                     </div>
                   </div>
                 </div>
+
+                {staffUser?.department && (
+                  <StaffAvailabilityPanel
+                    year={viewMonth.year}
+                    month={viewMonth.month}
+                    selectedDay={selectedDay}
+                    department={staffUser.department}
+                  />
+                )}
 
                 <div>
                   <div className="staff-dashboard__right-section-label">

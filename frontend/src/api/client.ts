@@ -1080,3 +1080,52 @@ export async function listStaffAppointments(params: {
   );
   return parseJson(response);
 }
+
+export type StaffAppointmentSlot = {
+  id: string;
+  startsAt: string;
+  dateLabel: string;
+  timeLabel: string;
+  isOpen: boolean;
+  isBooked: boolean;
+  isPast: boolean;
+};
+
+export async function listStaffAppointmentSlots(params: {
+  year: number;
+  month: number;
+  day?: number;
+}): Promise<{ slots: StaffAppointmentSlot[] }> {
+  const search = new URLSearchParams({
+    year: String(params.year),
+    month: String(params.month),
+  });
+  if (params.day !== undefined) search.set('day', String(params.day));
+  const response = await apiFetch(
+    `${API_BASE}/staff/appointment-slots?${search.toString()}`,
+  );
+  return parseJson(response);
+}
+
+export async function createStaffAppointmentSlot(
+  startsAt: string,
+): Promise<{ slot: StaffAppointmentSlot }> {
+  const response = await apiFetch(`${API_BASE}/staff/appointment-slots`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ startsAt }),
+  });
+  return parseJson(response);
+}
+
+export async function updateStaffAppointmentSlot(
+  slotId: string,
+  body: { startsAt?: string; isOpen?: boolean },
+): Promise<{ slot: StaffAppointmentSlot }> {
+  const response = await apiFetch(`${API_BASE}/staff/appointment-slots/${slotId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  return parseJson(response);
+}

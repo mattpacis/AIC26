@@ -223,41 +223,43 @@ export function StaffTopbar({
 
   return (
     <>
-      <div className="student-topbar__menu-wrap" ref={notifRef}>
-        <button
-          type="button"
-          className="student-dashboard__topbar-icon"
-          aria-label="Notifications"
-          onClick={() => {
-            setNotifOpen((open) => !open);
-            setProfileOpen(false);
-          }}
-        >
-          <IconBell size={18} aria-hidden />
-          {unreadCount > 0 && <span className="student-dashboard__notif-badge" />}
-        </button>
-      </div>
-
-      <div className="student-topbar__menu-wrap" ref={menuRef}>
-        <button
-          type="button"
-          className="student-dashboard__user-pill student-topbar__profile-btn"
-          onClick={() => {
-            setProfileOpen((open) => !open);
-            setNotifOpen(false);
-          }}
-        >
-          <div
-            className="student-dashboard__user-avatar"
-            style={{ background: profileTheme.bg, color: profileTheme.color }}
+      <div className="staff-dashboard__topbar-right">
+        <div className="student-topbar__menu-wrap" ref={notifRef}>
+          <button
+            type="button"
+            className="student-dashboard__topbar-icon"
+            aria-label="Notifications"
+            onClick={() => {
+              setNotifOpen((open) => !open);
+              setProfileOpen(false);
+            }}
           >
-            {user.initials}
-          </div>
-          <div className="student-dashboard__user-info">
-            <div className="student-dashboard__user-name">{user.name}</div>
-            <div className="student-dashboard__user-email">{user.email}</div>
-          </div>
-        </button>
+            <IconBell size={18} aria-hidden />
+            {unreadCount > 0 && <span className="student-dashboard__notif-badge" />}
+          </button>
+        </div>
+
+        <div className="student-topbar__menu-wrap" ref={menuRef}>
+          <button
+            type="button"
+            className="student-dashboard__user-pill student-topbar__profile-btn"
+            onClick={() => {
+              setProfileOpen((open) => !open);
+              setNotifOpen(false);
+            }}
+          >
+            <div
+              className="student-dashboard__user-avatar"
+              style={{ background: profileTheme.bg, color: profileTheme.color }}
+            >
+              {user.initials}
+            </div>
+            <div className="student-dashboard__user-info">
+              <div className="student-dashboard__user-name">{user.name}</div>
+              <div className="student-dashboard__user-email">{user.email}</div>
+            </div>
+          </button>
+        </div>
       </div>
 
       {portalTarget &&

@@ -1,0 +1,37 @@
+.staff-add-slot__fields {
+  display: grid;
+  gap: 12px;
+  margin: 12px 0 4px;
+}
+
+.staff-add-slot__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  color: #374151;
+}
+
+.staff-add-slot__field input,
+.staff-add-slot__field select {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-family: inherit;
+  color: #111827;
+  background: #fff;
+}
+
+.staff-add-slot__preview {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #64748b;
+}
+
+.staff-add-slot__error {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #b91c1c;
+}

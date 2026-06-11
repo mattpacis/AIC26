@@ -18,6 +18,11 @@ import {
 } from '../services/staffTicketService.js';
 import { addTicketReply } from '../services/ticketService.js';
 import { listAppointments } from '../services/appointmentService.js';
+import {
+  createStaffAppointmentSlot,
+  listStaffAppointmentSlots,
+  updateStaffAppointmentSlot,
+} from '../services/appointmentSlotService.js';
 
 export const staffRouter = Router();
 
@@ -210,6 +215,51 @@ staffRouter.get('/directory', async (req, res, next) => {
   try {
     const members = await listStaffDirectory(req.auth!);
     res.json({ members });
+  } catch (err) {
+    next(err);
+  }
+});
+
+const slotListSchema = z.object({
+  year: z.coerce.number().int(),
+  month: z.coerce.number().int().min(0).max(11),
+  day: z.coerce.number().int().min(1).max(31).optional(),
+});
+
+staffRouter.get('/appointment-slots', async (req, res, next) => {
+  try {
+    const query = slotListSchema.parse(req.query);
+    const slots = await listStaffAppointmentSlots(req.auth!, query);
+    res.json({ slots });
+  } catch (err) {
+    next(err);
+  }
+});
+
+const createSlotSchema = z.object({
+  startsAt: z.string().min(1),
+});
+
+staffRouter.post('/appointment-slots', async (req, res, next) => {
+  try {
+    const body = createSlotSchema.parse(req.body);
+    const slot = await createStaffAppointmentSlot(req.auth!, body);
+    res.status(201).json({ slot });
+  } catch (err) {
+    next(err);
+  }
+});
+
+const updateSlotSchema = z.object({
+  startsAt: z.string().min(1).optional(),
+  isOpen: z.boolean().optional(),
+});
+
+staffRouter.patch('/appointment-slots/:slotId', async (req, res, next) => {
+  try {
+    const body = updateSlotSchema.parse(req.body);
+    const slot = await updateStaffAppointmentSlot(req.auth!, req.params.slotId, body);
+    res.json({ slot });
   } catch (err) {
     next(err);
   }

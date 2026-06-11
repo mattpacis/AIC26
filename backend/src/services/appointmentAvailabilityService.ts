@@ -167,6 +167,7 @@ async function findSlotByLocalDateTime(
     where: {
       schoolId: ctx.schoolId,
       department: departmentLabel,
+      isOpen: true,
       startsAt: { gte: dayStart, lt: dayEnd },
     },
     orderBy: { startsAt: 'asc' },
@@ -362,6 +363,7 @@ export async function getDepartmentAvailability(
     where: {
       schoolId: ctx.schoolId,
       department: dept.label,
+      isOpen: true,
       startsAt: { gte: rangeStart, lt: rangeEnd },
     },
     orderBy: { startsAt: 'asc' },

@@ -181,12 +181,30 @@
 .staff-reschedule__actions button.primary,
 .copilot-webchat__open-btn {
   background: var(--c360-gradient-primary-btn) !important;
+  color: #fff !important;
+  border-color: transparent !important;
   box-shadow: var(--c360-shadow-btn);
   font-weight: 600;
   transition:
     transform var(--c360-duration-fast) var(--c360-ease),
     box-shadow var(--c360-duration-fast) var(--c360-ease),
     filter var(--c360-duration-fast) var(--c360-ease);
+}
+
+.login-page__login-btn:disabled,
+.student-tickets__create-btn:disabled,
+.student-appointments__tb-btn-primary:disabled,
+.student-ticket-detail__btn-success:disabled,
+.staff-dashboard__action-btn-success:disabled,
+.staff-dashboard__tb-btn-primary:disabled,
+.staff-kb__tb-btn-primary:disabled,
+.staff-new-ticket__submit:disabled,
+.staff-reschedule__actions button.primary:disabled,
+.copilot-webchat__open-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  filter: none;
 }
 
 .login-page__login-btn:hover:not(:disabled),

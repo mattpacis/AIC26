@@ -55,3 +55,40 @@
 .staff-appts__mini-day:disabled {
   cursor: default;
 }
+
+.staff-appts__filter-wrap {
+  position: relative;
+}
+
+.staff-appts__filter-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 190px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(15, 42, 82, 0.12);
+  padding: 6px;
+  z-index: 200;
+}
+
+.staff-appts__filter-option {
+  display: block;
+  width: 100%;
+  border: none;
+  background: none;
+  text-align: left;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #374151;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.staff-appts__filter-option:hover,
+.staff-appts__filter-option.active {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
