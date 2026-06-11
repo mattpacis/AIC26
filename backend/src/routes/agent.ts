@@ -7,6 +7,7 @@ import {
   stripAgentIdentityFromBody,
 } from '../middleware/agentAuth.js';
 import { createEmbedToken } from '../services/embedTokenService.js';
+import { createDirectLineToken } from '../services/directLineService.js';
 import { getUserById, toPublicUser } from '../services/authService.js';
 import { getSessionUserId } from '../middleware/auth.js';
 import { env, getAgentMode } from '../lib/env.js';
@@ -82,6 +83,31 @@ agentRouter.get('/embed-token', requireAuth, async (req, res, next) => {
       token,
       userId: user.id,
       email: user.email,
+      user: toPublicUser(user),
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+agentRouter.get('/direct-line-token', requireAuth, async (req, res, next) => {
+  try {
+    const user = await getUserById(getSessionUserId(req));
+    if (!user) {
+      res.status(401).json({ error: 'Authentication required' });
+      return;
+    }
+
+    const directLine = await createDirectLineToken();
+    const campus360Token = createEmbedToken(user.id, user.email);
+
+    res.json({
+      token: directLine.token,
+      conversationId: directLine.conversationId,
+      expiresIn: directLine.expires_in,
+      userId: user.id,
+      email: user.email,
+      campus360Token,
       user: toPublicUser(user),
     });
   } catch (err) {

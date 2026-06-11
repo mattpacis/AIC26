@@ -4,13 +4,9 @@ import {
   IconBuildingCommunity,
   IconCalendarPlus,
   IconCash,
-  IconDownload,
-  IconLogout,
   IconMail,
   IconNotes,
-  IconPlus,
   IconSearch,
-  IconSettings,
   IconTicket,
 } from '@tabler/icons-react';
 import {
@@ -19,26 +15,19 @@ import {
   type StaffStudentListItem,
   type StaffStudentProfile,
 } from '../api/client';
-import { StaffNotifications } from '../components/StaffNotifications';
+import { StaffTopbar } from '../components/StaffTopbar';
+import '../components/StaffTopbar.css';
 import { useShellScale } from '../hooks/useShellScale';
 import { useStaffShell } from '../hooks/useStaffShell';
 import './StaffStudents.css';
 
-type FilterKey =
-  | 'all'
-  | 'holds'
-  | 'health-flags'
-  | 'open-tickets'
-  | '2nd-year'
-  | 'cs';
+type FilterKey = 'all' | 'holds' | 'health-flags' | 'open-tickets';
 
 const FILTERS: { key: FilterKey; label: string }[] = [
   { key: 'all', label: 'All' },
-  { key: 'holds', label: 'With holds' },
-  { key: 'health-flags', label: 'Health flags' },
+  { key: 'holds', label: 'Holds' },
+  { key: 'health-flags', label: 'Health' },
   { key: 'open-tickets', label: 'Open tickets' },
-  { key: '2nd-year', label: '2nd Year' },
-  { key: 'cs', label: 'CS' },
 ];
 
 const AVATAR_PALETTE = [
@@ -87,10 +76,6 @@ function apiFilters(filter: FilterKey) {
       return { holds: true };
     case 'open-tickets':
       return { openTickets: true };
-    case '2nd-year':
-      return { yearLevel: '2nd' };
-    case 'cs':
-      return { program: 'Computer Science' };
     default:
       return {};
   }
@@ -107,15 +92,15 @@ function matchesSearch(student: StaffStudentListItem, query: string) {
   return (
     student.name.toLowerCase().includes(q) ||
     student.id.toLowerCase().includes(q) ||
-    student.email.toLowerCase().includes(q) ||
-    (student.program ?? '').toLowerCase().includes(q)
+    student.email.toLowerCase().includes(q)
   );
 }
 
 export function StaffStudents() {
   const navigate = useNavigate();
   const { outerRef, shellRef } = useShellScale({ mobileBreakpoint: 1100 });
-  const { staffUser, navItems, handleLogout } = useStaffShell();
+  const { staffUser, navItems, profileTheme, updateProfileTheme, updateStaffUser } =
+    useStaffShell();
 
   const [students, setStudents] = useState<StaffStudentListItem[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -182,6 +167,28 @@ export function StaffStudents() {
   const selected =
     profile ?? students.find((s) => s.id === selectedId) ?? filteredStudents[0];
 
+  function handleSchedule() {
+    if (!selected) return;
+    navigate('/staff/appointments', {
+      state: {
+        studentEmail: selected.email,
+        studentName: selected.name,
+      },
+    });
+  }
+
+  function handleNewTicket() {
+    if (!selected) return;
+    const openTicket = profile?.tickets.find(
+      (ticket) => ticket.status !== 'resolved',
+    );
+    if (openTicket) {
+      navigate(`/staff-dashboard?ticket=${openTicket.ticketNumber}`);
+      return;
+    }
+    navigate('/staff-dashboard');
+  }
+
   const departmentLabel = staffUser?.department ?? 'Department';
 
   return (
@@ -202,7 +209,13 @@ export function StaffStudents() {
 
             <div className="staff-students__sb-staff-wrap">
               <div className="staff-students__sb-staff">
-                <div className="staff-students__sb-avatar">
+                <div
+                  className="staff-students__sb-avatar"
+                  style={{
+                    background: profileTheme.bg,
+                    color: profileTheme.color,
+                  }}
+                >
                   {staffUser?.initials ?? '—'}
                 </div>
                 <div>
@@ -241,60 +254,32 @@ export function StaffStudents() {
               )}
             </nav>
 
-            <div className="staff-students__sb-dept staff-students__sb-dept.system">
-              System
-            </div>
-            <div className="staff-students__sb-system">
-              <button type="button" className="staff-students__nav-item">
-                <IconSettings size={16} aria-hidden />
-                Settings
-              </button>
-              <button
-                type="button"
-                className="staff-students__nav-item"
-                onClick={() => void handleLogout()}
-              >
-                <IconLogout size={16} aria-hidden />
-                Logout
-              </button>
-            </div>
             <div className="staff-students__sb-spacer" />
           </aside>
 
           <div className="staff-students__main">
             <header className="staff-students__topbar">
-              <div className="staff-students__topbar-title">Students — Directory</div>
-              <div className="staff-students__topbar-right">
-                <button type="button" className="staff-students__tb-btn">
-                  <IconDownload size={14} aria-hidden />
-                  Export
-                </button>
-                <button
-                  type="button"
-                  className="staff-students__tb-btn staff-students__tb-btn-primary"
-                >
-                  <IconPlus size={14} aria-hidden />
-                  Add student record
-                </button>
-                <StaffNotifications
-                  buttonClassName="staff-students__tb-icon"
-                  dotClassName="staff-students__notif-dot"
+              <div className="staff-students__topbar-title">Students</div>
+              {staffUser && (
+                <StaffTopbar
+                  user={staffUser}
+                  profileTheme={profileTheme}
+                  onUserUpdated={updateStaffUser}
+                  onThemeUpdated={(theme) => updateProfileTheme(theme.id)}
                 />
-              </div>
+              )}
             </header>
 
-            {error && <div style={{ padding: 16 }}>{error}</div>}
+            {error && <div className="staff-students__error">{error}</div>}
 
             <div className="staff-students__content">
               <div className="staff-students__list-col">
                 <div className="staff-students__list-header">
                   <div className="staff-students__search-wrap">
-                    <span className="staff-students__search-icon">
-                      <IconSearch size={16} aria-hidden />
-                    </span>
+                    <IconSearch size={15} className="staff-students__search-icon" aria-hidden />
                     <input
                       className="staff-students__search-input"
-                      placeholder="Search by name, ID, or email…"
+                      placeholder="Search name, ID, email…"
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
                     />
@@ -311,21 +296,18 @@ export function StaffStudents() {
                       </button>
                     ))}
                   </div>
-                </div>
-
-                <div className="staff-students__list-meta">
-                  Showing {filteredStudents.length} students · {departmentLabel} dept.
-                  view
+                  <div className="staff-students__list-meta">
+                    {filteredStudents.length} student
+                    {filteredStudents.length === 1 ? '' : 's'} · {departmentLabel}
+                  </div>
                 </div>
 
                 <div className="staff-students__student-list">
                   {loading && (
-                    <div style={{ padding: 16, color: '#64748b' }}>Loading students…</div>
+                    <p className="staff-students__empty">Loading students…</p>
                   )}
                   {!loading && filteredStudents.length === 0 && (
-                    <div style={{ padding: 16, color: '#64748b' }}>
-                      No students match this filter.
-                    </div>
+                    <p className="staff-students__empty">No students match this filter.</p>
                   )}
                   {filteredStudents.map((student) => {
                     const av = avatarStyle(student.name);
@@ -343,18 +325,22 @@ export function StaffStudents() {
                           {student.initials}
                         </div>
                         <div className="staff-students__stu-info">
-                          <div className="staff-students__stu-name">{student.name}</div>
-                          <div className="staff-students__stu-sub">{student.sub}</div>
-                          <div className="staff-students__stu-tags">
-                            {student.listTags.map((tag) => (
-                              <span
-                                key={tag.label}
-                                className={`staff-students__badge ${listTagClass(tag.type)}`}
-                              >
-                                {tag.label}
+                          <div className="staff-students__stu-row">
+                            <span className="staff-students__stu-name">{student.name}</span>
+                            {student.listTags.length > 0 && (
+                              <span className="staff-students__stu-tags">
+                                {student.listTags.map((tag) => (
+                                  <span
+                                    key={tag.label}
+                                    className={`staff-students__badge ${listTagClass(tag.type)}`}
+                                  >
+                                    {tag.label}
+                                  </span>
+                                ))}
                               </span>
-                            ))}
+                            )}
                           </div>
+                          <div className="staff-students__stu-sub">{student.id}</div>
                         </div>
                       </button>
                     );
@@ -364,16 +350,11 @@ export function StaffStudents() {
 
               <div className="staff-students__profile-col">
                 {!selected ? (
-                  <div className="staff-students__profile-card" style={{ padding: 24 }}>
+                  <div className="staff-students__empty-panel">
                     Select a student from the list.
                   </div>
                 ) : (
                   <div className="staff-students__profile-card">
-                    {profileLoading && (
-                      <div style={{ padding: 16, color: '#64748b' }}>
-                        Loading profile…
-                      </div>
-                    )}
                     <div className="staff-students__profile-header">
                       <div
                         className="staff-students__profile-av"
@@ -385,188 +366,134 @@ export function StaffStudents() {
                         {selected.initials}
                       </div>
                       <div className="staff-students__profile-info">
-                        <div className="staff-students__profile-name">
-                          {selected.name}
-                        </div>
+                        <div className="staff-students__profile-name">{selected.name}</div>
                         <div className="staff-students__profile-sub">
-                          {selected.sub}
+                          {selected.id}
+                          <span className="staff-students__profile-dot">·</span>
+                          <IconMail size={12} aria-hidden />
+                          {selected.email}
                         </div>
-                        <div className="staff-students__profile-contact">
-                          <span>
-                            <IconMail size={13} aria-hidden /> {selected.email}
-                          </span>
-                          {selected.phone && <span>{selected.phone}</span>}
-                        </div>
-                        <div className="staff-students__profile-tags">
-                          {(profile?.profileTags ?? []).map((tag) => (
-                            <span
-                              key={tag.label}
-                              className={`staff-students__badge ${profileTagClass(tag.type)}`}
-                            >
-                              {tag.label}
-                            </span>
-                          ))}
-                        </div>
+                        {(profile?.profileTags ?? []).length > 0 && (
+                          <div className="staff-students__profile-tags">
+                            {profile?.profileTags.map((tag) => (
+                              <span
+                                key={tag.label}
+                                className={`staff-students__badge ${profileTagClass(tag.type)}`}
+                              >
+                                {tag.label}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
                       <div className="staff-students__profile-actions">
-                        <button type="button" className="staff-students__p-btn">
+                        <button
+                          type="button"
+                          className="staff-students__p-btn"
+                          onClick={handleSchedule}
+                        >
                           <IconCalendarPlus size={13} aria-hidden />
                           Schedule
                         </button>
-                        <button type="button" className="staff-students__p-btn">
+                        <button
+                          type="button"
+                          className="staff-students__p-btn staff-students__p-btn-primary"
+                          onClick={handleNewTicket}
+                        >
                           <IconTicket size={13} aria-hidden />
-                          New ticket
+                          Ticket
                         </button>
                       </div>
                     </div>
 
+                    {profileLoading && (
+                      <p className="staff-students__empty staff-students__empty--inset">
+                        Loading profile…
+                      </p>
+                    )}
+
                     <div className="staff-students__profile-stats">
-                      <div className="staff-students__profile-stat">
-                        <div className="staff-students__profile-stat-num">
-                          {selected.stats.tickets}
-                        </div>
-                        <div className="staff-students__profile-stat-label">
-                          Open
-                          <br />
-                          tickets
-                        </div>
+                      <div className="staff-students__stat-pill">
+                        <strong>{selected.stats.tickets}</strong>
+                        <span>Open tickets</span>
                       </div>
-                      <div className="staff-students__profile-stat">
-                        <div className="staff-students__profile-stat-num amber">
-                          {selected.stats.holds}
-                        </div>
-                        <div className="staff-students__profile-stat-label">
-                          Active
-                          <br />
-                          holds
-                        </div>
+                      <div className="staff-students__stat-pill amber">
+                        <strong>{selected.stats.holds}</strong>
+                        <span>Holds</span>
                       </div>
-                      <div className="staff-students__profile-stat">
-                        <div className="staff-students__profile-stat-num green">
-                          {selected.stats.appts}
-                        </div>
-                        <div className="staff-students__profile-stat-label">
-                          Upcoming
-                          <br />
-                          appts
-                        </div>
+                      <div className="staff-students__stat-pill green">
+                        <strong>{selected.stats.appts}</strong>
+                        <span>Appts</span>
                       </div>
-                    </div>
-
-                    <div className="staff-students__info-grid">
-                      <div className="staff-students__info-card">
-                        <div className="staff-students__info-label">Program</div>
-                        <div className="staff-students__info-value-sm">
-                          {selected.program ?? '—'}
-                        </div>
-                      </div>
-                      <div className="staff-students__info-card">
-                        <div className="staff-students__info-label">Year level</div>
-                        <div className="staff-students__info-value-sm">
-                          {selected.yearLevel ?? '—'}
-                        </div>
-                      </div>
-                      <div className="staff-students__info-card">
-                        <div className="staff-students__info-label">College</div>
-                        <div className="staff-students__info-value-sm">
-                          {selected.college ?? '—'}
-                        </div>
-                      </div>
-                      <div className="staff-students__info-card">
-                        <div className="staff-students__info-label">Enrollment status</div>
-                        <div
-                          className={`staff-students__info-value-sm${selected.enrollmentWarn ? ' staff-students__info-value-warn' : ''}`}
-                        >
-                          {selected.enrollmentStatus}
-                        </div>
-                      </div>
-                      <div className="staff-students__info-card">
-                        <div className="staff-students__info-label">
-                          Next appointment
-                        </div>
-                        <div className="staff-students__info-value-sm staff-students__info-value-teal">
+                      <div className="staff-students__stat-pill teal">
+                        <strong className="staff-students__stat-text">
                           {selected.stats.nextAppointment}
-                        </div>
+                        </strong>
+                        <span>Next appt</span>
                       </div>
                     </div>
 
-                    {profile && profile.holds.length > 0 && (
-                      <>
-                        <div className="staff-students__section-sep">Active holds</div>
-                        {profile.holds.map((hold) => (
-                          <div className="staff-students__hold-card" key={hold.id}>
-                            <div className="staff-students__hold-icon">
+                    <div className="staff-students__profile-body">
+                      {profile && profile.holds.length > 0 && (
+                        <section className="staff-students__section">
+                          <h3 className="staff-students__section-title">Active holds</h3>
+                          {profile.holds.map((hold) => (
+                            <div className="staff-students__hold-row" key={hold.id}>
                               <IconCash size={14} color="#D97706" aria-hidden />
-                            </div>
-                            <div>
-                              <div className="staff-students__hold-title">{hold.title}</div>
-                              <div className="staff-students__hold-sub">{hold.label}</div>
-                            </div>
-                            <span
-                              className="staff-students__badge staff-students__b-hold"
-                              style={{ marginLeft: 'auto' }}
-                            >
-                              {hold.department}
-                            </span>
-                          </div>
-                        ))}
-                      </>
-                    )}
-
-                    {profile && profile.tickets.length > 0 && (
-                      <>
-                        <div className="staff-students__section-sep">
-                          Tickets this semester
-                        </div>
-                        {profile.tickets.map((ticket) => (
-                          <button
-                            key={ticket.id}
-                            type="button"
-                            className="staff-students__ticket-row"
-                            onClick={() => navigate('/staff-dashboard')}
-                          >
-                            <span className="staff-students__ticket-id">{ticket.id}</span>
-                            <span className="staff-students__ticket-concern">
-                              {ticket.concern}
-                            </span>
-                            <span className="staff-students__ticket-dept">
-                              {ticket.department}
-                            </span>
-                            <span
-                              className={`staff-students__badge ${ticketStatusClass(ticket.status)}`}
-                            >
-                              {ticket.statusLabel}
-                            </span>
-                          </button>
-                        ))}
-                      </>
-                    )}
-
-                    {profile && profile.healthNotes.length > 0 && (
-                      <>
-                        <div className="staff-students__section-sep">Health record notes</div>
-                        <div className="staff-students__health-panel">
-                          {profile.healthNotes.map((note) => (
-                            <div className="staff-students__health-note" key={note.text}>
-                              <IconNotes size={14} color="#9ca3af" aria-hidden />
-                              <span>{note.text}</span>
+                              <div className="staff-students__hold-text">
+                                <span className="staff-students__hold-title">{hold.title}</span>
+                                <span className="staff-students__hold-sub">{hold.label}</span>
+                              </div>
+                              <span className="staff-students__badge staff-students__b-hold">
+                                {hold.department}
+                              </span>
                             </div>
                           ))}
-                        </div>
-                      </>
-                    )}
+                        </section>
+                      )}
 
-                    {profile && profile.healthNotes.length === 0 && (
-                      <>
-                        <div className="staff-students__section-sep">Health record notes</div>
-                        <div className="staff-students__health-panel">
-                          <div className="staff-students__health-note">
-                            <IconNotes size={14} color="#9ca3af" aria-hidden />
-                            <span>No health flags on file.</span>
+                      {profile && profile.tickets.length > 0 && (
+                        <section className="staff-students__section">
+                          <h3 className="staff-students__section-title">Tickets this semester</h3>
+                          <div className="staff-students__ticket-table">
+                            {profile.tickets.map((ticket) => (
+                              <button
+                                key={ticket.id}
+                                type="button"
+                                className="staff-students__ticket-row"
+                                onClick={() =>
+                                  navigate(`/staff-dashboard?ticket=${ticket.ticketNumber}`)
+                                }
+                              >
+                                <span className="staff-students__ticket-id">{ticket.id}</span>
+                                <span className="staff-students__ticket-concern">
+                                  {ticket.concern}
+                                </span>
+                                <span
+                                  className={`staff-students__badge ${ticketStatusClass(ticket.status)}`}
+                                >
+                                  {ticket.statusLabel}
+                                </span>
+                              </button>
+                            ))}
                           </div>
-                        </div>
-                      </>
-                    )}
+                        </section>
+                      )}
+
+                      {profile && profile.healthNotes.length > 0 && (
+                        <section className="staff-students__section">
+                          <h3 className="staff-students__section-title">Health notes</h3>
+                          <div className="staff-students__notes-panel">
+                            {profile.healthNotes.map((note) => (
+                              <div className="staff-students__health-note" key={note.text}>
+                                <IconNotes size={13} color="#94a3b8" aria-hidden />
+                                <span>{note.text}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </section>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>

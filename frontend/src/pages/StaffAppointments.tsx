@@ -9,10 +9,8 @@ import {
   IconChevronRight,
   IconDownload,
   IconFilter,
-  IconLogout,
   IconMapPin,
   IconPlus,
-  IconSettings,
   IconTicket,
 } from '@tabler/icons-react';
 import {
@@ -22,7 +20,8 @@ import {
   userInitials,
   type AppointmentRecord,
 } from '../api/client';
-import { StaffNotifications } from '../components/StaffNotifications';
+import { StaffTopbar } from '../components/StaffTopbar';
+import '../components/StaffTopbar.css';
 import { StaffRescheduleModal } from '../components/StaffRescheduleModal';
 import { DEMO_TODAY } from '../config/demoDate';
 import { useShellScale } from '../hooks/useShellScale';
@@ -73,7 +72,8 @@ function formatQueueTime(iso: string) {
 export function StaffAppointments() {
   const navigate = useNavigate();
   const { outerRef, shellRef } = useShellScale({ mobileBreakpoint: 1100 });
-  const { staffUser, summary, navItems, handleLogout } = useStaffShell();
+  const { staffUser, summary, navItems, profileTheme, updateProfileTheme, updateStaffUser } =
+    useStaffShell();
 
   const [viewMonth, setViewMonth] = useState({
     year: DEMO_TODAY.year,
@@ -210,7 +210,13 @@ export function StaffAppointments() {
             </div>
             <div className="staff-dashboard__sb-staff-wrap">
               <div className="staff-dashboard__sb-staff">
-                <div className="staff-dashboard__sb-avatar">
+                <div
+                  className="staff-dashboard__sb-avatar"
+                  style={{
+                    background: profileTheme.bg,
+                    color: profileTheme.color,
+                  }}
+                >
                   {staffUser?.initials ?? '—'}
                 </div>
                 <div>
@@ -247,23 +253,6 @@ export function StaffAppointments() {
                 ),
               )}
             </nav>
-            <div className="staff-dashboard__sb-dept staff-dashboard__sb-dept.system">
-              System
-            </div>
-            <div className="staff-dashboard__sb-system">
-              <button type="button" className="staff-dashboard__nav-item">
-                <IconSettings size={16} aria-hidden />
-                Settings
-              </button>
-              <button
-                type="button"
-                className="staff-dashboard__nav-item"
-                onClick={() => void handleLogout()}
-              >
-                <IconLogout size={16} aria-hidden />
-                Logout
-              </button>
-            </div>
             <div className="staff-dashboard__sb-spacer" />
           </aside>
 
@@ -288,7 +277,14 @@ export function StaffAppointments() {
                   <IconPlus size={14} aria-hidden />
                   New appointment
                 </button>
-                <StaffNotifications />
+                {staffUser && (
+                  <StaffTopbar
+                    user={staffUser}
+                    profileTheme={profileTheme}
+                    onUserUpdated={updateStaffUser}
+                    onThemeUpdated={(theme) => updateProfileTheme(theme.id)}
+                  />
+                )}
               </div>
             </header>
 

@@ -84,27 +84,15 @@ export function buildDevBridgeReply(message: string, context: AgentContextPayloa
   ) {
     const parts = [
       `Hi ${name}! I'm Campus360 AI.`,
-      `You have ${context.summary.openTicketCount} open ticket${context.summary.openTicketCount === 1 ? '' : 's'} and ${context.summary.activeHoldCount} active hold${context.summary.activeHoldCount === 1 ? '' : 's'}.`,
+      `You have ${context.summary.openTicketCount} open ticket${context.summary.openTicketCount === 1 ? '' : 's'}.`,
     ];
     if (context.summary.nextAppointment) {
       parts.push(
         `Your next appointment is ${context.summary.nextAppointment.title} on ${context.summary.nextAppointment.date}${context.summary.nextAppointment.time ? ` at ${context.summary.nextAppointment.time}` : ''}.`,
       );
     }
-    parts.push('Ask me about tickets, appointments, or holds — I answer using your live Campus360 data.');
+    parts.push('Ask me about tickets or appointments — I answer using your live Campus360 data.');
     return parts.join(' ');
-  }
-
-  if (
-    lower.includes('hold') ||
-    lower.includes('tuition') ||
-    lower.includes('balance')
-  ) {
-    if (context.holds.length === 0) {
-      return `${name}, I don't see any active holds on your account right now.`;
-    }
-    const lines = context.holds.map((hold) => `• ${hold.label} (${hold.department})`);
-    return `${name}, you have ${context.holds.length} active hold${context.holds.length === 1 ? '' : 's'}:\n${lines.join('\n')}\nVisit the listed office or ask me to open a ticket if you need help clearing them.`;
   }
 
   if (
@@ -137,7 +125,7 @@ export function buildDevBridgeReply(message: string, context: AgentContextPayloa
     return `${name}, your next appointment is ${appt.title} on ${appt.date}${appt.time ? ` at ${appt.time}` : ''}${appt.department ? ` (${appt.department})` : ''}${appt.location ? ` — ${appt.location}` : ''}.`;
   }
 
-  return `${name}, I received your message. I'm running in dev bridge mode with your live Campus360 context (tickets, holds, appointments). The Microsoft Copilot agent isn't connected yet — once your team adds MICROSOFT_AGENT_ENDPOINT, replies will come from Copilot Studio while still using the same backend tools.\n\nYou asked: "${trimmed.slice(0, 200)}"`;
+  return `${name}, I received your message. I'm running in dev bridge mode with your live Campus360 context (tickets, appointments). The Microsoft Copilot agent isn't connected yet — once your team adds MICROSOFT_AGENT_ENDPOINT, replies will come from Copilot Studio while still using the same backend tools.\n\nYou asked: "${trimmed.slice(0, 200)}"`;
 }
 
 export async function generateAgentReply(
@@ -146,7 +134,7 @@ export async function generateAgentReply(
   if (input.ctx.role !== 'STUDENT') {
     return {
       reply:
-        'Campus360 AI helpdesk is for student accounts. Sign in as a student to get personalized help with tickets, appointments, and holds.',
+        'Campus360 AI helpdesk is for student accounts. Sign in as a student to get personalized help with tickets and appointments.',
       agentMode: getAgentMode(),
     };
   }

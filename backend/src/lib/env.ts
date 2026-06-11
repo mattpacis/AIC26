@@ -9,6 +9,7 @@ const envSchema = z.object({
   CAMPUS360_AGENT_API_KEY: z.string().min(8).optional(),
   MICROSOFT_AGENT_ENDPOINT: z.string().url().optional(),
   MICROSOFT_AGENT_API_KEY: z.string().min(1).optional(),
+  MICROSOFT_DIRECT_LINE_SECRET: z.string().min(1).optional(),
   OAUTH_CALLBACK_BASE_URL: z.string().url().optional(),
   GOOGLE_CLIENT_ID: z.string().min(1).optional(),
   GOOGLE_CLIENT_SECRET: z.string().min(1).optional(),

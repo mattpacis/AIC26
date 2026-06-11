@@ -1,39 +1,36 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
-  IconBook,
   IconBuildingCommunity,
   IconCalendarPlus,
   IconCheck,
   IconDownload,
   IconEyeOff,
-  IconFilter,
   IconInbox,
-  IconLogout,
   IconMessage,
   IconPlus,
   IconRefresh,
   IconRobot,
   IconSend,
-  IconSettings,
   IconTrendingDown,
 } from '@tabler/icons-react';
 import {
   addStaffTicketReply,
   getStaffDashboard,
-  listStaffKbArticles,
   listStaffTickets,
   rescheduleStaffTicket,
   takeStaffTicket,
   updateStaffTicket,
-  type StaffKbArticleSummary,
   type StaffQueueTicket,
   type StaffTodayAppointment,
 } from '../api/client';
-import { StaffNotifications } from '../components/StaffNotifications';
+import { StaffNewTicketModal } from '../components/StaffNewTicketModal';
 import { StaffRescheduleModal } from '../components/StaffRescheduleModal';
+import { StaffTopbar } from '../components/StaffTopbar';
+import '../components/StaffTopbar.css';
 import { useShellScale } from '../hooks/useShellScale';
 import { useStaffShell } from '../hooks/useStaffShell';
+import { exportStaffTicketsCsv } from '../utils/exportStaffTickets';
 import { handleChatTextareaKeyDown } from '../utils/ticketDisplay';
 import './StaffDashboard.css';
 
@@ -74,16 +71,16 @@ export function StaffDashboard() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { outerRef, shellRef } = useShellScale({ mobileBreakpoint: 1100 });
-  const { staffUser, summary, navItems, handleLogout, refreshShell } =
+  const { staffUser, summary, navItems, profileTheme, updateProfileTheme, updateStaffUser, refreshShell } =
     useStaffShell();
 
   const [tickets, setTickets] = useState<StaffQueueTicket[]>([]);
   const [todayAppointments, setTodayAppointments] = useState<
     StaffTodayAppointment[]
   >([]);
-  const [kbArticles, setKbArticles] = useState<StaffKbArticleSummary[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<FilterKey>('all');
+  const [mineOnly, setMineOnly] = useState(false);
   const [notes, setNotes] = useState('');
   const [replyText, setReplyText] = useState('');
   const [showReply, setShowReply] = useState(false);
@@ -92,25 +89,25 @@ export function StaffDashboard() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [hideResolved, setHideResolved] = useState(true);
   const [showReschedule, setShowReschedule] = useState(false);
+  const [showNewTicket, setShowNewTicket] = useState(false);
 
-  const loadTickets = useCallback(async (filter: FilterKey, includeResolved: boolean) => {
+  const loadTickets = useCallback(async (filter: FilterKey, includeResolved: boolean, onlyMine: boolean) => {
     setLoadingTickets(true);
     setLoadError(null);
     try {
       const status = filter === 'high' ? undefined : filter;
       const urgency = filter === 'high' ? 'high' : undefined;
-      const [{ tickets: rows }, dashboard, kb] = await Promise.all([
+      const [{ tickets: rows }, dashboard] = await Promise.all([
         listStaffTickets({
           status,
           urgency,
           includeResolved: filter === 'resolved' ? undefined : includeResolved,
+          mineOnly: onlyMine,
         }),
         getStaffDashboard(),
-        listStaffKbArticles(),
       ]);
       setTickets(rows);
       setTodayAppointments(dashboard.todayAppointments);
-      setKbArticles(kb.articles.slice(0, 3));
       setSelectedId((prev) => {
         if (prev && rows.some((t) => t.id === prev)) return prev;
         return rows[0]?.id ?? null;
@@ -124,8 +121,8 @@ export function StaffDashboard() {
   }, [refreshShell]);
 
   useEffect(() => {
-    void loadTickets(activeFilter, !hideResolved);
-  }, [activeFilter, hideResolved, loadTickets]);
+    void loadTickets(activeFilter, !hideResolved, mineOnly);
+  }, [activeFilter, hideResolved, mineOnly, loadTickets]);
 
   useEffect(() => {
     const ticketParam = searchParams.get('ticket');
@@ -155,7 +152,7 @@ export function StaffDashboard() {
     if (!selected || isTicketClosed(selected)) return;
 
     function refreshConversation() {
-      void loadTickets(activeFilter, !hideResolved);
+      void loadTickets(activeFilter, !hideResolved, mineOnly);
     }
 
     const interval = window.setInterval(refreshConversation, 15000);
@@ -165,10 +162,10 @@ export function StaffDashboard() {
       window.clearInterval(interval);
       window.removeEventListener('focus', refreshConversation);
     };
-  }, [selected?.id, activeFilter, hideResolved, loadTickets]);
+  }, [selected?.id, activeFilter, hideResolved, mineOnly, loadTickets]);
 
   async function refreshAfterAction() {
-    await loadTickets(activeFilter, !hideResolved);
+    await loadTickets(activeFilter, !hideResolved, mineOnly);
   }
 
   async function handleTakeTicket() {
@@ -276,6 +273,14 @@ export function StaffDashboard() {
     time: ticket.time,
   }));
 
+  function handleExportTickets() {
+    if (filteredTickets.length === 0) {
+      window.alert('No tickets to export for the current filter.');
+      return;
+    }
+    exportStaffTicketsCsv(filteredTickets);
+  }
+
   return (
     <div className="staff-dashboard">
       <h2 className="staff-dashboard__sr-only">
@@ -296,7 +301,13 @@ export function StaffDashboard() {
 
             <div className="staff-dashboard__sb-staff-wrap">
               <div className="staff-dashboard__sb-staff">
-                <div className="staff-dashboard__sb-avatar">
+                <div
+                  className="staff-dashboard__sb-avatar"
+                  style={{
+                    background: profileTheme.bg,
+                    color: profileTheme.color,
+                  }}
+                >
                   {staffUser?.initials ?? '—'}
                 </div>
                 <div>
@@ -335,23 +346,6 @@ export function StaffDashboard() {
               )}
             </nav>
 
-            <div className="staff-dashboard__sb-dept staff-dashboard__sb-dept.system">
-              System
-            </div>
-            <div className="staff-dashboard__sb-system">
-              <button type="button" className="staff-dashboard__nav-item">
-                <IconSettings size={16} aria-hidden />
-                Settings
-              </button>
-              <button
-                type="button"
-                className="staff-dashboard__nav-item"
-                onClick={() => void handleLogout()}
-              >
-                <IconLogout size={16} aria-hidden />
-                Logout
-              </button>
-            </div>
             <div className="staff-dashboard__sb-spacer" />
           </aside>
 
@@ -361,24 +355,44 @@ export function StaffDashboard() {
                 {departmentLabel} — Dashboard
               </div>
               <div className="staff-dashboard__topbar-right">
-                <button type="button" className="staff-dashboard__tb-btn">
-                  <IconFilter size={14} aria-hidden />
-                  Filter
-                </button>
-                <button type="button" className="staff-dashboard__tb-btn">
+                <button
+                  type="button"
+                  className="staff-dashboard__tb-btn"
+                  onClick={handleExportTickets}
+                >
                   <IconDownload size={14} aria-hidden />
                   Export
                 </button>
                 <button
                   type="button"
                   className="staff-dashboard__tb-btn staff-dashboard__tb-btn-primary"
+                  onClick={() => setShowNewTicket(true)}
                 >
                   <IconPlus size={14} aria-hidden />
                   New ticket
                 </button>
-                <StaffNotifications />
+                {staffUser && (
+                  <StaffTopbar
+                    user={staffUser}
+                    profileTheme={profileTheme}
+                    onUserUpdated={updateStaffUser}
+                    onThemeUpdated={(theme) => updateProfileTheme(theme.id)}
+                  />
+                )}
               </div>
             </header>
+
+            {showNewTicket && staffUser?.department && (
+              <StaffNewTicketModal
+                open={showNewTicket}
+                department={staffUser.department}
+                onClose={() => setShowNewTicket(false)}
+                onCreated={(ticketId) => {
+                  setSelectedId(ticketId);
+                  void loadTickets(activeFilter, !hideResolved, mineOnly);
+                }}
+              />
+            )}
 
             {showReschedule && selected && staffUser?.department && (
               <StaffRescheduleModal
@@ -411,7 +425,7 @@ export function StaffDashboard() {
                     <button
                       type="button"
                       className="staff-dashboard__queue-refresh"
-                      onClick={() => void loadTickets(activeFilter, !hideResolved)}
+                      onClick={() => void loadTickets(activeFilter, !hideResolved, mineOnly)}
                       disabled={loadingTickets}
                       aria-label="Refresh tickets"
                     >
@@ -432,6 +446,13 @@ export function StaffDashboard() {
                       {label}
                     </button>
                   ))}
+                  <button
+                    type="button"
+                    className={`staff-dashboard__filter-chip${mineOnly ? ' active' : ''}`}
+                    onClick={() => setMineOnly((value) => !value)}
+                  >
+                    My tickets only
+                  </button>
                   {activeFilter !== 'resolved' && (
                     <button
                       type="button"
@@ -488,6 +509,13 @@ export function StaffDashboard() {
                             AI-triaged
                           </span>
                         )}
+                        {!mineOnly &&
+                          ticket.isTaken &&
+                          ticket.assignedStaffUserId !== staffUser?.id && (
+                            <span className="staff-dashboard__badge staff-dashboard__b-assigned">
+                              {ticket.info.assignedTo}
+                            </span>
+                          )}
                       </div>
                     </button>
                   ))}
@@ -726,10 +754,15 @@ export function StaffDashboard() {
                     </div>
 
                     <div className="staff-dashboard__section-sep">Staff notes</div>
+                    {!notes.trim() && selected.suggestedStaffNotes && (
+                      <p className="staff-dashboard__notes-hint">
+                        {selected.suggestedStaffNotes}
+                      </p>
+                    )}
                     <textarea
                       className="staff-dashboard__notes-area"
-                      rows={3}
-                      placeholder={`Add internal notes — visible only to ${departmentLabel} staff…`}
+                      rows={4}
+                      placeholder="Add internal notes for your department. Students cannot see these notes."
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
                       disabled={selectedClosed}
@@ -823,46 +856,6 @@ export function StaffDashboard() {
                           {appt.location ? ` · ${appt.location}` : ''}
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <div className="staff-dashboard__right-section-label">
-                    Knowledge base
-                  </div>
-                  <div className="staff-dashboard__kb-panel">
-                    {kbArticles.length === 0 && (
-                      <div className="staff-dashboard__kb-item">
-                        <div className="staff-dashboard__kb-text">
-                          No articles for your department yet.
-                        </div>
-                      </div>
-                    )}
-                    {kbArticles.map((article) => (
-                      <button
-                        key={article.id}
-                        type="button"
-                        className="staff-dashboard__kb-item"
-                        style={{
-                          border: 'none',
-                          background: 'transparent',
-                          width: '100%',
-                          textAlign: 'left',
-                          cursor: 'pointer',
-                        }}
-                        onClick={() => navigate('/staff/knowledge-base')}
-                      >
-                        <div className="staff-dashboard__kb-icon">
-                          <IconBook size={14} color="#2563eb" aria-hidden />
-                        </div>
-                        <div>
-                          <div className="staff-dashboard__kb-text">{article.title}</div>
-                          <div className="staff-dashboard__kb-tag">
-                            {article.readTime}
-                          </div>
-                        </div>
-                      </button>
                     ))}
                   </div>
                 </div>

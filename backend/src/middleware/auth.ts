@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 
 export function requireAuth(req: Request, res: Response, next: NextFunction) {
-  if (!req.session.userId) {
+  if (!req.session?.userId) {
     res.status(401).json({ error: 'Authentication required' });
     return;
   }
@@ -9,7 +9,7 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
 }
 
 export function getSessionUserId(req: Request): string {
-  const userId = req.session.userId;
+  const userId = req.session?.userId;
   if (!userId) {
     throw new Error('Session user id missing');
   }

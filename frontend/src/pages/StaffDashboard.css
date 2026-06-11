@@ -1,10 +1,12 @@
 .staff-dashboard {
-  min-height: 100vh;
+  height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
   background: #e2e8f0;
 }
 
 .staff-dashboard__outer {
-  overflow: hidden;
+  overflow: visible;
   background: #f0f2f5;
   border-radius: 12px;
   border: 1px solid #e2e8f0;
@@ -17,6 +19,7 @@
   display: flex;
   width: 1440px;
   height: 1024px;
+  min-height: 0;
   background: #f0f2f5;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: 13px;
@@ -172,6 +175,8 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .staff-dashboard__topbar {
@@ -226,6 +231,60 @@
   background: #0f2a52;
 }
 
+.staff-dashboard__tb-btn-active {
+  border-color: #93c5fd;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.staff-dashboard__filter-menu-wrap {
+  position: relative;
+}
+
+.staff-dashboard__filter-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 20;
+  min-width: 220px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(15, 42, 82, 0.12);
+  padding: 8px;
+}
+
+.staff-dashboard__filter-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  color: #374151;
+  text-align: left;
+}
+
+.staff-dashboard__filter-menu-item:hover {
+  background: #f8fafc;
+}
+
+.staff-dashboard__filter-menu-item.active {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.staff-dashboard__b-assigned {
+  background: #f3e8ff;
+  color: #7e22ce;
+}
+
 .staff-dashboard__tb-icon {
   width: 32px;
   height: 32px;
@@ -259,6 +318,7 @@
   flex: 1;
   display: flex;
   gap: 0;
+  min-height: 0;
   overflow: hidden;
 }
 
@@ -269,6 +329,8 @@
   border-right: 1px solid #e5e7eb;
   display: flex;
   flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .staff-dashboard__queue-header {
@@ -361,7 +423,11 @@
 
 .staff-dashboard__ticket-list {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 .staff-dashboard__ticket-item {
@@ -482,12 +548,17 @@
   flex-direction: column;
   overflow: hidden;
   min-width: 0;
+  min-height: 0;
 }
 
 .staff-dashboard__ticket-detail {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 20px 22px;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 .staff-dashboard__detail-header {
@@ -845,10 +916,22 @@
   font-size: 12px;
   font-family: inherit;
   color: #374151;
-  resize: none;
+  resize: vertical;
   background: #fafafa;
   outline: none;
   line-height: 1.5;
+}
+
+.staff-dashboard__notes-hint {
+  margin: 0 0 8px;
+  padding: 10px 12px;
+  border: 1px dashed #dbeafe;
+  border-radius: 8px;
+  background: #f8fbff;
+  font-size: 12px;
+  color: #374151;
+  line-height: 1.5;
+  white-space: pre-wrap;
 }
 
 .staff-dashboard__right-col {
@@ -860,7 +943,11 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  min-height: 0;
   overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 .staff-dashboard__stat-grid {
@@ -1113,7 +1200,8 @@
   .staff-dashboard__queue-col {
     width: 100%;
     min-width: 0;
-    max-height: 360px;
+    max-height: none;
+    min-height: 280px;
   }
 
   .staff-dashboard__right-col {

@@ -116,6 +116,7 @@
   border-bottom: 1px solid #e2e8f0;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 0 24px;
   gap: 8px;
   flex-shrink: 0;
@@ -316,6 +317,16 @@
   background: #fef2f2;
   border-color: #fecaca;
   color: #991b1b;
+}
+
+.student-ticket-detail__btn-success {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #166534;
+}
+
+.student-ticket-detail__btn-success:hover {
+  background: #dcfce7;
 }
 
 .student-ticket-detail__notif-pill {

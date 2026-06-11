@@ -15,6 +15,10 @@ export function useShellScale({
   const shellRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
     const outerEl = outerRef.current;
     const shellEl = shellRef.current;
     if (!outerEl || !shellEl) return;
@@ -22,14 +26,19 @@ export function useShellScale({
     const scale = () => {
       if (window.innerWidth <= mobileBreakpoint) {
         shellEl.style.transform = '';
+        shellEl.style.marginBottom = '';
         outerEl.style.height = '';
+        outerEl.style.minHeight = '';
         return;
       }
 
       const w = outerEl.clientWidth || 680;
       const s = Math.min(w / designWidth, 1);
       shellEl.style.transform = `scale(${s})`;
-      outerEl.style.height = `${Math.round(designHeight * s)}px`;
+      outerEl.style.height = '';
+      outerEl.style.minHeight = `${Math.round(designHeight * s)}px`;
+      shellEl.style.marginBottom =
+        s < 1 ? `${Math.round(designHeight * (s - 1))}px` : '';
     };
 
     scale();

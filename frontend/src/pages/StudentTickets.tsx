@@ -2,19 +2,15 @@ import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   IconBuildingCommunity,
-  IconLogout,
   IconPlus,
   IconRefresh,
-  IconSettings,
   IconTicket,
   IconTrash,
 } from '@tabler/icons-react';
 import {
   deleteTicket,
-  getHoldSummary,
   getMe,
   listTickets,
-  logout,
   type TicketSummary,
   type User,
 } from '../api/client';
@@ -40,7 +36,6 @@ export function StudentTickets() {
   const { outerRef, shellRef } = useShellScale();
   const [user, setUser] = useState<User | null>(null);
   const [tickets, setTickets] = useState<TicketSummary[]>([]);
-  const [holdsCount, setHoldsCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState<StatusFilter>('all');
@@ -49,21 +44,16 @@ export function StudentTickets() {
     null,
   );
 
-  const navItems = getStudentNavItems(location.pathname, { holdsCount });
+  const navItems = getStudentNavItems(location.pathname);
 
   async function loadTickets(silent = false) {
     if (!silent) {
       setRefreshing(true);
     }
     try {
-      const [me, ticketData, holdsData] = await Promise.all([
-        getMe(),
-        listTickets(),
-        getHoldSummary(),
-      ]);
+      const [me, ticketData] = await Promise.all([getMe(), listTickets()]);
       setUser(me.user);
       setTickets(ticketData.tickets);
-      setHoldsCount(holdsData.summary.activeCount);
     } catch {
       if (!silent) {
         navigate('/login');
@@ -144,15 +134,6 @@ export function StudentTickets() {
     }
   }
 
-  async function handleLogout() {
-    try {
-      await logout();
-    } catch {
-      // Still return to login if logout fails.
-    }
-    navigate('/login');
-  }
-
   if (!user && loading) {
     return null;
   }
@@ -193,21 +174,6 @@ export function StudentTickets() {
                 </button>
               ))}
             </nav>
-
-            <div className="student-ticket-detail__sb-footer">
-              <button type="button" className="student-ticket-detail__nav-item">
-                <IconSettings size={17} aria-hidden />
-                Settings
-              </button>
-              <button
-                type="button"
-                className="student-ticket-detail__nav-item"
-                onClick={handleLogout}
-              >
-                <IconLogout size={17} aria-hidden />
-                Logout
-              </button>
-            </div>
           </aside>
 
           <div className="student-ticket-detail__main">

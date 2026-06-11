@@ -10,10 +10,8 @@ import {
   IconChevronRight,
   IconClock,
   IconFilter,
-  IconLogout,
   IconMapPin,
   IconPlus,
-  IconSettings,
   IconTrash,
   IconUser,
   IconX,
@@ -24,11 +22,9 @@ import {
   deleteAppointment,
   getAppointmentAvailability,
   getAppointmentSummary,
-  getHoldSummary,
   getMe,
   listAppointmentDepartments,
   listAppointments,
-  logout,
   rescheduleAppointment,
   userInitials,
   type AppointmentDepartment,
@@ -37,7 +33,7 @@ import {
   type DepartmentAvailability,
   type User,
 } from '../api/client';
-import { DEMO_TODAY, isBeforeDemoToday } from '../config/demoDate';
+import { getTodayParts, isBeforeToday } from '../config/demoDate';
 import { getStudentNavItems } from '../config/studentNav';
 import { urgencyLabelAppointmentBadgeClass } from '../utils/ticketDisplay';
 import { useShellScale } from '../hooks/useShellScale';
@@ -51,17 +47,15 @@ import {
 } from '../utils/calendar';
 import './StudentAppointments.css';
 
-const TODAY: CalendarDay = {
-  year: DEMO_TODAY.year,
-  month: DEMO_TODAY.month,
-  day: DEMO_TODAY.day,
-  otherMonth: false,
-};
+function todayCalendarDay(): CalendarDay {
+  const t = getTodayParts();
+  return { year: t.year, month: t.month, day: t.day, otherMonth: false };
+}
 
-const DEFAULT_VIEW_MONTH = {
-  year: DEMO_TODAY.year,
-  month: DEMO_TODAY.month,
-};
+const DEFAULT_VIEW_MONTH = (() => {
+  const t = getTodayParts();
+  return { year: t.year, month: t.month };
+})();
 
 type StatusFilter = 'all' | 'upcoming' | 'completed';
 
@@ -82,7 +76,7 @@ function AppointmentSlotPicker({
 }: SlotPickerProps) {
   const initial = initialStartsAt
     ? new Date(initialStartsAt)
-    : new Date(DEMO_TODAY.year, DEMO_TODAY.month, DEMO_TODAY.day);
+    : new Date();
   const [pickerMonth, setPickerMonth] = useState({
     year: initial.getFullYear(),
     month: initial.getMonth(),
@@ -206,7 +200,7 @@ function AppointmentSlotPicker({
             ))}
             {calendarDays.map((cell, index) => {
               const hasSlots = availableDayKeys.has(dayKey(cell));
-              const isPast = isBeforeDemoToday(cell);
+              const isPast = isBeforeToday(cell);
               const isSelectable = hasSlots && !isPast;
               const isSelected =
                 pickerDay !== null && sameCalendarDay(cell, pickerDay);
@@ -268,8 +262,7 @@ function AppointmentSlotPicker({
 export function StudentAppointments() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [holdsCount, setHoldsCount] = useState(0);
-  const navItems = getStudentNavItems(location.pathname, { holdsCount });
+  const navItems = getStudentNavItems(location.pathname);
   const { outerRef, shellRef } = useShellScale();
   const filterRef = useRef<HTMLDivElement>(null);
 
@@ -323,7 +316,7 @@ export function StudentAppointments() {
         listParams.month = selectedDay.month;
       }
 
-      const [me, appointmentData, monthData, summaryData, departmentData, holdsData] =
+      const [me, appointmentData, monthData, summaryData, departmentData] =
         await Promise.all([
           getMe(),
           listAppointments(listParams),
@@ -334,7 +327,6 @@ export function StudentAppointments() {
           }),
           getAppointmentSummary(),
           listAppointmentDepartments(),
-          getHoldSummary(),
         ]);
 
       setUser(me.user);
@@ -342,7 +334,6 @@ export function StudentAppointments() {
       setMonthAppointments(monthData.appointments);
       setSummary(summaryData.summary);
       setDepartments(departmentData.departments);
-      setHoldsCount(holdsData.summary.activeCount);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'Failed to load appointments';
@@ -373,10 +364,13 @@ export function StudentAppointments() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const today = todayCalendarDay();
+
   const calendarDays = buildCalendarGrid(viewMonth.year, viewMonth.month);
   const eventDayKeys = new Set<string>();
 
   for (const appt of monthAppointments) {
+    if (appt.status === 'cancelled' || appt.status === 'completed') continue;
     const date = new Date(appt.scheduledAt);
     eventDayKeys.add(
       dayKey({
@@ -400,15 +394,6 @@ export function StudentAppointments() {
       : selectedDay
         ? `Appointments on ${formatSelectedDayLabel(selectedDay)}`
         : 'Upcoming appointments';
-
-  async function handleLogout() {
-    try {
-      await logout();
-    } catch {
-      // Still return to login if logout fails.
-    }
-    navigate('/login');
-  }
 
   function scrollToAppointment(id: string) {
     document.getElementById(`appt-${id}`)?.scrollIntoView({ behavior: 'smooth' });
@@ -576,21 +561,6 @@ export function StudentAppointments() {
                 </button>
               ))}
             </nav>
-
-            <div className="student-appointments__sb-footer">
-              <button type="button" className="student-appointments__nav-item">
-                <IconSettings size={17} aria-hidden />
-                Settings
-              </button>
-              <button
-                type="button"
-                className="student-appointments__nav-item"
-                onClick={handleLogout}
-              >
-                <IconLogout size={17} aria-hidden />
-                Logout
-              </button>
-            </div>
           </aside>
 
           <div className="student-appointments__main">
@@ -707,7 +677,7 @@ export function StudentAppointments() {
                     </div>
                   ))}
                   {calendarDays.map((cell, i) => {
-                    const isToday = sameCalendarDay(cell, TODAY);
+                    const isToday = sameCalendarDay(cell, today);
                     const isSelected =
                       selectedDay !== null && sameCalendarDay(cell, selectedDay);
                     const hasEvent = eventDayKeys.has(dayKey(cell));

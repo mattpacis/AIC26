@@ -65,7 +65,7 @@ authRouter.post('/login', async (req, res, next) => {
     const { email, password } = loginSchema.parse(req.body);
     const user = await login(email, password);
 
-    req.session.userId = user.id;
+    req.session!.userId = user.id;
 
     await logAction(user.id, 'auth.login', { email: user.email });
 
@@ -171,7 +171,7 @@ authRouter.get('/microsoft/callback', async (req, res, next) => {
 });
 
 authRouter.post('/logout', async (req, res) => {
-  const userId = req.session.userId;
+  const userId = req.session?.userId;
   req.session = null;
 
   if (userId) {

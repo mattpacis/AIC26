@@ -17,7 +17,9 @@ import {
 import { logAction } from './actionLogService.js';
 import {
   buildAiCreatedTrackSteps,
+  createTicket,
   mergeDetailPayload,
+  resolveTicketDisplayStatus,
   serializeTicketDetail,
   serializeTicketReplies,
 } from './ticketService.js';
@@ -145,26 +147,28 @@ function buildStudentTags(
 }
 
 function buildSuggestedSteps(ticket: Ticket, detail: Record<string, unknown> | null) {
-  const trackSteps = Array.isArray(detail?.trackSteps) ? detail.trackSteps : [];
-  if (trackSteps.length > 0) {
-    return trackSteps
-      .filter((step) => typeof step === 'object' && step !== null)
-      .map((step) => {
-        const record = step as Record<string, unknown>;
-        const label = typeof record.label === 'string' ? record.label : 'Step';
-        const sub = typeof record.sub === 'string' ? record.sub : undefined;
-        return {
-          text: sub ? `${label} — ${sub}` : label,
-          tag: record.state === 'active' ? 'current' : undefined,
-        };
-      });
+  const aiUpdates = Array.isArray(detail?.aiUpdates) ? detail.aiUpdates : [];
+  if (aiUpdates.length > 0) {
+    const first = aiUpdates[0] as Record<string, unknown>;
+    if (typeof first.body === 'string' && first.body.trim()) {
+      return [{ text: first.body.trim(), tag: 'AI triage' }];
+    }
   }
 
   return [
     { text: `Review ticket concern: ${ticket.concern}` },
-    { text: `Contact student via Campus360 if more information is needed` },
-    { text: `Update ticket status when resolved` },
+    { text: 'Contact the student via Campus360 if more information is needed' },
+    { text: 'Mark the ticket resolved once the issue is fully addressed' },
   ];
+}
+
+function buildSuggestedStaffNotes(ticket: Ticket) {
+  return [
+    `Student concern: ${ticket.concern}`,
+    `Department: ${ticket.department}`,
+    'Recommended next action: Review ticket details, contact the student if needed, and mark resolved when complete.',
+    'These notes are internal and not visible to students.',
+  ].join('\n');
 }
 
 function buildAiSummary(ticket: Ticket, detail: Record<string, unknown> | null) {
@@ -217,6 +221,10 @@ export function serializeStaffQueueTicket(
       ? `Scheduled · ${formatShortDate(ticket.scheduledDate)}`
       : undefined;
 
+  const display = resolveTicketDisplayStatus(ticket);
+  const staffStatus =
+    display.status === 'pending' ? 'sched' : display.status;
+
   return {
     id: `#${ticket.ticketNumber}`,
     ticketNumber: ticket.ticketNumber,
@@ -224,8 +232,8 @@ export function serializeStaffQueueTicket(
     concern: ticket.concern,
     studentName: ticket.studentUser.name,
     studentEmail: ticket.studentUser.email,
-    status: STAFF_STATUS_API[ticket.status],
-    statusLabel: STAFF_STATUS_LABELS[ticket.status],
+    status: staffStatus,
+    statusLabel: display.statusLabel,
     urgency: URGENCY_API[ticket.urgency],
     urgencyLabel: URGENCY_LABELS[ticket.urgency],
     aiTriaged: Array.isArray(detail?.aiUpdates) && detail.aiUpdates.length > 0,
@@ -253,6 +261,7 @@ export function serializeStaffQueueTicket(
       assignedTo: ticket.assignedTo ?? 'Unassigned',
     },
     steps: buildSuggestedSteps(ticket, detail),
+    suggestedStaffNotes: buildSuggestedStaffNotes(ticket),
     replies: serializeTicketReplies(ticket.replies ?? []),
   };
 }
@@ -263,6 +272,7 @@ export type StaffQueueFilters = {
   department?: string;
   limit?: number;
   includeResolved?: boolean;
+  mineOnly?: boolean;
 };
 
 const STATUS_FILTER_MAP: Record<string, TicketStatus> = {
@@ -291,7 +301,12 @@ export async function listStaffQueueTickets(
     status?: TicketStatus | { not: TicketStatus };
     urgency?: TicketUrgency;
     department?: string;
+    assignedStaffUserId?: string;
   } = { schoolId: ctx.schoolId };
+
+  if (filters.mineOnly) {
+    where.assignedStaffUserId = ctx.userId;
+  }
 
   if (filters.status && filters.status !== 'all') {
     const mapped = STATUS_FILTER_MAP[filters.status];
@@ -748,4 +763,33 @@ export async function updateStaffTicket(
       appointmentId,
     ),
   };
+}
+
+export type CreateStaffTicketInput = {
+  studentUserId: string;
+  concern: string;
+  description?: string;
+  urgency?: TicketUrgency;
+};
+
+export async function createStaffTicket(
+  ctx: AuthContext,
+  input: CreateStaffTicketInput,
+) {
+  assertCanUpdateTicket(ctx);
+
+  if (!ctx.department) {
+    throw new AppError(400, 'Your staff account is not assigned to a department');
+  }
+
+  const created = await createTicket(ctx, {
+    studentUserId: input.studentUserId,
+    concern: input.concern,
+    description: input.description,
+    department: ctx.department,
+    urgency: input.urgency,
+  });
+
+  const result = await takeStaffTicket(ctx, created.ticketNumber);
+  return result.queue;
 }

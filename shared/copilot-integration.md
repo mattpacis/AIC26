@@ -96,7 +96,7 @@ Until Microsoft is configured, the app runs in **`dev_bridge`** mode (live data,
 - [ ] Conversation design (greeting, clarifying questions, confirmations).
 - [ ] Topic/skill map (§4) implemented in Copilot Studio.
 - [ ] Tool **intents** — when to call `create_ticket` vs `list_appointments`, etc.
-- [ ] **Confirmation UX** before destructive or important writes (cancel ticket, book slot).
+- [ ] **Confirmation UX** before important writes (resolve ticket, book slot).
 - [ ] **Failure copy** when API returns 4xx/5xx (user-friendly, no stack traces).
 - [ ] **Out-of-scope** handling (medical advice, legal advice, grades not in API → defer to office).
 - [ ] Test scripts / evaluation sets (sample student utterances → expected tool or reply).
@@ -187,7 +187,7 @@ The backend builds `AuthContext` from these headers — same permission rules as
 |-----------|----------------|-------|
 | `create_ticket` | `POST /api/tickets` | Needs `concern`, `department`; optional `description`, `urgency` |
 | `add_ticket_reply` | `POST /api/tickets/:ticketNumber/replies` | Body: `{ "content": "..." }` |
-| `cancel_ticket` | `POST /api/tickets/:ticketNumber/cancel` | Student’s own open tickets only |
+| `resolve_ticket` | `POST /api/tickets/:ticketNumber/resolve` | Student’s own open tickets only |
 | `request_appointment` | `POST /api/appointments` | `scheduledAt` must be an available slot |
 | `reschedule_appointment` | `PATCH /api/appointments/:id/reschedule` | Same slot rules |
 | `cancel_appointment` | `PATCH /api/appointments/:id/cancel` | |
@@ -342,7 +342,7 @@ For Copilot Studio connectors, the app team will provide an **agent API key** th
 - [ ] Creating a ticket returns a real `ticketNumber` from API (not fabricated).
 - [ ] Booking offers only `get_availability` slots.
 - [ ] Hold questions call `list_holds` — amounts match API.
-- [ ] After “cancel my ticket”, agent confirms and calls `cancel_ticket`.
+- [ ] After “resolve my ticket”, agent confirms and calls `resolve_ticket`.
 - [ ] Staff-only actions are refused for student role.
 - [ ] Errors from API are shown honestly.
 

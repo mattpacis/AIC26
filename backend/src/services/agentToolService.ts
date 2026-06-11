@@ -15,18 +15,17 @@ import {
   listAppointments,
   rescheduleAppointment,
 } from './appointmentService.js';
-import { getHoldSummary, listHolds } from './holdService.js';
 import {
   createNotification,
   listNotifications,
 } from './notificationService.js';
-import { DEMO_TODAY } from '../lib/demoDate.js';
+import { normalizeTicketDepartmentLabel } from '../lib/departments.js';
 import {
   addTicketReply,
-  cancelTicket,
   createTicket,
   getTicketByNumber,
   listTickets,
+  resolveTicket,
 } from './ticketService.js';
 
 const READ_TOOLS = new Set([
@@ -37,7 +36,6 @@ const READ_TOOLS = new Set([
   'list_appointments',
   'get_appointment_summary',
   'get_availability',
-  'list_holds',
   'list_departments',
   'list_notifications',
 ]);
@@ -45,7 +43,7 @@ const READ_TOOLS = new Set([
 const WRITE_TOOLS = new Set([
   'create_ticket',
   'add_ticket_reply',
-  'cancel_ticket',
+  'resolve_ticket',
   'request_appointment',
   'reschedule_appointment',
   'cancel_appointment',
@@ -80,13 +78,14 @@ function optionalString(value: unknown) {
 }
 
 function readDepartment(body: Record<string, unknown>, query?: Record<string, unknown>) {
-  return (
+  const raw =
     optionalString(body.department) ??
     optionalString(body.department_availability) ??
     optionalString(body.departmentName) ??
     optionalString(query?.department) ??
-    optionalString(query?.department_availability)
-  );
+    optionalString(query?.department_availability);
+
+  return raw ? normalizeTicketDepartmentLabel(raw) : undefined;
 }
 
 function queryString(query: Record<string, unknown> | undefined, key: string) {
@@ -135,7 +134,7 @@ function resolveAgentAvailabilityMonth(
     queryNumber(body, 'month');
 
   if (calendarMonth === undefined) {
-    return DEMO_TODAY.month;
+    return new Date().getMonth();
   }
 
   if (calendarMonth >= 1 && calendarMonth <= 12) {
@@ -219,7 +218,7 @@ export async function executeAgentTool(
   if (!ALLOWED_TOOLS.has(normalizedToolName)) {
     throw new AppError(
       404,
-      `Unknown agent tool: ${toolName}. Use underscore names like create_ticket, list_holds.`,
+      `Unknown agent tool: ${toolName}. Use underscore names like create_ticket, get_availability.`,
     );
   }
 
@@ -270,9 +269,9 @@ export async function executeAgentTool(
         ),
       };
       break;
-    case 'cancel_ticket':
+    case 'resolve_ticket':
       result = {
-        ticket: await cancelTicket(
+        ticket: await resolveTicket(
           ctx,
           asString(body.ticketNumber ?? query.ticketNumber, 'ticketNumber'),
         ),
@@ -311,7 +310,7 @@ export async function executeAgentTool(
           year:
             queryNumber(query, 'year') ??
             queryNumber(body, 'year') ??
-            DEMO_TODAY.year,
+            new Date().getFullYear(),
           month: monthIndex,
           day: queryNumber(query, 'day') ?? queryNumber(body, 'day'),
           excludeAppointmentId:
@@ -321,9 +320,6 @@ export async function executeAgentTool(
       };
       break;
     }
-    case 'list_holds':
-      result = { holds: await listHolds(ctx), summary: await getHoldSummary(ctx) };
-      break;
     case 'list_notifications':
       result = await listNotifications(ctx);
       break;

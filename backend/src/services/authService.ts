@@ -121,29 +121,42 @@ export async function updateUserProfile(userId: string, name: string) {
 }
 
 export async function deleteUserAccount(userId: string) {
+  const studentTicketIds = (
+    await prisma.ticket.findMany({
+      where: { studentUserId: userId },
+      select: { id: true },
+    })
+  ).map((ticket) => ticket.id);
+
   const threads = await prisma.chatThread.findMany({
     where: { userId },
     select: { id: true },
   });
   const threadIds = threads.map((thread) => thread.id);
 
-  if (threadIds.length > 0) {
-    await prisma.chatMessage.deleteMany({
-      where: { threadId: { in: threadIds } },
-    });
-  }
+  await prisma.$transaction(async (tx) => {
+    if (threadIds.length > 0) {
+      await tx.chatMessage.deleteMany({
+        where: { threadId: { in: threadIds } },
+      });
+    }
 
-  await prisma.$transaction([
-    prisma.ticketReply.deleteMany({ where: { authorUserId: userId } }),
-    prisma.ticket.deleteMany({ where: { studentUserId: userId } }),
-    prisma.appointment.deleteMany({ where: { studentUserId: userId } }),
-    prisma.studentHold.deleteMany({ where: { studentUserId: userId } }),
-    prisma.notification.deleteMany({ where: { userId } }),
-    prisma.actionLog.deleteMany({ where: { userId } }),
-    prisma.chatThread.deleteMany({ where: { userId } }),
-    prisma.student.deleteMany({ where: { userId } }),
-    prisma.user.delete({ where: { id: userId } }),
-  ]);
+    if (studentTicketIds.length > 0) {
+      await tx.ticketReply.deleteMany({
+        where: { ticketId: { in: studentTicketIds } },
+      });
+    }
+
+    await tx.ticketReply.deleteMany({ where: { authorUserId: userId } });
+    await tx.ticket.deleteMany({ where: { studentUserId: userId } });
+    await tx.appointment.deleteMany({ where: { studentUserId: userId } });
+    await tx.studentHold.deleteMany({ where: { studentUserId: userId } });
+    await tx.notification.deleteMany({ where: { userId } });
+    await tx.actionLog.deleteMany({ where: { userId } });
+    await tx.chatThread.deleteMany({ where: { userId } });
+    await tx.student.deleteMany({ where: { userId } });
+    await tx.user.delete({ where: { id: userId } });
+  });
 }
 
 export function toPublicUser(user: NonNullable<Awaited<ReturnType<typeof getUserById>>>) {

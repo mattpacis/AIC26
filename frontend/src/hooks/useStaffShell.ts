@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { TablerIcon } from '@tabler/icons-react';
 import {
-  IconBook,
+  IconAddressBook,
   IconCalendarEvent,
   IconChartBar,
   IconLayoutDashboard,
@@ -10,10 +10,16 @@ import {
 } from '@tabler/icons-react';
 import {
   getStaffDashboard,
+  getUserSettings,
   logout,
   type StaffDashboardSummary,
   type StaffDashboardUser,
 } from '../api/client';
+import {
+  getProfileTheme,
+  type ProfileTheme,
+  type ProfileThemeId,
+} from '../utils/profileTheme';
 
 export type StaffNavItem = {
   label: string;
@@ -50,10 +56,10 @@ function buildNav(
       active: pathname === '/staff/students',
     },
     {
-      label: 'Knowledge Base',
-      icon: IconBook,
-      path: '/staff/knowledge-base',
-      active: pathname === '/staff/knowledge-base',
+      label: 'Directory',
+      icon: IconAddressBook,
+      path: '/staff/directory',
+      active: pathname === '/staff/directory',
     },
     {
       label: 'Analytics',
@@ -69,14 +75,25 @@ export function useStaffShell() {
   const { pathname } = useLocation();
   const [staffUser, setStaffUser] = useState<StaffDashboardUser | null>(null);
   const [summary, setSummary] = useState<StaffDashboardSummary | null>(null);
+  const [profileTheme, setProfileTheme] = useState<ProfileTheme>(
+    getProfileTheme('blue'),
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
   const loadShell = useCallback(async () => {
     try {
-      const data = await getStaffDashboard();
+      const [data, settingsData] = await Promise.all([
+        getStaffDashboard(),
+        getUserSettings(),
+      ]);
       setStaffUser(data.user);
       setSummary(data.summary);
+      setProfileTheme(getProfileTheme(settingsData.settings.profileTheme));
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load staff session');
@@ -90,21 +107,35 @@ export function useStaffShell() {
     void loadShell();
   }, [loadShell]);
 
+  const navItems = buildNav(pathname, summary);
+
   async function handleLogout() {
     try {
       await logout();
-    } finally {
-      navigate('/login');
+    } catch {
+      // Still send the user back to login if logout fails.
     }
+    navigate('/login');
+  }
+
+  function updateProfileTheme(themeId: ProfileThemeId) {
+    setProfileTheme(getProfileTheme(themeId));
+  }
+
+  function updateStaffUser(user: StaffDashboardUser) {
+    setStaffUser(user);
   }
 
   return {
     staffUser,
     summary,
+    navItems,
+    profileTheme,
     loading,
     error,
-    navItems: buildNav(pathname, summary),
     handleLogout,
     refreshShell: loadShell,
+    updateProfileTheme,
+    updateStaffUser,
   };
 }

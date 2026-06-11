@@ -7,22 +7,17 @@ import {
   IconChevronRight,
   IconClock,
   IconHeartRateMonitor,
-  IconLogout,
   IconMapPin,
   IconMessage,
   IconMessageChatbot,
   IconRobot,
   IconSend,
-  IconSettings,
-  IconX,
 } from '@tabler/icons-react';
 import {
   addTicketReply,
-  cancelTicket,
-  getHoldSummary,
   getMe,
   getTicket,
-  logout,
+  resolveTicket,
   userInitials,
   type TicketDetail,
   type User,
@@ -46,14 +41,13 @@ export function StudentTicketDetail() {
 
   const [user, setUser] = useState<User | null>(null);
   const [ticket, setTicket] = useState<TicketDetail | null>(null);
-  const [holdsCount, setHoldsCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reply, setReply] = useState('');
   const [sending, setSending] = useState(false);
-  const [cancelling, setCancelling] = useState(false);
+  const [resolving, setResolving] = useState(false);
 
-  const navItems = getStudentNavItems(location.pathname, { holdsCount });
+  const navItems = getStudentNavItems(location.pathname);
 
   useEffect(() => {
     let cancelled = false;
@@ -70,15 +64,10 @@ export function StudentTicketDetail() {
       }
 
       try {
-        const [me, ticketData, holdsData] = await Promise.all([
-          getMe(),
-          getTicket(ticketId),
-          getHoldSummary(),
-        ]);
+        const [me, ticketData] = await Promise.all([getMe(), getTicket(ticketId)]);
         if (cancelled) return;
         setUser(me.user);
         setTicket(ticketData.ticket);
-        setHoldsCount(holdsData.summary.activeCount);
         setError(null);
       } catch (err) {
         if (!cancelled) {
@@ -118,15 +107,6 @@ export function StudentTicketDetail() {
       window.removeEventListener('focus', handleFocus);
     };
   }, [navigate, ticketId]);
-
-  async function handleLogout() {
-    try {
-      await logout();
-    } catch {
-      // Still return to login if logout fails.
-    }
-    navigate('/login');
-  }
 
   if (loading) {
     return null;
@@ -171,23 +151,23 @@ export function StudentTicketDetail() {
     replySectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  async function handleCancelTicket() {
-    if (!ticketId || !ticket?.canCancel || cancelling) return;
+  async function handleResolveTicket() {
+    if (!ticketId || !ticket?.canResolve || resolving) return;
 
     const confirmed = window.confirm(
-      `Cancel ticket ${ticket.id}? This cannot be undone.`,
+      `Mark ticket ${ticket.id} as resolved? You will not be able to send follow-ups after this.`,
     );
     if (!confirmed) return;
 
-    setCancelling(true);
+    setResolving(true);
     setError(null);
     try {
-      const { ticket: updated } = await cancelTicket(ticketId);
+      const { ticket: updated } = await resolveTicket(ticketId);
       setTicket(updated);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to cancel ticket');
+      setError(err instanceof Error ? err.message : 'Failed to resolve ticket');
     } finally {
-      setCancelling(false);
+      setResolving(false);
     }
   }
 
@@ -228,21 +208,6 @@ export function StudentTicketDetail() {
                 </button>
               ))}
             </nav>
-
-            <div className="student-ticket-detail__sb-footer">
-              <button type="button" className="student-ticket-detail__nav-item">
-                <IconSettings size={17} aria-hidden />
-                Settings
-              </button>
-              <button
-                type="button"
-                className="student-ticket-detail__nav-item"
-                onClick={handleLogout}
-              >
-                <IconLogout size={17} aria-hidden />
-                Logout
-              </button>
-            </div>
           </aside>
 
           <div className="student-ticket-detail__main">
@@ -316,23 +281,18 @@ export function StudentTicketDetail() {
                       <IconMessage size={13} aria-hidden />
                       Follow up
                     </button>
-                    {ticket.canCancel && (
+                    {ticket.canResolve && (
                       <button
                         type="button"
-                        className="student-ticket-detail__btn student-ticket-detail__btn-danger"
-                        onClick={() => void handleCancelTicket()}
-                        disabled={cancelling}
+                        className="student-ticket-detail__btn student-ticket-detail__btn-success"
+                        onClick={() => void handleResolveTicket()}
+                        disabled={resolving}
                       >
-                        <IconX size={13} aria-hidden />
-                        {cancelling ? 'Cancelling…' : 'Cancel ticket'}
+                        <IconCheck size={13} aria-hidden />
+                        {resolving ? 'Resolving…' : 'Mark resolved'}
                       </button>
                     )}
                   </div>
-                </div>
-
-                <div className="student-ticket-detail__notif-pill">
-                  <IconCheck size={14} aria-hidden />
-                  {ticket.confirmation}
                 </div>
 
                 <div className="student-ticket-detail__card">
@@ -507,8 +467,10 @@ export function StudentTicketDetail() {
                       <div className="student-ticket-detail__reply-actions">
                         <span className="student-ticket-detail__reply-hint">
                           {ticket.canReply
-                            ? `Your message will be seen by ${ticket.assignedTo}. Enter to send, Shift+Enter for a new line.`
-                            : `Messaging opens after ${ticket.department} staff takes your ticket`}
+                            ? ticket.isTaken
+                              ? `Your message will be seen by ${ticket.assignedTo}. Enter to send, Shift+Enter for a new line.`
+                              : `Your message will be sent to ${ticket.department}. Staff will respond when available. Enter to send, Shift+Enter for a new line.`
+                            : 'This ticket is resolved. Messaging is closed.'}
                         </span>
                         <button
                           type="submit"

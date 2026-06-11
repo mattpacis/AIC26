@@ -62,15 +62,15 @@ export function assertCanReplyToTicket(
     throw new AppError(400, 'Cannot reply to a closed ticket');
   }
 
+  if (ctx.role === 'STUDENT') {
+    return;
+  }
+
   if (!ticket.assignedStaffUserId) {
     throw new AppError(
       403,
-      'Messaging is available after a staff member takes this ticket',
+      'Take this ticket before replying to the student',
     );
-  }
-
-  if (ctx.role === 'STUDENT') {
-    return;
   }
 
   assertStaffDepartmentAccess(ctx, ticket.department);
@@ -120,18 +120,18 @@ export function assertCanUpdateTicket(ctx: AuthContext) {
   assertStaff(ctx);
 }
 
-export function assertCanCancelTicket(
+export function assertCanResolveTicket(
   ctx: AuthContext,
   ticket: { studentUserId: string; schoolId: string; status: string },
 ) {
   assertCanViewTicket(ctx, ticket);
 
   if (ctx.role !== 'STUDENT') {
-    throw new AppError(403, 'Only students can cancel tickets from this endpoint');
+    throw new AppError(403, 'Only students can resolve tickets from this endpoint');
   }
 
   if (ticket.status === 'RESOLVED') {
-    throw new AppError(400, 'This ticket is already closed');
+    throw new AppError(400, 'This ticket is already resolved');
   }
 }
 

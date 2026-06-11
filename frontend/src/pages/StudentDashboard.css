@@ -1,10 +1,12 @@
 .student-dashboard {
-  min-height: 100vh;
+  height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
   background: #e2e8f0;
 }
 
 .student-dashboard__outer {
-  overflow: hidden;
+  overflow: visible;
   background: #eef2f7;
   border-radius: 12px;
   border: 1px solid #e2e8f0;
@@ -22,6 +24,7 @@
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: 13px;
   color: #111827;
+  min-height: 0;
 }
 
 .student-dashboard__sidebar {
@@ -113,6 +116,8 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  min-height: 0;
+  min-width: 0;
 }
 
 .student-dashboard__topbar {
@@ -127,9 +132,10 @@
 }
 
 .student-dashboard__topbar-left {
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 18px;
+  font-weight: 700;
   color: #1b3a6b;
+  letter-spacing: -0.01em;
 }
 
 .student-dashboard__topbar-right {
@@ -206,6 +212,7 @@
   display: flex;
   gap: 0;
   overflow: hidden;
+  min-height: 0;
 }
 
 .student-dashboard__center-col {
@@ -214,7 +221,24 @@
   flex-direction: column;
   padding: 20px 20px 20px 24px;
   gap: 16px;
+  min-height: 0;
   overflow: hidden;
+}
+
+.student-dashboard__center-top {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.student-dashboard__center-scroll {
+  flex: 1 1 auto;
+  min-height: 160px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 .student-dashboard__right-col {
@@ -236,10 +260,12 @@
 }
 
 .student-dashboard__chat-card {
-  flex: 1;
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
-  min-height: 0;
+  height: clamp(420px, 58vh, 580px);
+  min-height: 420px;
+  overflow: hidden;
 }
 
 .student-dashboard__chat-header {
@@ -251,8 +277,8 @@
 }
 
 .student-dashboard__chat-title {
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 15px;
+  font-weight: 700;
   color: #1b3a6b;
   display: flex;
   align-items: center;
@@ -401,7 +427,7 @@
 }
 
 .student-dashboard__tickets-card {
-  flex-shrink: 0;
+  flex: 0 0 auto;
 }
 
 .student-dashboard__section-header {
@@ -413,8 +439,8 @@
 }
 
 .student-dashboard__section-title {
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 700;
   color: #1b3a6b;
   display: flex;
   align-items: center;
@@ -882,12 +908,67 @@
 }
 
 .student-dashboard__right-section-label {
-  font-size: 11px;
-  font-weight: 500;
-  color: #9ca3af;
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   margin-bottom: 8px;
+}
+
+.student-dashboard__tickets-compact {
+  flex-shrink: 0;
+}
+
+.student-dashboard__ticket-list {
+  display: flex;
+  flex-direction: column;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.student-dashboard__ticket-row-compact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 14px;
+  border: none;
+  border-bottom: 1px solid #f1f5f9;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+}
+
+.student-dashboard__ticket-row-compact:hover {
+  background: #f8fafc;
+}
+
+.student-dashboard__ticket-row-compact:last-child {
+  border-bottom: none;
+}
+
+.student-dashboard__ticket-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.student-dashboard__ticket-row-text {
+  font-size: 12px;
+  font-weight: 500;
+  color: #374151;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.student-dashboard__filter-hint--inset {
+  padding: 0 14px 8px;
+  margin-bottom: 0;
 }
 
 .student-dashboard__progress-panel {
@@ -981,6 +1062,11 @@
 
   .student-dashboard__center-col {
     overflow: visible;
+  }
+
+  .student-dashboard__center-scroll {
+    overflow: visible;
+    min-height: 0;
   }
 
   .student-dashboard__chat-card {

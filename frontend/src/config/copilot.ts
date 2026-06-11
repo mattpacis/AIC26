@@ -4,6 +4,12 @@ const DEFAULT_COPILOT_WEBCHAT_URL =
 export const COPILOT_WEBCHAT_URL =
   import.meta.env.VITE_COPILOT_WEBCHAT_URL?.trim() || DEFAULT_COPILOT_WEBCHAT_URL;
 
+/** `directline` (default) auto-sends identity invisibly; set VITE_COPILOT_CHAT_MODE=iframe to force the legacy embed. */
+export const COPILOT_CHAT_MODE =
+  import.meta.env.VITE_COPILOT_CHAT_MODE?.trim().toLowerCase() === 'iframe'
+    ? 'iframe'
+    : 'directline';
+
 export type CopilotUserContext = {
   id: string;
   email: string;

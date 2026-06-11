@@ -1,14 +1,34 @@
-/** Demo "today" for the Campus360 prototype (June 9, 2026). */
+/** Booking and availability use real current time (server clock). */
+export function getTodayStart() {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+}
+
+export function isBeforeToday(date: Date) {
+  return date < getTodayStart();
+}
+
+export function isPastDateTime(date: Date) {
+  return date.getTime() < Date.now();
+}
+
+/** @deprecated use getTodayStart() / current date helpers */
 export const DEMO_TODAY = {
-  year: 2026,
-  month: 5,
-  day: 9,
+  get year() {
+    return new Date().getFullYear();
+  },
+  get month() {
+    return new Date().getMonth();
+  },
+  get day() {
+    return new Date().getDate();
+  },
 };
 
 export function getDemoTodayStart() {
-  return new Date(DEMO_TODAY.year, DEMO_TODAY.month, DEMO_TODAY.day, 0, 0, 0, 0);
+  return getTodayStart();
 }
 
 export function isBeforeDemoToday(date: Date) {
-  return date < getDemoTodayStart();
+  return isBeforeToday(date);
 }

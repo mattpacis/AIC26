@@ -1,6 +1,6 @@
 import { AppointmentStatus } from '@prisma/client';
 import { prisma } from '../lib/db.js';
-import { DEMO_TODAY, getDemoTodayStart } from '../lib/demoDate.js';
+import { isPastDateTime } from '../lib/demoDate.js';
 import {
   findDepartment,
   listDepartmentsForApi,
@@ -80,7 +80,8 @@ export function parseAppointmentTimeInput(raw: string) {
   throw new AppError(400, `Could not parse time "${raw}". Use formats like "2:00 PM" or "14:00".`);
 }
 
-export function parseAppointmentDateInput(raw: string, defaultYear = DEMO_TODAY.year) {
+export function parseAppointmentDateInput(raw: string, defaultYear?: number) {
+  const fallbackYear = defaultYear ?? new Date().getFullYear();
   const cleaned = raw.trim().toLowerCase().replaceAll(',', '');
   const named = cleaned.match(
     /^([a-z]+)\s+(\d{1,2})(?:\s+(\d{4}))?$/,
@@ -91,7 +92,7 @@ export function parseAppointmentDateInput(raw: string, defaultYear = DEMO_TODAY.
       throw new AppError(400, `Could not parse month in date "${raw}"`);
     }
     return {
-      year: named[3] ? Number.parseInt(named[3], 10) : defaultYear,
+      year: named[3] ? Number.parseInt(named[3], 10) : fallbackYear,
       month,
       day: Number.parseInt(named[2], 10),
     };
@@ -109,7 +110,7 @@ export function parseAppointmentDateInput(raw: string, defaultYear = DEMO_TODAY.
   const slash = cleaned.match(/^(\d{1,2})\/(\d{1,2})(?:\/(\d{4}))?$/);
   if (slash) {
     return {
-      year: slash[3] ? Number.parseInt(slash[3], 10) : defaultYear,
+      year: slash[3] ? Number.parseInt(slash[3], 10) : fallbackYear,
       month: Number.parseInt(slash[1], 10) - 1,
       day: Number.parseInt(slash[2], 10),
     };
@@ -190,6 +191,10 @@ async function findSlotByLocalDateTime(
     throw new AppError(400, 'That slot was just booked. Please choose another time.');
   }
 
+  if (isPastDateTime(slot.startsAt)) {
+    return null;
+  }
+
   return slot;
 }
 
@@ -250,7 +255,7 @@ export async function resolveBookableSlot(
     }
   }
 
-  let year = input.year ?? DEMO_TODAY.year;
+  let year = input.year ?? new Date().getFullYear();
   let monthIndex =
     input.month !== undefined ? normalizeMonthIndex(input.month) : undefined;
   let day = input.day;
@@ -370,12 +375,10 @@ export async function getDepartmentAvailability(
     filters.excludeAppointmentId,
   );
 
-  const earliestBookable = getDemoTodayStart();
-
   const availableSlots = slots
     .filter(
       (slot) =>
-        slot.startsAt >= earliestBookable &&
+        !isPastDateTime(slot.startsAt) &&
         !bookedTimes.has(slot.startsAt.getTime()),
     )
     .map((slot) => ({

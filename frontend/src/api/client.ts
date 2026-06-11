@@ -105,7 +105,7 @@ export type TicketDetail = TicketSummary & {
     icon?: string;
   }>;
   replies: TicketReply[];
-  canCancel: boolean;
+  canResolve: boolean;
   canReply: boolean;
   canTake?: boolean;
   aiTriaged: boolean;
@@ -243,10 +243,43 @@ export async function getCopilotEmbedToken(): Promise<{
   return parseJson(response);
 }
 
+export async function getCopilotDirectLineToken(): Promise<{
+  token: string;
+  conversationId: string;
+  expiresIn: number;
+  userId: string;
+  email: string;
+  campus360Token: string;
+}> {
+  const response = await apiFetch(`${API_BASE}/agent/direct-line-token`);
+  return parseJson(response);
+}
+
 export async function updateProfile(name: string): Promise<{ user: User }> {
   const response = await apiFetch(`${API_BASE}/me`, {
     method: 'PATCH',
     body: JSON.stringify({ name }),
+  });
+  return parseJson(response);
+}
+
+export type UserSettings = {
+  emailNotifications: boolean;
+  appointmentReminders: boolean;
+  profileTheme: 'blue' | 'teal' | 'amber' | 'purple' | 'green';
+};
+
+export async function getUserSettings(): Promise<{ settings: UserSettings }> {
+  const response = await apiFetch(`${API_BASE}/me/settings`);
+  return parseJson(response);
+}
+
+export async function updateUserSettings(
+  input: Partial<UserSettings>,
+): Promise<{ settings: UserSettings }> {
+  const response = await apiFetch(`${API_BASE}/me/settings`, {
+    method: 'PATCH',
+    body: JSON.stringify(input),
   });
   return parseJson(response);
 }
@@ -387,11 +420,11 @@ export async function addTicketReply(
   return parseJson(response);
 }
 
-export async function cancelTicket(
+export async function resolveTicket(
   ticketNumber: string,
 ): Promise<{ ticket: TicketDetail }> {
   const normalized = ticketNumber.replace(/^#/, '');
-  const response = await apiFetch(`${API_BASE}/tickets/${normalized}/cancel`, {
+  const response = await apiFetch(`${API_BASE}/tickets/${normalized}/resolve`, {
     method: 'POST',
     body: JSON.stringify({}),
   });
@@ -720,6 +753,7 @@ export type StaffQueueTicket = {
     assignedTo: string;
   };
   steps: Array<{ text: string; tag?: string }>;
+  suggestedStaffNotes?: string;
   replies: TicketReply[];
 };
 
@@ -825,19 +859,48 @@ export async function getStaffDashboard(): Promise<{
   return parseJson(response);
 }
 
+export type StaffDirectoryMember = {
+  id: string;
+  name: string;
+  email: string;
+  department: string;
+  initials: string;
+  isSelf: boolean;
+};
+
+export async function listStaffDirectory(): Promise<{ members: StaffDirectoryMember[] }> {
+  const response = await apiFetch(`${API_BASE}/staff/directory`);
+  return parseJson(response);
+}
+
 export async function listStaffTickets(filters?: {
   status?: string;
   urgency?: string;
   includeResolved?: boolean;
+  mineOnly?: boolean;
 }): Promise<{ tickets: StaffQueueTicket[] }> {
   const params = new URLSearchParams();
   if (filters?.status) params.set('status', filters.status);
   if (filters?.urgency) params.set('urgency', filters.urgency);
   if (filters?.includeResolved) params.set('includeResolved', 'true');
+  if (filters?.mineOnly) params.set('mineOnly', 'true');
   const query = params.toString();
   const response = await apiFetch(
     `${API_BASE}/staff/tickets${query ? `?${query}` : ''}`,
   );
+  return parseJson(response);
+}
+
+export async function createStaffTicket(input: {
+  studentUserId: string;
+  concern: string;
+  description?: string;
+  urgency?: 'LOW' | 'MEDIUM' | 'HIGH';
+}): Promise<{ ticket: StaffQueueTicket }> {
+  const response = await apiFetch(`${API_BASE}/staff/tickets`, {
+    method: 'POST',
+    body: JSON.stringify(input),
+  });
   return parseJson(response);
 }
 
