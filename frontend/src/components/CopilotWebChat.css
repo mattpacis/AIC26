@@ -92,14 +92,14 @@
 .copilot-webchat__frame {
   flex: 1;
   width: 100%;
-  min-height: 160px;
+  min-height: 280px;
   border: 0;
   background: #fff;
 }
 
 .copilot-webchat__webchat-host {
   flex: 1;
-  min-height: 160px;
+  min-height: 280px;
   overflow: hidden;
   background: #fff;
 }
