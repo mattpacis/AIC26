@@ -83,6 +83,7 @@ Keep **`Authorization: Bearer …`** the same — use the `CAMPUS360_AGENT_API_K
 | Problem | Fix |
 |---------|-----|
 | Login fails on Vercel | Check `CORS_ORIGIN` matches Vercel URL exactly; check `VITE_API_BASE` ends with `/api` |
+| Add slots / availability 404 on live site | **Render is probably not on `main`.** In Render → campus360-api → Settings → set **Branch** to `main`, then **Manual Deploy**. Slot routes only exist on `main` after commit `7087f08`. |
 | 502 / slow first load | Render free tier sleeps after ~15 min idle — first request wakes it (~30s) |
 | Empty data | Re-run seed from Render Shell: `npx tsx prisma/seed.ts` |
 | Copilot tools 404 | Connector **Host** still points at ngrok — update to Render host |

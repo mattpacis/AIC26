@@ -334,7 +334,7 @@ export function StaffDashboard() {
     <div className="staff-dashboard">
       <h2 className="staff-dashboard__sr-only">
         Campus360 personnel dashboard showing ticket queue, AI-generated ticket
-        summary with student details and suggested next steps, department
+        summary with student details, department
         analytics, and knowledge base
       </h2>
 
@@ -834,31 +834,7 @@ export function StaffDashboard() {
                       </div>
                     </div>
 
-                    <div className="staff-dashboard__section-sep">
-                      AI-suggested next steps
-                    </div>
-                    <div className="staff-dashboard__suggested-steps">
-                      {selected.steps.map((step, index) => (
-                        <div className="staff-dashboard__step-row" key={index}>
-                          <div className="staff-dashboard__step-num">{index + 1}</div>
-                          <div className="staff-dashboard__step-text">
-                            {step.text}
-                            {step.tag && (
-                              <span className="staff-dashboard__step-tag">
-                                {step.tag}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
                     <div className="staff-dashboard__section-sep">Staff notes</div>
-                    {!notes.trim() && selected.suggestedStaffNotes && (
-                      <p className="staff-dashboard__notes-hint">
-                        {selected.suggestedStaffNotes}
-                      </p>
-                    )}
                     <textarea
                       className="staff-dashboard__notes-area"
                       rows={4}

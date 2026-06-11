@@ -232,7 +232,6 @@ export function StudentTickets() {
                       <th>Status</th>
                       <th>Urgency</th>
                       <th>Department</th>
-                      <th>Scheduled</th>
                       <th>Last Update</th>
                       <th className="student-tickets__action-col" aria-label="Actions" />
                     </tr>
@@ -241,14 +240,14 @@ export function StudentTickets() {
                     {loading ? (
                       Array.from({ length: 5 }).map((_, index) => (
                         <tr key={index}>
-                          <td colSpan={8}>
+                          <td colSpan={7}>
                             <Skeleton height={16} />
                           </td>
                         </tr>
                       ))
                     ) : filteredTickets.length === 0 ? (
                       <tr>
-                        <td colSpan={8}>
+                        <td colSpan={7}>
                           <EmptyState
                             title={
                               filter === 'all'
@@ -314,18 +313,6 @@ export function StudentTickets() {
                             </span>
                           </td>
                           <td>{ticket.department}</td>
-                          <td className="student-dashboard__ticket-date c360-tabular">
-                            {ticket.scheduledDate
-                              ? new Date(ticket.scheduledDate).toLocaleDateString(
-                                  'en-US',
-                                  {
-                                    month: 'short',
-                                    day: 'numeric',
-                                    year: 'numeric',
-                                  },
-                                )
-                              : '—'}
-                          </td>
                           <td className="student-dashboard__ticket-date c360-tabular">
                             {formatRelativeTime(ticket.updatedAt)}
                           </td>
