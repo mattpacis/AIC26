@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { IconChevronLeft, IconChevronRight, IconX } from '@tabler/icons-react';
-import { createStaffAppointmentSlot } from '../api/client';
+import { createStaffAppointmentSlotsBatch } from '../api/client';
 import { DEMO_TODAY } from '../config/demoDate';
 import {
   buildCalendarGrid,
@@ -81,37 +81,30 @@ export function StaffAddSlotModal({
     setBusy(true);
     setError(null);
 
-    let created = 0;
-    const failures: string[] = [];
-
-    for (const startsAt of previewSlots) {
-      try {
-        await createStaffAppointmentSlot(startsAt);
-        created += 1;
-      } catch (err) {
-        failures.push(err instanceof Error ? err.message : 'Failed to add slot');
+    try {
+      const { slots, errors } = await createStaffAppointmentSlotsBatch(previewSlots);
+      if (slots.length > 0) {
+        onCreated();
       }
+
+      if (errors.length === 0) {
+        onClose();
+        return;
+      }
+
+      if (slots.length > 0) {
+        setError(
+          `Added ${slots.length} slot${slots.length === 1 ? '' : 's'}. Some times were skipped: ${errors[0]}`,
+        );
+        return;
+      }
+
+      setError(errors[0] ?? 'Failed to add slots');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to add slots');
+    } finally {
+      setBusy(false);
     }
-
-    setBusy(false);
-
-    if (created > 0) {
-      onCreated();
-    }
-
-    if (failures.length === 0) {
-      onClose();
-      return;
-    }
-
-    if (created > 0) {
-      setError(
-        `Added ${created} slot${created === 1 ? '' : 's'}. Some times were skipped: ${failures[0]}`,
-      );
-      return;
-    }
-
-    setError(failures[0] ?? 'Failed to add slots');
   }
 
   return (

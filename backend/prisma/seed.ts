@@ -235,6 +235,26 @@ const TICKET_SEEDS = [
 
 const APPOINTMENT_SEEDS = [
   {
+    title: 'IT Department — Wi-Fi access setup',
+    department: 'IT Department',
+    purpose: 'Dorm network registration',
+    location: 'IT Help Desk',
+    staffName: 'Joshua Jude',
+    status: AppointmentStatus.SCHEDULED,
+    barColor: '#6366F1',
+    scheduledAt: new Date('2026-06-12T10:00:00'),
+  },
+  {
+    title: 'IT Department — Laptop loaner pickup',
+    department: 'IT Department',
+    purpose: 'Temporary device while unit is repaired',
+    location: 'IT Help Desk',
+    staffName: 'Joshua Jude',
+    status: AppointmentStatus.SCHEDULED,
+    barColor: '#6366F1',
+    scheduledAt: new Date('2026-06-18T14:00:00'),
+  },
+  {
     title: 'Campus Health — Medical certificate',
     department: 'Campus Health',
     purpose: 'NSTP clearance requirement',
@@ -501,6 +521,7 @@ async function main() {
       schoolId: school.id,
       department: entry.department,
       startsAt: entry.startsAt,
+      isOpen: true,
     })),
   });
 

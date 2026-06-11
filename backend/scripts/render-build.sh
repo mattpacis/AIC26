@@ -11,6 +11,7 @@ if [[ "${DATABASE_URL:-}" == postgresql:* ]] || [[ "${DATABASE_URL:-}" == postgr
   rm -f prisma/schema.prisma.bak
   npx prisma generate
   npx prisma db push --accept-data-loss
+  npx prisma migrate deploy || true
   npx tsx prisma/seed.ts
 else
   echo "Non-Postgres DATABASE_URL — using repo schema as-is."

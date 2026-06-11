@@ -1,4 +1,16 @@
-const API_BASE = import.meta.env.VITE_API_BASE ?? '/api';
+function resolveApiBase() {
+  const configured = import.meta.env.VITE_API_BASE?.trim();
+  if (!configured) return '/api';
+  if (
+    import.meta.env.PROD &&
+    /localhost|127\.0\.0\.1/i.test(configured)
+  ) {
+    return '/api';
+  }
+  return configured;
+}
+
+const API_BASE = resolveApiBase();
 
 export type ApiError = {
   error: string;
@@ -141,7 +153,9 @@ async function parseJson<T>(response: Response): Promise<T> {
     throw new Error(
       response.ok
         ? 'Invalid response from server'
-        : 'Unable to reach the server. Make sure the backend is running on port 3001.',
+        : import.meta.env.PROD
+          ? `Unable to reach the server (${response.status}). Try again in a moment.`
+          : 'Unable to reach the server. Make sure the backend is running on port 3001.',
     );
   }
 
@@ -1112,7 +1126,16 @@ export async function createStaffAppointmentSlot(
 ): Promise<{ slot: StaffAppointmentSlot }> {
   const response = await apiFetch(`${API_BASE}/staff/appointment-slots`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ startsAt }),
+  });
+  return parseJson(response);
+}
+
+export async function createStaffAppointmentSlotsBatch(
+  startsAt: string[],
+): Promise<{ slots: StaffAppointmentSlot[]; errors: string[] }> {
+  const response = await apiFetch(`${API_BASE}/staff/appointment-slots/batch`, {
+    method: 'POST',
     body: JSON.stringify({ startsAt }),
   });
   return parseJson(response);
@@ -1124,7 +1147,6 @@ export async function updateStaffAppointmentSlot(
 ): Promise<{ slot: StaffAppointmentSlot }> {
   const response = await apiFetch(`${API_BASE}/staff/appointment-slots/${slotId}`, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
   return parseJson(response);

@@ -20,6 +20,7 @@ import { addTicketReply } from '../services/ticketService.js';
 import { listAppointments } from '../services/appointmentService.js';
 import {
   createStaffAppointmentSlot,
+  createStaffAppointmentSlotsBatch,
   listStaffAppointmentSlots,
   updateStaffAppointmentSlot,
 } from '../services/appointmentSlotService.js';
@@ -245,6 +246,20 @@ staffRouter.post('/appointment-slots', async (req, res, next) => {
     const body = createSlotSchema.parse(req.body);
     const slot = await createStaffAppointmentSlot(req.auth!, body);
     res.status(201).json({ slot });
+  } catch (err) {
+    next(err);
+  }
+});
+
+const batchCreateSlotSchema = z.object({
+  startsAt: z.array(z.string().min(1)).min(1).max(12),
+});
+
+staffRouter.post('/appointment-slots/batch', async (req, res, next) => {
+  try {
+    const body = batchCreateSlotSchema.parse(req.body);
+    const result = await createStaffAppointmentSlotsBatch(req.auth!, body);
+    res.status(201).json(result);
   } catch (err) {
     next(err);
   }

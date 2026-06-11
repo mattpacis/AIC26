@@ -211,3 +211,26 @@ export async function updateStaffAppointmentSlot(
 
   return serializeStaffSlot(slot, booked);
 }
+
+export async function createStaffAppointmentSlotsBatch(
+  ctx: AuthContext,
+  input: { startsAt: string[] },
+) {
+  const slots: ReturnType<typeof serializeStaffSlot>[] = [];
+  const errors: string[] = [];
+
+  for (const startsAt of input.startsAt) {
+    try {
+      const slot = await createStaffAppointmentSlot(ctx, { startsAt });
+      slots.push(slot);
+    } catch (err) {
+      errors.push(err instanceof Error ? err.message : 'Failed to add slot');
+    }
+  }
+
+  if (slots.length === 0 && errors.length > 0) {
+    throw new AppError(400, errors[0] ?? 'Failed to add slots');
+  }
+
+  return { slots, errors };
+}
