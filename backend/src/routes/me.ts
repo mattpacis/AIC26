@@ -7,6 +7,7 @@ import {
   getUserById,
   toPublicUser,
   updateUserProfile,
+  changePassword,
 } from '../services/authService.js';
 import { logAction } from '../services/actionLogService.js';
 import {
@@ -50,6 +51,12 @@ const updateSettingsSchema = z.object({
   emailNotifications: z.boolean().optional(),
   appointmentReminders: z.boolean().optional(),
   profileTheme: z.enum(['blue', 'teal', 'amber', 'purple', 'green']).optional(),
+  onboardingComplete: z.boolean().optional(),
+});
+
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1),
+  newPassword: z.string().min(8),
 });
 
 meRouter.get('/me/settings', requireAuth, loadAuthContext, async (req, res, next) => {
@@ -66,6 +73,18 @@ meRouter.patch('/me/settings', requireAuth, loadAuthContext, async (req, res, ne
     const body = updateSettingsSchema.parse(req.body);
     const settings = await updateUserSettings(req.auth!, body);
     res.json({ settings });
+  } catch (err) {
+    next(err);
+  }
+});
+
+meRouter.patch('/me/password', requireAuth, async (req, res, next) => {
+  try {
+    const userId = getSessionUserId(req);
+    const body = changePasswordSchema.parse(req.body);
+    await changePassword(userId, body.currentPassword, body.newPassword);
+    await logAction(userId, 'password.change', {});
+    res.json({ ok: true, message: 'Password updated' });
   } catch (err) {
     next(err);
   }

@@ -1,12 +1,15 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { ReactWebChat } from 'botframework-webchat/component.js';
 import { DirectLine } from 'botframework-directlinejs';
-import { IconExternalLink } from '@tabler/icons-react';
+import { IconExternalLink, IconSparkles } from '@tabler/icons-react';
 import { getCopilotDirectLineToken } from '../api/client';
+import { COPILOT_STARTER_PROMPTS } from '../config/copilotPrompts';
 import { openCopilotChat, type CopilotUserContext } from '../config/copilot';
+import { SkeletonBlock } from './Skeleton';
 import {
   createCopilotDirectLineStore,
   isHiddenCampus360Activity,
+  postUserMessage,
 } from './copilotDirectLineStore';
 
 // Render filter: identity messages reach Copilot but never show a chat bubble.
@@ -44,6 +47,8 @@ export function CopilotWebChatDirectLine({
   const [session, setSession] = useState<DirectLineSession | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [promptsVisible, setPromptsVisible] = useState(true);
+  const storeRef = useRef<ReturnType<typeof createCopilotDirectLineStore> | null>(null);
   const loadedForUserIdRef = useRef<string | null>(null);
   const fallbackReportedRef = useRef(false);
   const onFallbackRef = useRef(onFallback);
@@ -140,14 +145,23 @@ export function CopilotWebChatDirectLine({
 
   const store = useMemo(() => {
     if (!session) {
+      storeRef.current = null;
       return undefined;
     }
-    return createCopilotDirectLineStore({
+    const nextStore = createCopilotDirectLineStore({
       campus360UserId: session.userId,
       campus360Email: session.email,
       campus360Token: session.campus360Token,
     });
+    storeRef.current = nextStore;
+    return nextStore;
   }, [session]);
+
+  const sendPrompt = useCallback((text: string) => {
+    if (!storeRef.current) return;
+    postUserMessage(storeRef.current.dispatch, text);
+    setPromptsVisible(false);
+  }, []);
 
   return (
     <div className="copilot-webchat">
@@ -167,9 +181,33 @@ export function CopilotWebChatDirectLine({
         </button>
       </div>
 
+      {promptsVisible && directLine && store && (
+        <div className="copilot-webchat__prompts">
+          <div className="copilot-webchat__prompts-label">
+            <IconSparkles size={14} aria-hidden />
+            Try asking
+          </div>
+          <div className="copilot-webchat__prompts-row">
+            {COPILOT_STARTER_PROMPTS.map((prompt, index) => (
+              <button
+                key={prompt}
+                type="button"
+                className="copilot-webchat__prompt-chip c360-stagger"
+                style={{ '--c360-stagger': index } as CSSProperties}
+                onClick={() => sendPrompt(prompt)}
+              >
+                {prompt}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="copilot-webchat__embed-wrap">
         {loading && (
-          <p className="copilot-webchat__status">Connecting to Copilot…</p>
+          <div className="copilot-webchat__status copilot-webchat__status--loading">
+            <SkeletonBlock lines={3} />
+          </div>
         )}
         {error && (
           <p className="copilot-webchat__status copilot-webchat__status--error">

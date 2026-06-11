@@ -1,7 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useState, type CSSProperties } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
-  IconBuildingCommunity,
   IconClock,
   IconMessageChatbot,
   IconRefresh,
@@ -9,6 +8,7 @@ import {
 } from '@tabler/icons-react';
 import {
   getMe,
+  getUserSettings,
   listAppointments,
   listTickets,
   type AppointmentRecord,
@@ -17,12 +17,16 @@ import {
 } from '../api/client';
 import { CopilotWebChat } from '../components/CopilotWebChat';
 import '../components/CopilotWebChat.css';
+import { StudentSidebar } from '../components/StudentSidebar';
+import { OnboardingTour } from '../components/OnboardingTour';
+import { EmptyState } from '../components/EmptyState';
+import { Skeleton } from '../components/Skeleton';
 import { getTodayParts } from '../config/demoDate';
+import { usePageTitle } from '../hooks/usePageTitle';
+import { formatRelativeTime } from '../utils/relativeTime';
 import { openCampusPortal, QUICK_LINKS } from '../config/quickLinks';
 import { StudentTopbar } from '../components/StudentTopbar';
 import '../components/StudentTopbar.css';
-import { openCopilotChat } from '../config/copilot';
-import { getStudentNavItems } from '../config/studentNav';
 import { useShellScale } from '../hooks/useShellScale';
 import { randomGreeting } from '../utils/greeting';
 import {
@@ -153,8 +157,7 @@ function toSidebarAppointment(appt: AppointmentRecord): SidebarAppointment {
 
 export function StudentDashboard() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const navItems = getStudentNavItems(location.pathname);
+  usePageTitle('Dashboard');
   const { outerRef, shellRef } = useShellScale();
 
   const [user, setUser] = useState<User | null>(null);
@@ -169,6 +172,7 @@ export function StudentDashboard() {
     return { year: today.year, month: today.month };
   });
   const [selectedDay, setSelectedDay] = useState<CalendarDay | null>(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   async function refreshTickets(silent = false) {
     if (!silent) {
@@ -194,11 +198,16 @@ export function StudentDashboard() {
 
     async function loadSession() {
       try {
-        const [me, ticketData] = await Promise.all([getMe(), listTickets()]);
+        const [me, ticketData, settingsData] = await Promise.all([
+          getMe(),
+          listTickets(),
+          getUserSettings(),
+        ]);
         if (cancelled) return;
         setUser(me.user);
         setGreeting(randomGreeting(me.user.name.split(' ')[0]));
         setTickets(ticketData.tickets);
+        setShowOnboarding(!settingsData.settings.onboardingComplete);
       } catch {
         if (!cancelled) {
           navigate('/login');
@@ -267,17 +276,9 @@ export function StudentDashboard() {
     };
   }, [user, viewMonth.year, viewMonth.month]);
 
-  useEffect(() => {
-    const state = location.state as { focusHelpdesk?: boolean } | null;
-    if (!state?.focusHelpdesk || !user) return;
-
-    openCopilotChat({
-      id: user.id,
-      email: user.email,
-      name: user.name,
-    });
-    navigate(location.pathname, { replace: true, state: {} });
-  }, [location.pathname, location.state, navigate, user]);
+  function goToDashboard() {
+    navigate('/dashboard');
+  }
 
   const copilotUser = useMemo(
     () =>
@@ -286,6 +287,16 @@ export function StudentDashboard() {
         : undefined,
     [user?.id, user?.email, user?.name],
   );
+
+  const nextAppointment = useMemo(() => {
+    const upcoming = appointments
+      .filter((appt) => appt.status === 'upcoming')
+      .sort(
+        (a, b) =>
+          new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime(),
+      );
+    return upcoming[0] ?? null;
+  }, [appointments]);
 
   if (!user) {
     return null;
@@ -387,6 +398,7 @@ export function StudentDashboard() {
 
   return (
     <div className="student-dashboard">
+      <OnboardingTour open={showOnboarding} onComplete={() => setShowOnboarding(false)} />
       <h2 className="student-dashboard__sr-only">
         Campus360 student dashboard with AI helpdesk chat, current tickets,
         appointment calendar, and quick links to campus services
@@ -394,47 +406,37 @@ export function StudentDashboard() {
 
       <div className="student-dashboard__outer" ref={outerRef}>
         <div className="student-dashboard__shell" ref={shellRef}>
-          <aside className="student-dashboard__sidebar">
-            <div className="student-dashboard__sidebar-logo">
-              <div className="student-dashboard__logo-icon">
-                <IconBuildingCommunity size={20} aria-hidden />
-              </div>
-              <span className="student-dashboard__logo-text">Campus360</span>
-            </div>
-
-            <nav className="student-dashboard__sidebar-nav">
-              {navItems.map(({ label, icon: Icon, path, active, badge }) => (
-                <button
-                  key={label}
-                  type="button"
-                  className={`student-dashboard__nav-item${active ? ' active' : ''}`}
-                  onClick={() => path && navigate(path)}
-                >
-                  <Icon size={17} aria-hidden />
-                  {label}
-                  {badge !== undefined && (
-                    <span className="student-dashboard__nav-badge">{badge}</span>
-                  )}
-                </button>
-              ))}
-            </nav>
-          </aside>
+          <StudentSidebar />
 
           <div className="student-dashboard__main">
             <header className="student-dashboard__topbar">
-              <div className="student-dashboard__topbar-left">{greeting}</div>
+              <div className="student-dashboard__topbar-left">
+                <span className="student-dashboard__greeting">{greeting}</span>
+                {nextAppointment && (
+                  <div className="student-dashboard__greeting-sub">
+                    <span className="student-dashboard__greeting-sub-label">
+                      Next appointment
+                    </span>
+                    <span className="student-dashboard__greeting-sub-detail">
+                      {nextAppointment.title} · {nextAppointment.time}
+                      {nextAppointment.location ? ` · ${nextAppointment.location}` : ''}
+                    </span>
+                  </div>
+                )}
+              </div>
               <StudentTopbar user={user} onUserUpdated={setUser} />
             </header>
 
             <div className="student-dashboard__content-area">
               <div className="student-dashboard__center-col">
                 <div className="student-dashboard__center-top">
-                <div className="student-dashboard__card student-dashboard__chat-card">
+                <div className="student-dashboard__card student-dashboard__chat-card student-dashboard__card--focus c360-stagger" style={{ '--c360-stagger': 0 } as CSSProperties}>
                   <div className="student-dashboard__chat-header">
                     <div className="student-dashboard__chat-title">
                       <IconMessageChatbot size={18} color="#2E5BA8" aria-hidden />
                       AI Helpdesk
                       <span className="student-dashboard__ai-badge">
+                        <span className="student-dashboard__ai-badge-dot" aria-hidden />
                         Copilot
                       </span>
                     </div>
@@ -447,7 +449,7 @@ export function StudentDashboard() {
                   <CopilotWebChat user={copilotUser} />
                 </div>
 
-                <div className="student-dashboard__quicklinks">
+                <div className="student-dashboard__quicklinks c360-stagger" style={{ '--c360-stagger': 1 } as CSSProperties}>
                   {QUICK_LINKS.map(({ label, icon: Icon, iconColor, bgColor, url }) => (
                     <button
                       key={label}
@@ -473,7 +475,7 @@ export function StudentDashboard() {
                 </div>
 
                 <div className="student-dashboard__center-scroll">
-                <div className="student-dashboard__card student-dashboard__tickets-card">
+                <div className="student-dashboard__card student-dashboard__tickets-card c360-stagger" style={{ '--c360-stagger': 2 } as CSSProperties}>
                   <div className="student-dashboard__section-header">
                     <div className="student-dashboard__section-title">
                       <IconTicket size={16} color="#2E5BA8" aria-hidden />
@@ -523,27 +525,47 @@ export function StudentDashboard() {
                     </thead>
                     <tbody>
                       {loadingTickets ? (
-                        <tr>
-                          <td colSpan={6}>Loading tickets…</td>
-                        </tr>
+                        Array.from({ length: 4 }).map((_, index) => (
+                          <tr key={index}>
+                            <td colSpan={6}>
+                              <Skeleton height={16} />
+                            </td>
+                          </tr>
+                        ))
                       ) : filteredTickets.length === 0 ? (
                         <tr>
                           <td colSpan={6}>
-                            {selectedDay
-                              ? 'No tickets scheduled for this day.'
-                              : 'No tickets yet.'}
+                            <EmptyState
+                              title={selectedDay ? 'Nothing scheduled' : 'No tickets yet'}
+                              description={
+                                selectedDay
+                                  ? 'No tickets are tied to this calendar day.'
+                                  : 'Ask the AI helpdesk to open your first ticket.'
+                              }
+                              action={
+                                !selectedDay ? (
+                                  <button
+                                    type="button"
+                                    className="student-tickets__create-btn"
+                                    onClick={goToDashboard}
+                                  >
+                                    Ask the AI helpdesk
+                                  </button>
+                                ) : undefined
+                              }
+                            />
                           </td>
                         </tr>
                       ) : (
                         filteredTickets.map((ticket) => (
                           <tr
                             key={ticket.id}
-                            className="student-dashboard__ticket-row"
+                            className={`student-dashboard__ticket-row student-dashboard__ticket-row--${ticket.urgency}`}
                             onClick={() =>
                               navigate(`/tickets/${ticket.ticketNumber}`)
                             }
                           >
-                            <td className="student-dashboard__ticket-id">
+                            <td className="student-dashboard__ticket-id c360-tabular">
                               {ticket.id}
                             </td>
                             <td>{ticket.concern}</td>
@@ -555,13 +577,19 @@ export function StudentDashboard() {
                               </span>
                             </td>
                             <td>
-                              <span className={TICKET_URGENCY_CLASS[ticket.urgency]}>
-                                {ticket.urgencyLabel}
+                              <span className="student-dashboard__urgency-cell">
+                                <span
+                                  className={`student-dashboard__urgency-dot student-dashboard__urgency-dot--${ticket.urgency}`}
+                                  aria-hidden
+                                />
+                                <span className={TICKET_URGENCY_CLASS[ticket.urgency]}>
+                                  {ticket.urgencyLabel}
+                                </span>
                               </span>
                             </td>
                             <td>{ticket.department}</td>
-                            <td className="student-dashboard__ticket-date">
-                              {ticket.lastUpdate}
+                            <td className="student-dashboard__ticket-date c360-tabular">
+                              {formatRelativeTime(ticket.updatedAt)}
                             </td>
                           </tr>
                         ))
@@ -573,7 +601,7 @@ export function StudentDashboard() {
               </div>
 
               <aside className="student-dashboard__right-col">
-                <div>
+                <div className="student-dashboard__right-panel student-dashboard__right-panel--hero c360-stagger" style={{ '--c360-stagger': 3 } as CSSProperties}>
                   <div className="student-dashboard__right-section-label">
                     Upcoming Appointments
                   </div>
@@ -709,7 +737,7 @@ export function StudentDashboard() {
                   </div>
                 </div>
 
-                <div>
+                <div className="student-dashboard__right-panel c360-stagger" style={{ '--c360-stagger': 4 } as CSSProperties}>
                   <div className="student-dashboard__right-section-label">
                     Your Progress
                   </div>

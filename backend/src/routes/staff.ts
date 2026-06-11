@@ -50,6 +50,12 @@ staffRouter.get('/tickets', async (req, res, next) => {
         typeof req.query.department === 'string' ? req.query.department : undefined,
       includeResolved: req.query.includeResolved === 'true',
       mineOnly: req.query.mineOnly === 'true',
+      search: typeof req.query.search === 'string' ? req.query.search : undefined,
+      sort:
+        typeof req.query.sort === 'string' &&
+        ['newest', 'oldest', 'urgency', 'student'].includes(req.query.sort)
+          ? (req.query.sort as 'newest' | 'oldest' | 'urgency' | 'student')
+          : undefined,
     });
     res.json({ tickets });
   } catch (err) {

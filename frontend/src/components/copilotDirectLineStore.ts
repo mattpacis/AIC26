@@ -49,6 +49,22 @@ function postHiddenMessage(
   });
 }
 
+export function postUserMessage(
+  dispatch: (action: WebChatAction) => void,
+  text: string,
+) {
+  dispatch({
+    type: 'DIRECT_LINE/POST_ACTIVITY',
+    meta: { method: 'keyboard' },
+    payload: {
+      activity: {
+        type: 'message',
+        text,
+      },
+    },
+  });
+}
+
 export function createCopilotDirectLineStore(context: CopilotDirectLineContext) {
   let identitySent = false;
 

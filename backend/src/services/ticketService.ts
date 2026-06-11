@@ -213,6 +213,11 @@ function trackStepsForTicket(
   return steps;
 }
 
+export function getTicketTrackSteps(ticket: Ticket): TrackStep[] {
+  const detail = parseDetailPayload(ticket);
+  return trackStepsForTicket(detail, ticket);
+}
+
 export function resolveTicketDisplayStatus(ticket: Ticket) {
   const detail = parseDetailPayload(ticket);
 

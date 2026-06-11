@@ -1,184 +1,54 @@
-.student-ticket-detail {
-  min-height: 100vh;
-  background: #e2e8f0;
-}
+/* Ticket detail content — shell uses student-dashboard */
 
-.student-ticket-detail__outer {
-  overflow: hidden;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  width: 100%;
-  max-width: 1440px;
-  margin: 0 auto;
-}
-
-.student-ticket-detail__shell {
-  display: flex;
-  width: 1440px;
-  height: 1024px;
-  background: #eef2f7;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: 13px;
-  color: #111827;
-  transform-origin: top left;
-}
-
-.student-ticket-detail__sidebar {
-  width: 220px;
-  min-width: 220px;
-  background: #1b3a6b;
-  display: flex;
-  flex-direction: column;
-}
-
-.student-ticket-detail__sb-logo {
-  padding: 22px 20px 18px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.student-ticket-detail__sb-logo-icon {
-  width: 36px;
-  height: 36px;
-  background: #2e5ba8;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #93c5fd;
-}
-
-.student-ticket-detail__sb-logo-text {
-  font-size: 17px;
-  font-weight: 500;
-  color: #fff;
-  letter-spacing: -0.3px;
-}
-
-.student-ticket-detail__sb-nav {
-  flex: 1;
-  padding: 12px 10px;
-}
-
-.student-ticket-detail__nav-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 12px;
-  border-radius: 8px;
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 13px;
-  cursor: pointer;
-  margin-bottom: 2px;
-  border: none;
-  background: none;
-  width: 100%;
-  font-family: inherit;
-  text-align: left;
-}
-
-.student-ticket-detail__nav-item:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
-}
-
-.student-ticket-detail__nav-item.active {
-  background: #2e5ba8;
-  color: #fff;
-}
-
-.student-ticket-detail__nav-badge {
-  margin-left: auto;
-  background: #ef4444;
-  color: #fff;
-  font-size: 10px;
-  padding: 1px 6px;
-  border-radius: 20px;
-}
-
-.student-ticket-detail__sb-footer {
-  padding: 12px 10px 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.student-ticket-detail__main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.student-ticket-detail__topbar {
-  height: 56px;
-  background: #fff;
-  border-bottom: 1px solid #e2e8f0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 24px;
-  gap: 8px;
-  flex-shrink: 0;
+.student-ticket-detail__loading,
+.student-ticket-detail__error {
+  padding: 32px 24px;
+  color: var(--c360-text-muted, #64748b);
+  font-size: 14px;
 }
 
 .student-ticket-detail__breadcrumb {
   display: flex;
   align-items: center;
   gap: 6px;
+  min-width: 0;
   font-size: 13px;
-  color: #6b7280;
+}
+
+.student-dashboard__topbar .student-ticket-detail__breadcrumb {
+  flex: 1;
+  margin-right: 12px;
 }
 
 .student-ticket-detail__breadcrumb-link {
-  color: #2e5ba8;
+  color: var(--c360-blue-500, #2563eb);
   cursor: pointer;
   background: none;
   border: none;
-  font-family: inherit;
+  font-family: var(--c360-font-display);
   font-size: inherit;
+  font-weight: 600;
   padding: 0;
 }
 
 .student-ticket-detail__breadcrumb-sep {
-  color: #d1d5db;
+  color: var(--c360-text-subtle, #94a3b8);
 }
 
 .student-ticket-detail__breadcrumb-current {
-  color: #111827;
-  font-weight: 500;
-}
-
-.student-ticket-detail__topbar-right {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.student-ticket-detail__user-avatar {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: #2e5ba8;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 11px;
-  font-weight: 500;
-}
-
-.student-ticket-detail__user-name {
-  font-size: 13px;
-  font-weight: 500;
-  color: #1b3a6b;
+  color: var(--c360-text-heading, #0f2a52);
+  font-family: var(--c360-font-display);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .student-ticket-detail__content {
   flex: 1;
   display: flex;
   overflow: hidden;
+  min-height: 0;
 }
 
 .student-ticket-detail__main-col {
@@ -208,9 +78,11 @@
 }
 
 .student-ticket-detail__page-title {
-  font-size: 18px;
-  font-weight: 500;
-  color: #1b3a6b;
+  font-family: var(--c360-font-display);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--c360-text-heading, #0f2a52);
   margin-bottom: 6px;
 }
 
@@ -390,6 +262,8 @@
   gap: 0;
   position: relative;
   padding: 4px 0;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 
 .student-ticket-detail__track-step {

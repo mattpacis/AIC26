@@ -180,19 +180,21 @@
 }
 
 .staff-dashboard__topbar {
-  height: 54px;
+  min-height: 58px;
   background: #fff;
   border-bottom: 1px solid #e5e7eb;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 22px;
+  padding: 10px 22px;
   flex-shrink: 0;
+  position: relative;
+  z-index: 25;
 }
 
 .staff-dashboard__topbar-title {
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 18px;
+  font-weight: 700;
   color: #0f2a52;
 }
 
@@ -201,6 +203,7 @@
   align-items: center;
   gap: 12px;
   position: relative;
+  z-index: 26;
 }
 
 .staff-dashboard__tb-btn {
@@ -390,8 +393,33 @@
 }
 
 .staff-dashboard__queue-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: 11px;
   color: #9ca3af;
+}
+
+.staff-dashboard__queue-sort select {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 4px 8px;
+  font-size: 11px;
+  color: #374151;
+  background: #fff;
+}
+
+.staff-dashboard__queue-search {
+  padding: 0 16px 10px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.staff-dashboard__queue-search input {
+  width: 100%;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 12px;
 }
 
 .staff-dashboard__filter-row {
@@ -434,21 +462,74 @@
   padding: 12px 16px;
   border-bottom: 1px solid #f9fafb;
   cursor: pointer;
-  transition: background 0.1s;
   border-left: 3px solid transparent;
   background: none;
   width: 100%;
   text-align: left;
   font-family: inherit;
+  animation: c360-fade-up 0.35s var(--c360-ease, ease) both;
+  transition:
+    background var(--c360-duration-fast, 0.15s) var(--c360-ease, ease),
+    border-left-color var(--c360-duration-normal, 0.25s) var(--c360-ease, ease),
+    transform var(--c360-duration-fast, 0.15s) var(--c360-ease, ease),
+    box-shadow var(--c360-duration-fast, 0.15s) var(--c360-ease, ease);
+}
+
+.staff-dashboard__ticket-item--high {
+  border-left-color: #fecaca;
+}
+
+.staff-dashboard__ticket-item--open {
+  border-left-color: #fde68a;
+}
+
+.staff-dashboard__ticket-item--progress {
+  border-left-color: #bfdbfe;
+}
+
+.staff-dashboard__ticket-item--sched {
+  border-left-color: #c4b5fd;
+}
+
+.staff-dashboard__ticket-item--resolved {
+  border-left-color: #bbf7d0;
+}
+
+.staff-dashboard__ticket-item--default {
+  border-left-color: #e2e8f0;
 }
 
 .staff-dashboard__ticket-item:hover {
-  background: #f9fafb;
+  background: #f8fbff;
+  transform: translateY(-1px);
+  box-shadow: var(--c360-elev-surface);
 }
 
 .staff-dashboard__ticket-item.selected {
   background: #eff6ff;
   border-left-color: #2e5ba8;
+  transform: translateX(3px);
+  box-shadow: inset 0 0 0 1px rgba(46, 91, 168, 0.1);
+}
+
+.staff-dashboard__ticket-item.selected.staff-dashboard__ticket-item--high {
+  border-left-color: #dc2626;
+}
+
+.staff-dashboard__ticket-item.selected.staff-dashboard__ticket-item--open {
+  border-left-color: #d97706;
+}
+
+.staff-dashboard__ticket-item.selected.staff-dashboard__ticket-item--progress {
+  border-left-color: #2563eb;
+}
+
+.staff-dashboard__ticket-item.selected.staff-dashboard__ticket-item--sched {
+  border-left-color: #7c3aed;
+}
+
+.staff-dashboard__ticket-item.selected.staff-dashboard__ticket-item--resolved {
+  border-left-color: #059669;
 }
 
 .staff-dashboard__ticket-item.selected .staff-dashboard__ti-id {
@@ -464,21 +545,25 @@
 
 .staff-dashboard__ti-id {
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
   color: #6b7280;
 }
 
 .staff-dashboard__ti-time {
   font-size: 10px;
   color: #9ca3af;
+  font-variant-numeric: tabular-nums;
 }
 
 .staff-dashboard__ti-concern {
+  font-family: var(--c360-font-display);
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   color: #111827;
   margin-bottom: 3px;
   line-height: 1.3;
+  letter-spacing: -0.01em;
 }
 
 .staff-dashboard__ti-student {
@@ -1148,11 +1233,11 @@
 }
 
 .staff-dashboard__right-section-label {
-  font-size: 10px;
-  font-weight: 500;
+  font-size: 11px;
+  font-weight: 700;
   color: #9ca3af;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.09em;
   margin-bottom: 8px;
 }
 

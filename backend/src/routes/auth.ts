@@ -1,6 +1,12 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { login, registerLocalAccount } from '../services/authService.js';
+import {
+  login,
+  registerLocalAccount,
+  requestPasswordReset,
+  resetPasswordWithToken,
+} from '../services/authService.js';
+import { loginRateLimit } from '../middleware/loginRateLimit.js';
 import { logAction } from '../services/actionLogService.js';
 import {
   buildOAuthStartUrl,
@@ -60,7 +66,7 @@ authRouter.post('/register', async (req, res, next) => {
   }
 });
 
-authRouter.post('/login', async (req, res, next) => {
+authRouter.post('/login', loginRateLimit, async (req, res, next) => {
   try {
     const { email, password } = loginSchema.parse(req.body);
     const user = await login(email, password);
@@ -179,4 +185,34 @@ authRouter.post('/logout', async (req, res) => {
   }
 
   res.json({ ok: true });
+});
+
+const forgotPasswordSchema = z.object({
+  email: z.string().email(),
+});
+
+const resetPasswordSchema = z.object({
+  email: z.string().email(),
+  token: z.string().min(1),
+  password: z.string().min(8),
+});
+
+authRouter.post('/forgot-password', loginRateLimit, async (req, res, next) => {
+  try {
+    const { email } = forgotPasswordSchema.parse(req.body);
+    const result = await requestPasswordReset(email);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+});
+
+authRouter.post('/reset-password', loginRateLimit, async (req, res, next) => {
+  try {
+    const { email, token, password } = resetPasswordSchema.parse(req.body);
+    await resetPasswordWithToken(email, token, password);
+    res.json({ ok: true, message: 'Password updated. You can sign in now.' });
+  } catch (err) {
+    next(err);
+  }
 });

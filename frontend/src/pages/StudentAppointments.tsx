@@ -1,8 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
-  IconBell,
-  IconBuildingCommunity,
   IconCalendar,
   IconCalendarEvent,
   IconCheck,
@@ -26,17 +24,21 @@ import {
   listAppointmentDepartments,
   listAppointments,
   rescheduleAppointment,
-  userInitials,
   type AppointmentDepartment,
   type AppointmentRecord,
   type AppointmentSummary,
   type DepartmentAvailability,
   type User,
 } from '../api/client';
+import { EmptyState } from '../components/EmptyState';
+import { Skeleton, SkeletonCard } from '../components/Skeleton';
+import { StudentSidebar } from '../components/StudentSidebar';
+import { StudentTopbar } from '../components/StudentTopbar';
+import '../components/StudentTopbar.css';
 import { getTodayParts, isBeforeToday } from '../config/demoDate';
-import { getStudentNavItems } from '../config/studentNav';
 import { urgencyLabelAppointmentBadgeClass } from '../utils/ticketDisplay';
 import { useShellScale } from '../hooks/useShellScale';
+import { usePageTitle } from '../hooks/usePageTitle';
 import {
   buildCalendarGrid,
   dayKey,
@@ -45,6 +47,7 @@ import {
   sameCalendarDay,
   type CalendarDay,
 } from '../utils/calendar';
+import './StudentDashboard.css';
 import './StudentAppointments.css';
 
 function todayCalendarDay(): CalendarDay {
@@ -260,9 +263,8 @@ function AppointmentSlotPicker({
 }
 
 export function StudentAppointments() {
+  usePageTitle('Appointments');
   const navigate = useNavigate();
-  const location = useLocation();
-  const navItems = getStudentNavItems(location.pathname);
   const { outerRef, shellRef } = useShellScale();
   const filterRef = useRef<HTMLDivElement>(null);
 
@@ -521,13 +523,6 @@ export function StudentAppointments() {
     return null;
   }
 
-  const displayUser = user
-    ? {
-        initials: userInitials(user.name),
-        name: user.name,
-      }
-    : { initials: '—', name: 'Student' };
-
   return (
     <div className="student-appointments">
       <h2 className="student-appointments__sr-only">
@@ -537,31 +532,7 @@ export function StudentAppointments() {
 
       <div className="student-appointments__outer" ref={outerRef}>
         <div className="student-appointments__shell" ref={shellRef}>
-          <aside className="student-appointments__sidebar">
-            <div className="student-appointments__sb-logo">
-              <div className="student-appointments__sb-logo-icon">
-                <IconBuildingCommunity size={20} aria-hidden />
-              </div>
-              <span className="student-appointments__sb-logo-text">Campus360</span>
-            </div>
-
-            <nav className="student-appointments__sb-nav">
-              {navItems.map(({ label, icon: Icon, path, active, badge }) => (
-                <button
-                  key={label}
-                  type="button"
-                  className={`student-appointments__nav-item${active ? ' active' : ''}`}
-                  onClick={() => navigate(path)}
-                >
-                  <Icon size={17} aria-hidden />
-                  {label}
-                  {badge !== undefined && (
-                    <span className="student-appointments__nav-badge">{badge}</span>
-                  )}
-                </button>
-              ))}
-            </nav>
-          </aside>
+          <StudentSidebar />
 
           <div className="student-appointments__main">
             <header className="student-appointments__topbar">
@@ -610,22 +581,7 @@ export function StudentAppointments() {
                   <IconPlus size={14} aria-hidden />
                   Request appointment
                 </button>
-                <button
-                  type="button"
-                  className="student-appointments__tb-icon"
-                  aria-label="Notifications"
-                >
-                  <IconBell size={18} aria-hidden />
-                  <span className="student-appointments__notif-dot" />
-                </button>
-                <div className="student-appointments__user-wrap">
-                  <div className="student-appointments__user-avatar">
-                    {displayUser.initials}
-                  </div>
-                  <span className="student-appointments__user-name">
-                    {displayUser.name}
-                  </span>
-                </div>
+                {user && <StudentTopbar user={user} onUserUpdated={setUser} />}
               </div>
             </header>
 
@@ -712,11 +668,16 @@ export function StudentAppointments() {
                 </div>
 
                 {loading ? (
-                  <p className="student-appointments__empty-note">Loading…</p>
+                  Array.from({ length: 3 }).map((_, index) => (
+                    <div key={index} className="student-appointments__appt-mini">
+                      <Skeleton height={36} />
+                    </div>
+                  ))
                 ) : appointments.length === 0 ? (
-                  <p className="student-appointments__empty-note">
-                    No appointments match this view.
-                  </p>
+                  <EmptyState
+                    title="No appointments in this view"
+                    description="Try another day on the calendar or book a new appointment."
+                  />
                 ) : (
                   appointments.map((appt) => (
                     <button
@@ -753,19 +714,19 @@ export function StudentAppointments() {
 
               <div className="student-appointments__right-col">
                 <div className="student-appointments__stat-row">
-                  <div className="student-appointments__stat-card">
+                  <div className="student-appointments__stat-card c360-stagger" style={{ '--c360-stagger': 0 } as CSSProperties}>
                     <div className="student-appointments__stat-num blue">
                       {summary?.upcomingCount ?? 0}
                     </div>
                     <div className="student-appointments__stat-label">Upcoming</div>
                   </div>
-                  <div className="student-appointments__stat-card">
+                  <div className="student-appointments__stat-card c360-stagger" style={{ '--c360-stagger': 1 } as CSSProperties}>
                     <div className="student-appointments__stat-num green">
                       {summary?.completedCount ?? 0}
                     </div>
                     <div className="student-appointments__stat-label">Completed</div>
                   </div>
-                  <div className="student-appointments__stat-card">
+                  <div className="student-appointments__stat-card c360-stagger" style={{ '--c360-stagger': 2 } as CSSProperties}>
                     <div className="student-appointments__stat-num amber">
                       {summary?.nextAppointment?.label ?? '—'}
                     </div>
@@ -787,23 +748,31 @@ export function StudentAppointments() {
                 </div>
 
                 {loading ? (
-                  <p className="student-appointments__empty-note">Loading…</p>
+                  <SkeletonCard />
                 ) : detailCards.length === 0 ? (
-                  <p className="student-appointments__empty-note">
-                    {statusFilter === 'completed'
-                      ? selectedDay
-                        ? 'No completed appointments on this day.'
-                        : 'No completed appointments.'
-                      : selectedDay
-                        ? 'No upcoming appointments on this day.'
-                        : 'No upcoming appointments right now.'}
-                  </p>
+                  <EmptyState
+                    title={
+                      statusFilter === 'completed'
+                        ? 'No completed appointments'
+                        : 'Nothing scheduled'
+                    }
+                    description={
+                      statusFilter === 'completed'
+                        ? selectedDay
+                          ? 'No completed visits on this day.'
+                          : 'Completed appointments will show up here.'
+                        : selectedDay
+                          ? 'No upcoming visits on this day.'
+                          : 'Book an appointment when you need to meet with staff.'
+                    }
+                  />
                 ) : (
-                  detailCards.map((appt) => (
+                  detailCards.map((appt, index) => (
                     <div
                       key={appt.id}
                       id={`appt-${appt.id}`}
-                      className="student-appointments__appt-card-full"
+                      className="student-appointments__appt-card-full c360-stagger"
+                      style={{ '--c360-stagger': Math.min(index, 6) } as CSSProperties}
                     >
                       <div className="student-appointments__appt-card-inner">
                         <div

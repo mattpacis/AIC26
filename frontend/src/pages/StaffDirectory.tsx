@@ -1,18 +1,22 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  IconBuildingCommunity,
   IconMail,
 } from '@tabler/icons-react';
 import { listStaffDirectory, type StaffDirectoryMember } from '../api/client';
+import { Campus360Logo } from '../components/Campus360Logo';
 import { StaffTopbar } from '../components/StaffTopbar';
 import '../components/StaffTopbar.css';
+import { EmptyState } from '../components/EmptyState';
+import { SkeletonCard } from '../components/Skeleton';
 import { useShellScale } from '../hooks/useShellScale';
+import { usePageTitle } from '../hooks/usePageTitle';
 import { useStaffShell } from '../hooks/useStaffShell';
 import './StaffDashboard.css';
 import './StaffDirectory.css';
 
 export function StaffDirectory() {
+  usePageTitle('Staff Directory');
   const navigate = useNavigate();
   const { outerRef, shellRef } = useShellScale({ mobileBreakpoint: 1100 });
   const { staffUser, navItems, profileTheme, updateProfileTheme, updateStaffUser } =
@@ -56,10 +60,7 @@ export function StaffDirectory() {
         <div className="staff-dashboard__shell" ref={shellRef}>
           <aside className="staff-dashboard__sidebar">
             <div className="staff-dashboard__sb-logo">
-              <div className="staff-dashboard__sb-logo-icon">
-                <IconBuildingCommunity size={18} aria-hidden />
-              </div>
-              <span className="staff-dashboard__sb-logo-text">Campus360</span>
+              <Campus360Logo variant="sidebar-staff" />
             </div>
 
             <div className="staff-dashboard__sb-staff-wrap">
@@ -130,15 +131,23 @@ export function StaffDirectory() {
             <div className="staff-directory__content">
               {error && <p className="staff-directory__error">{error}</p>}
               {loading ? (
-                <p className="staff-directory__empty">Loading directory…</p>
+                <div className="staff-directory__grid">
+                  {Array.from({ length: 6 }).map((_, index) => (
+                    <SkeletonCard key={index} />
+                  ))}
+                </div>
               ) : members.length === 0 ? (
-                <p className="staff-directory__empty">No staff members found.</p>
+                <EmptyState
+                  title="No staff members yet"
+                  description="Your department directory will appear here once colleagues are added."
+                />
               ) : (
                 <div className="staff-directory__grid">
-                  {members.map((member) => (
+                  {members.map((member, index) => (
                     <div
                       key={member.id}
-                      className={`staff-directory__card${member.isSelf ? ' self' : ''}`}
+                      className={`staff-directory__card c360-stagger${member.isSelf ? ' self' : ''}`}
+                      style={{ '--c360-stagger': Math.min(index, 8) } as CSSProperties}
                     >
                       <div className="staff-directory__avatar">{member.initials}</div>
                       <div className="staff-directory__info">

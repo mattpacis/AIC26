@@ -1,7 +1,9 @@
 .student-tickets__content {
   flex: 1;
+  min-height: 0;
   padding: 24px;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .student-tickets__topbar-title {

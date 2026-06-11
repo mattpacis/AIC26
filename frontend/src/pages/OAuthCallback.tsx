@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Campus360Logo } from '../components/Campus360Logo';
 import { getMe } from '../api/client';
+import { usePageTitle } from '../hooks/usePageTitle';
 import './Login.css';
 
 export function OAuthCallback() {
+  usePageTitle('Signing in');
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const [message, setMessage] = useState('Completing sign-in…');
@@ -48,7 +51,10 @@ export function OAuthCallback() {
     <div className="login-page">
       <div className="login-page__outer" style={{ minHeight: '100vh', display: 'grid', placeItems: 'center' }}>
         <div className="login-page__login-card" style={{ width: 'min(420px, 92vw)' }}>
-          <h2 className="login-page__login-title">Campus360</h2>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
+            <Campus360Logo variant="light" />
+          </div>
+          <h2 className="login-page__login-title">Signing in</h2>
           <p className="login-page__login-sub">{message}</p>
           {params.get('error') && (
             <button

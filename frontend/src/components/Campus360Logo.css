@@ -1,0 +1,180 @@
+.c360-logo {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.c360-logo__wordmark {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0;
+  font-family: var(--c360-font-display);
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.c360-logo__prefix {
+  flex-shrink: 0;
+}
+
+.c360-logo__suffix-window {
+  display: inline-block;
+  vertical-align: baseline;
+  height: 1em;
+  overflow: hidden;
+  overflow: clip;
+  min-width: 2.75em;
+  isolation: isolate;
+}
+
+.c360-logo__suffix-track {
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.55s var(--c360-ease, cubic-bezier(0.22, 1, 0.36, 1));
+  will-change: transform;
+}
+
+.c360-logo__suffix {
+  display: block;
+  height: var(--c360-suffix-step, 1em);
+  line-height: var(--c360-suffix-step, 1em);
+  overflow: hidden;
+  overflow: clip;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  flex-shrink: 0;
+  transform-origin: left center;
+  transition:
+    transform 0.35s var(--c360-ease, cubic-bezier(0.22, 1, 0.36, 1)),
+    filter 0.35s var(--c360-ease, cubic-bezier(0.22, 1, 0.36, 1)),
+    text-shadow 0.35s var(--c360-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+.c360-logo__suffix--title {
+  letter-spacing: -0.055em;
+}
+
+.c360-logo__suffix--title.c360-logo__suffix--active {
+  transform: scale(1.08);
+  filter: saturate(1.2) brightness(1.08);
+  text-shadow: 0 0 14px rgba(147, 197, 253, 0.42);
+}
+
+.c360-logo__suffix--static {
+  display: inline-flex;
+}
+
+/* Sidebar (student) */
+.c360-logo--sidebar .c360-logo__wordmark {
+  font-size: 20px;
+}
+
+.c360-logo--sidebar .c360-logo__prefix {
+  color: #fff;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.18);
+}
+
+.c360-logo--sidebar .c360-logo__suffix {
+  background: linear-gradient(135deg, #bfdbfe 0%, #60a5fa 55%, #93c5fd 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.c360-logo--sidebar .c360-logo__suffix:not(.c360-logo__suffix--title) {
+  background: none;
+  color: #bfdbfe;
+  opacity: 0.78;
+}
+
+/* Staff sidebar */
+.c360-logo--sidebar-staff .c360-logo__wordmark {
+  font-size: 19px;
+}
+
+.c360-logo--sidebar-staff .c360-logo__prefix {
+  color: #fff;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.18);
+}
+
+.c360-logo--sidebar-staff .c360-logo__suffix {
+  background: linear-gradient(135deg, #bfdbfe 0%, #60a5fa 55%, #93c5fd 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.c360-logo--sidebar-staff .c360-logo__suffix:not(.c360-logo__suffix--title) {
+  background: none;
+  color: #bfdbfe;
+  opacity: 0.76;
+}
+
+/* Login hero panel */
+.c360-logo--login .c360-logo__wordmark {
+  font-size: 28px;
+  letter-spacing: -0.05em;
+}
+
+.c360-logo--login .c360-logo__prefix {
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.22);
+}
+
+.c360-logo--login .c360-logo__suffix-window {
+  --c360-suffix-step: 1.14em;
+  height: var(--c360-suffix-step);
+  min-width: 2.55em;
+}
+
+.c360-logo--login .c360-logo__suffix {
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 0.02em;
+}
+
+.c360-logo--login .c360-logo__suffix {
+  background: linear-gradient(135deg, #dbeafe 0%, #93c5fd 45%, #34d399 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.c360-logo--login .c360-logo__suffix:not(.c360-logo__suffix--title) {
+  background: none;
+  color: #dbeafe;
+  opacity: 0.82;
+}
+
+/* Light surfaces */
+.c360-logo--light .c360-logo__wordmark {
+  font-size: 22px;
+  letter-spacing: -0.05em;
+}
+
+.c360-logo--light .c360-logo__prefix {
+  font-weight: 800;
+  color: var(--c360-text-heading);
+}
+
+.c360-logo--light .c360-logo__suffix {
+  background: linear-gradient(135deg, var(--c360-blue-600) 0%, #2563eb 50%, #059669 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.c360-logo--light .c360-logo__suffix:not(.c360-logo__suffix--title) {
+  background: none;
+  color: #475569;
+  opacity: 0.85;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .c360-logo__suffix-track {
+    transition: none;
+  }
+}

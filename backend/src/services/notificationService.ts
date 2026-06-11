@@ -90,3 +90,11 @@ export async function markAllNotificationsRead(ctx: AuthContext) {
 
   return listNotifications(ctx);
 }
+
+export async function clearAllNotifications(ctx: AuthContext) {
+  await prisma.notification.deleteMany({
+    where: { userId: ctx.userId },
+  });
+
+  return listNotifications(ctx);
+}
